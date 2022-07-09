@@ -124,7 +124,7 @@ const smartApi = async (options, token, callback) => {
 
     if (method === 'patch') {
       let response = await fetch(`${baseApiUrl}/${path}`, {
-        method: 'POST',
+        method: 'PATCH',
         redirect: 'follow',
         headers: {
           'Accept': 'application/json',
