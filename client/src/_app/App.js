@@ -2,9 +2,10 @@ import React, { useContext, useEffect } from 'react';
 import { GlobalContext } from '../_context/AppProvider';
 import Index from '../routes/Index'
 import Sidebar from '../_components/Sidebar';
-import toast, { Toaster } from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast'
 import { useLocation } from 'react-router-dom';
 import { Div } from '../_styles/_global'
+import useLogin from '../_context/effects/useLogin';
 
 function App() {
   
@@ -14,13 +15,14 @@ function App() {
 
   const location = useLocation();
   const { pathname } = location;
-  const isHome = pathname === '/';
-console.log(user)
+
+  const { handleSignOut } = useLogin()
+
   return (
     <>
       {
-        
-      ['levi', 'kyle', 'dayan', 'danny', 'daniel', 'kevin'].filter(name => user.name.first.toLowerCase() === name).length === 0 ? <Div flex column fills centerchildren>Access Denied</Div> : // comment this out to remove basic access restriction
+
+      isAuth && ['levi', 'kyle', 'dayan', 'danny', 'daniel', 'kevin'].filter(name => user.name.first.toLowerCase() === name).length === 0 ? <Div flex column fills centerchildren className="pointer" onClick={handleSignOut}>Access Denied</Div> : // comment this out to remove basic access restriction
       
       isAuth ? (
           <>
