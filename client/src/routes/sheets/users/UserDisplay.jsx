@@ -6,7 +6,7 @@ import logo from '../../../_assets/img/logo-dark.png';
 import dummyData from '../../../_dummy/users.json';
 import edit from '../../../_assets/icons/edit-purple.png'
 import useScrollHandler from '../../../_helpers/useScrollHandler';
-import '../../../_styles/userdisplay.css';
+import '../../../_styles/user-display.css';
 import defaultProfileImage from '../../../_assets/img/default-profile-img.png';
 import plus from '../../../_assets/icons/plus.png';
 import dummySheetAccessData from '../../../_dummy/sheet-access.json';
@@ -36,7 +36,7 @@ const UserDisplay = () => {
   
   const mouseDownHandler = useScrollHandler('scroll-container');
 
-  
+
   useEffect(() => {
 
     let sheetNameResult

@@ -243,16 +243,18 @@ tbody .sheet-display-cell {
   background-color: var(--color-row-hover);
 }
 
-.new-entry, .dummy-filter {
+.new-entry {
   display: flex;
   align-items: center;
   justify-content: center;
   position: absolute;
   border: none;
+  height: 64px;
+  width: 64px;
   border-radius: 90px;
   background-color: var(--color-tertiary);
-  bottom: 2.8rem;
-  right: 1.2rem;
+  bottom: 2rem;
+  right: 2rem;
   transition: all var(--global-transition-speed) ease;
   box-shadow: 0 0 8px 0 var(--global-box-shadow-color);
   cursor: pointer;
@@ -260,9 +262,22 @@ tbody .sheet-display-cell {
 }
 
 .dummy-filter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  border: none;
+  border-radius: 90px;
+  background-color: var(--color-tertiary);
+  bottom: 3rem;
+  right: 1rem;
+  transition: all var(--global-transition-speed) ease;
+  box-shadow: 0 0 8px 0 var(--global-box-shadow-color);
+  cursor: pointer;
   height: 1.8rem;
   padding: 0.4rem;
   margin: -30px -5px;
+  z-index: 400;
 }
 
 .new-entry img {

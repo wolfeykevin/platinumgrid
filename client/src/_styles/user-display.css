@@ -1,17 +1,18 @@
-.users-display-exit, .toggle-view, .add-user{
+.users-display-exit, .toggle-view, .add-user {
   display: flex;
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
   align-items: center;
   justify-content: center;
-  height: 70px;
-  width: 70px;
+  height: 64px;
+  width: 64px;
   background-color: var(--color-tertiary);
   border: none;
   border-radius: 90px;
   color: white;
   font-size: var(--font-size-huge);
   font-weight: 500;
-  margin: 1.2rem;
-  margin-bottom: 2.8rem;
   box-shadow: 0 0 8px 0 var(--global-box-shadow-color);
   transition: all var(--global-transition-speed) ease;
   z-index: 400;
@@ -38,12 +39,6 @@
 .toggle-view img{
   max-height: 40px;
   content: url('../_assets/icons/grip.png');
-}
-
-.add-user{
-  position: absolute;
-  right: 0;
-  bottom: 0;  
 }
 
 .add-user .primary-image{

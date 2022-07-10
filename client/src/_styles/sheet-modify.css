@@ -37,20 +37,18 @@
   padding: 0 1rem 0 0;
 }
 
-.create-sheet, .handle-fields{
+.create-sheet, .handle-fields {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 70px;
-  width: 70px;
+  height: 64px;
+  width: 64px;
   background-color: var(--color-tertiary);
   border: none;
   border-radius: 90px;
   color: white;
-  font-size: var(--font-size-huge);
+  font-size: var(--font-size-big);
   font-weight: 500;
-  margin: 1.2rem;
-  margin-bottom: 2.8rem;
   box-shadow: 0 0 8px 0 var(--global-box-shadow-color);
   transition: all var(--global-transition-speed) ease;
   z-index: 400;
@@ -59,8 +57,8 @@
 
 .create-sheet {
   position: absolute;
-  right: 0;
-  bottom: 0;
+  right: 2rem;
+  bottom: 2rem;
 }
 
 .handle-fields {
