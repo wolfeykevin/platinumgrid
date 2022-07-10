@@ -1,71 +1,71 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { SheetContext } from '../../_context/SheetProvider';
-import { Div } from '../../_styles/_global'
-import logo from '../../_assets/img/logo-dark.png';
-import dummyData from '../../_dummy/users.json';
-import edit from '../../_assets/icons/edit-purple.png'
-import useScrollHandler from '../../_helpers/useScrollHandler';
-import '../../_styles/userdisplay.css';
-import defaultProfileImage from '../../_assets/img/default-profile-img.png';
-import plus from '../../_assets/icons/plus.png';
-import dummySheetAccessData from '../../_dummy/sheet-access.json';
-import UserLookup from './UserLookup';
-import { GlobalContext } from '../../_context/AppProvider'
-import smartApi from '../../_helpers/smartApi';
+import { SheetContext } from '../../../_context/SheetProvider';
+import { Div } from '../../../_styles/_global'
+import logo from '../../../_assets/img/logo-dark.png';
+import dummyData from '../../../_dummy/users.json';
+import edit from '../../../_assets/icons/edit-purple.png'
+import useScrollHandler from '../../../_helpers/useScrollHandler';
+import '../../../_styles/userdisplay.css';
+import defaultProfileImage from '../../../_assets/img/default-profile-img.png';
+import plus from '../../../_assets/icons/plus.png';
+import dummySheetAccessData from '../../../_dummy/sheet-access.json';
+import UserLookup from '../../../_components/UserLookup';
+import { GlobalContext } from '../../../_context/AppProvider'
+import smartApi from '../../../_helpers/smartApi';
 import toast from 'react-hot-toast'
-import { UserAccessContext } from '../../_context/UserAccessProvider';
+import { UserAccessContext } from '../../../_context/UserAccessProvider';
 
 const UserDisplay = () => {
-  const { store } = useContext(GlobalContext)
-  const { sheet } = useContext(SheetContext);
-  const { userAccess } = useContext(UserAccessContext);
-
-  const [ usersChanged, setUsersChanged] = useState(0);
-  const [ userDisplayView, setUserDisplayView ] = useState('simple');
-  const mouseDownHandler = useScrollHandler('scroll-container');
 
   const location = useLocation();
   const navigate = useNavigate();
-  let usersToUpdate = useRef([]);
-  let sheetId;
-  let index;
+
+  const { store } = useContext(GlobalContext)
+  const { user } = store;
+  
+  const { sheet } = useContext(SheetContext);
   const [ sheetName, setSheetName ] = useState('');
+  const [ usersChanged, setUsersChanged] = useState(0);
+  const [ userDisplayView, setUserDisplayView ] = useState('simple');
+  const sheetId = parseInt(location.pathname.split('/')[2]);
 
-  const { user, setSheetAccess, refresh } = store;
+  const { userAccess } = useContext(UserAccessContext);
+  const { setSheetUsers } = userAccess
+  let usersToUpdate = useRef([]);
+  
+  const mouseDownHandler = useScrollHandler('scroll-container');
 
-  useEffect(()=> {
-
-  }, [userAccess.sheetUsers])
-
+  
   useEffect(() => {
-    // get sheetId
-    sheetId = parseInt(location.pathname.split('/')[2]);
-    // load user data here
-    if (sheetId === 1001 || sheetId === 1002) {
-      let index = dummySheetAccessData.sheets.findIndex(sheet => sheet.sheet_id === sheetId)
-      setSheetName(dummySheetAccessData.sheets[index].name);
-      userAccess.setSheetUsers(dummyData.users);
-    } else {
-      let index = user.sheetAccess.findIndex(sheet => sheet.sheet_id === sheetId)
-      smartApi(['GET', `get_sheet_users/${sheetId}`], user.token)
-        .then(result => {
-          userAccess.setSheetUsers(result);
-          if (name !== undefined) { // FRY added to prevent error on sheet load, may or may not resolve the 'fix this' below
-            setSheetName(user.sheetAccess[index].name); // fix this
-          }
-          if (result.length === 0) {
-            navigate('/')
-          }
-        })
-        .catch(error => console.log('error', error));
 
-      // navigate('/')
-    }
-  },[location])
+    let sheetNameResult
+    let userAccessResult
+
+    const accessData = smartApi(['GET', `get_sheet_users/${sheetId}`], user.token)
+      .then(result => result.length ? (userAccessResult = result) : navigate('/'))
+      .catch(error => console.log('error', error))
+    
+    const sheetData = smartApi(['GET', `get_sheet/${sheetId}`], user.token)
+      .then(result => sheetNameResult = result.sheet?.name)
+      .catch(error => console.log('error', error))
+
+    Promise.all([sheetData, accessData])
+      .then(() => {
+        setSheetUsers(userAccessResult)
+        setSheetName(sheetNameResult)
+        })
+      .catch(error => console.log('error', error))
+
+  }, [location])
+
+
+  // if (sheetId === 1001 || sheetId === 1002) {
+  //   let index = dummySheetAccessData.sheets.findIndex(sheet => sheet.sheet_id === sheetId)
+  //   setSheetName(dummySheetAccessData.sheets[index].name);
+  //   userAccess.setSheetUsers(dummyData.users);
 
   const getSheetUsers = () => {
-    sheetId = parseInt(location.pathname.split('/')[2]);
     smartApi(['GET', `get_sheet_users/${sheetId}`], user.token)
       .then(result => {
         userAccess.setSheetUsers(result);

@@ -7,13 +7,13 @@ import { Div } from '../../_styles/_global'
 import Loader from '../../_components/Loader'
 import dummyData from '../../_dummy/sheet.json';
 import dummyData2 from '../../_dummy/sheet2.json';
-import SheetDisplay from  './SheetDisplay';
-import UserDisplay from './UserDisplay';
+import SheetDisplay from  '../../_components/SheetDisplay';
+import UserDisplay from './users/UserDisplay';
 // import SheetEdit from './SheetEdit';
 import Sidebar from '../../_components/Sidebar';
 import "../../_styles/sheets.css";
 import { UserAccessProvider } from '../../_context/UserAccessProvider';
-import SheetModify from './SheetModify';
+import SheetModify from './create-edit/SheetModify';
 
 const Sheets = () => {
 

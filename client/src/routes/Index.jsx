@@ -12,7 +12,7 @@ import pentagon from '../_assets/img/pentagon.png';
 import dod from '../_assets/img/dod-seal.png';
 import { SheetProvider } from '../_context/SheetProvider'
 import Sheets from './sheets/Sheets';
-import SheetModify from './sheets/SheetModify';
+import SheetModify from './sheets/create-edit/SheetModify';
 import menu from '../_assets/icons/grip.png';
 import { ClickAwayListener } from '@mui/base';
 import Sidebar from '../_components/Sidebar';
@@ -75,8 +75,6 @@ const Page = () => {
       left: 0
     })
   }
-
-  console.log(user)
 
   return (
 

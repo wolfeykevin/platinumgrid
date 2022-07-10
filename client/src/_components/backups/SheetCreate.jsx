@@ -3,8 +3,8 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { GlobalContext } from '../../_context/AppProvider'
 import { SheetContext } from '../../_context/SheetProvider';
 import { Div } from '../../_styles/_global'
-import Entry from './Entry';
-import EntryDetails from './EntryDetails';
+import Entry from '../Entry';
+import EntryDetails from '../EntryDetails';
 import logo from '../../_assets/img/logo-dark.png';
 import dummyData from '../../_dummy/sheet.json';
 import dummyData2 from '../../_dummy/sheet2.json'

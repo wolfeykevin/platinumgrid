@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { SheetContext } from '../../_context/SheetProvider';
-import { GlobalContext } from '../../_context/AppProvider';
+import { SheetContext } from '../_context/SheetProvider';
+import { GlobalContext } from '../_context/AppProvider';
 
 const Entry = (props) => {
   const { sheet } = useContext(SheetContext);

@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { GlobalContext } from '../../_context/AppProvider'
-import { SheetContext } from '../../_context/SheetProvider';
-import { Div } from '../../_styles/_global'
-import Entry from './Entry';
-import EntryDetails from './EntryDetails';
-import dummyData from '../../_dummy/sheet.json';
-import dummyData2 from '../../_dummy/sheet2.json'
-import editPurple from '../../_assets/icons/edit-purple.png'
-import edit from '../../_assets/icons/edit.png'
-import useScrollHandler from '../../_helpers/useScrollHandler';
-import smartApi from '../../_helpers/smartApi';
-import '../../_styles/sheet-modify.css'
+import { GlobalContext } from '../../../_context/AppProvider'
+import { SheetContext } from '../../../_context/SheetProvider';
+import { Div } from '../../../_styles/_global'
+import Entry from '../../../_components/Entry';
+import EntryDetails from '../../../_components/EntryDetails';
+import dummyData from '../../../_dummy/sheet.json';
+import dummyData2 from '../../../_dummy/sheet2.json'
+import editPurple from '../../../_assets/icons/edit-purple.png'
+import edit from '../../../_assets/icons/edit.png'
+import useScrollHandler from '../../../_helpers/useScrollHandler';
+import smartApi from '../../../_helpers/smartApi';
+import '../../../_styles/sheet-modify.css'
 
 const SheetModify = () => {
   const navigate = useNavigate();
