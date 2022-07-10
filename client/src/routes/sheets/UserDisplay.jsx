@@ -24,35 +24,37 @@ const UserDisplay = () => {
   const [ usersChanged, setUsersChanged] = useState(0);
   const [ userDisplayView, setUserDisplayView ] = useState('simple');
   const mouseDownHandler = useScrollHandler('scroll-container');
+
   const location = useLocation();
   const navigate = useNavigate();
   let usersToUpdate = useRef([]);
   let sheetId;
+  let index;
   const [ sheetName, setSheetName ] = useState('');
 
   const { user, setSheetAccess, refresh } = store;
 
   useEffect(()=> {
-    // console.log('Use Effect Triggered')
+
   }, [userAccess.sheetUsers])
 
   useEffect(() => {
     // get sheetId
     sheetId = parseInt(location.pathname.split('/')[2]);
-
     // load user data here
     if (sheetId === 1001 || sheetId === 1002) {
       let index = dummySheetAccessData.sheets.findIndex(sheet => sheet.sheet_id === sheetId)
       setSheetName(dummySheetAccessData.sheets[index].name);
       userAccess.setSheetUsers(dummyData.users);
     } else {
-
-    
+      let index = user.sheetAccess.findIndex(sheet => sheet.sheet_id === sheetId)
       smartApi(['GET', `get_sheet_users/${sheetId}`], user.token)
         .then(result => {
           userAccess.setSheetUsers(result);
+          if (name !== undefined) { // FRY added to prevent error on sheet load, may or may not resolve the 'fix this' below
+            setSheetName(user.sheetAccess[index].name); // fix this
+          }
           if (result.length === 0) {
-            console.log(result);
             navigate('/')
           }
         })
@@ -60,7 +62,7 @@ const UserDisplay = () => {
 
       // navigate('/')
     }
-  },[])
+  },[location])
 
   const getSheetUsers = () => {
     sheetId = parseInt(location.pathname.split('/')[2]);
@@ -81,7 +83,6 @@ const UserDisplay = () => {
     let payload = {users: []}
     for (let element of document.getElementsByClassName('role-changed')) {
       console.log(`Set User ID: ${element.closest('tr').id} to ${element.value}`)
-      // let payload = {users: [{user_id: userId, role_name: 'Viewer'}]}
       payload.users.push({user_id: element.closest('tr').id, "role_name": element.value})
     }
     setUsersChanged(0)
@@ -119,7 +120,6 @@ const UserDisplay = () => {
   }
 
 
-
   const deleteUser = (target) => {
     let payload = {users: [target]}
 
@@ -129,6 +129,15 @@ const UserDisplay = () => {
       .then(result => {
         toast.success('User Removed')
         console.log(result); 
+        smartApi(['GET', `get_sheet_users/${sheetId}`], user.token)
+        .then(result => {
+          userAccess.setSheetUsers(result);
+          if (result.length === 0) {
+            console.log(result);
+            navigate('/')
+          }
+        })
+        .catch(error => console.log('error', error));
       })
       .catch(error => console.log('error', error));
   }
@@ -190,7 +199,8 @@ const UserDisplay = () => {
                       <td className='user-row-picture'><img className='user-profile-picture' src={user.picture !== undefined ? user.picture : defaultProfileImage} /></td>
                       <td className='users-display-cell'>{user.name}</td>
                       <td className='users-display-cell'>
-                        <select defaultValue={user.role} className='users-display-role-select' onChange={(e) => {
+                        <select key={`${i}-${user.role}`} defaultValue={user.role} className='users-display-role-select' onChange={(e) => {
+                          
                           if (e.target.value !== user.role) {
                             if (!e.target.classList.contains('role-changed')) {
                               e.target.classList.add('role-changed')
@@ -226,9 +236,9 @@ const UserDisplay = () => {
       </div>
       <UserLookup/>
       <button className='add-user' onClick={() => navigate('lookup')}><img className='primary-image'/><img className='secondary-image'/></button>
-      <button className='users-display-exit' onClick={
+      {/* <button className='users-display-exit' onClick={
           () => navigate(-1)
-        }>&lt;</button>
+        }>&lt;</button> */}
       {/* <button className='toggle-view' onClick={() => 
       userDisplayView === 'smart' ? setUserDisplayView('simple') : setUserDisplayView('smart')}><img /></button> */}
     </>

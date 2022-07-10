@@ -1,5 +1,5 @@
 import React from "react"
-import { Fix } from '../_styles/_global'
+import { Div, Fix } from '../_styles/_global'
 import Lottie from 'lottie-react'
 import loader from '../_assets/lotties/loader.json'
 
@@ -11,9 +11,11 @@ const PageLoader = () => {
   }
 
   return (
-    <Fix offset="4rem" lower right>
+    // <Fix offset="4rem" lower right>
+    <Div flex column fills centerchildren>
       <Lottie style={style} animationData={loader} loop={true} />
-    </Fix>
+    </Div>
+    // </Fix>
   )
 }
 

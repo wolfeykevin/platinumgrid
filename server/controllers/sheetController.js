@@ -8,7 +8,9 @@ const requestSheetData = async (req, res) => {
 
     returning.sheet_id = reqId;
     returning.sheet = await knex.raw(`select name, short_name, templates from sheets where id = ${reqId}`).then(data => data.rows[0])
-
+    
+    returning.fields = [];
+    returning.entries = [];
 
     // All fields for the sheet asked for
     returning.fields = await knex.raw(`select json_agg(fields) as fields from ( select * from fields where sheet_id = ${reqId}) as fields`).then(data => {
@@ -20,7 +22,7 @@ const requestSheetData = async (req, res) => {
           return field
         })
       } else {
-        return null;
+        return [];
       }
     }
     )
@@ -38,13 +40,13 @@ const requestSheetData = async (req, res) => {
       }
     }
     )
-    console.log(returning);
-
+    
     // All entries for requested sheet
     returning.entries = await knex.raw(`select json_agg(entries) as entries from (select * from entries where sheet_id = ${reqId}) as entries`).then(data => {
       if (data.rows[0].entries === null) {
-        res.status(400).send(`there is no data here in entries for ${reqId}`)
-        return null
+        // res.status(400).send(`there is no data here in entries for ${reqId}`)
+        // return null
+        return [];
       }
 
       return data.rows[0].entries.map(entry => {
@@ -55,7 +57,7 @@ const requestSheetData = async (req, res) => {
       })
     })
 
-    if (returning.entries !== null) {
+    if (returning.entries.length !== 0) {
       values.forEach(value => {
         returning.entries.map((entry) => {
           if (value.entry_id === entry.entry_id) {
@@ -64,9 +66,11 @@ const requestSheetData = async (req, res) => {
         })
 
       });
-    } else {
-      return
-    }
+    } 
+    // else { // this was breaking response for sheet with no entries
+    //   return []
+    // }
+      
     res.status(200).json(returning);
   } else {
     res.status(400).send(`request Error: reqId = ${reqId}, is not found or is not an sheet id`)
@@ -109,8 +113,8 @@ const add = async (req, res) => {
       .returning('id')
       .then((newSheetId) => {
         return knex('user_roles')
-          .insert({ user_id: parseInt(id), role_name: "admin", sheet_id: newSheetId[0].id })
-          .then(() => res.status(200).send(`New sheet has been added`))
+          .insert({ user_id: parseInt(id), role_name: "Owner", sheet_id: newSheetId[0].id })
+          .then(() => res.status(200).send(`New sheet has been added: ${newSheetId[0].id}`))
       })
   } else {
     res.status(404).send(`No user`)

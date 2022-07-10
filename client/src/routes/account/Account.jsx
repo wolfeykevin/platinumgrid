@@ -23,7 +23,7 @@ const Account = () => {
         <Div flex column card centertext className="account-details">
           <div className="account-meta">
             <div className="account-meta-img">
-              { profileImg ? <img src={profileImg} alt='profile' className='profile-img' /> : 'no profile image' }
+              { profileImg ? <img referrerPolicy="no-referrer" src={profileImg} alt='profile' className='profile-img' /> : 'no profile image' }
             </div>
             <div className="account-meta-name">
               {name.first} {name.last}

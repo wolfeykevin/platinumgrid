@@ -9,9 +9,11 @@ import dummyData from '../../_dummy/sheet.json';
 import dummyData2 from '../../_dummy/sheet2.json';
 import SheetDisplay from  './SheetDisplay';
 import UserDisplay from './UserDisplay';
+// import SheetEdit from './SheetEdit';
 import Sidebar from '../../_components/Sidebar';
 import "../../_styles/sheets.css";
 import { UserAccessProvider } from '../../_context/UserAccessProvider';
+import SheetModify from './SheetModify';
 
 const Sheets = () => {
 
@@ -19,16 +21,14 @@ const Sheets = () => {
 
   return (
     <div className='sheet-page'>
-      <UserAccessProvider>
         <Routes>
           <Route path='/' element={ <SheetDisplay/> } />
-            <Route path='/users/*' element={ <Suspense fallback={<Loader/>}><UserDisplay/></Suspense> } />
-            <Route path='/edit/*' element={ <Suspense fallback={<Loader/>}><NotFound/></Suspense> } />
+            <Route path='/users/*' element={ <Suspense fallback={<Loader/>}><UserAccessProvider><UserDisplay/></UserAccessProvider></Suspense> } />
+            <Route path='/edit/*' element={ <Suspense fallback={<Loader/>}><SheetModify/></Suspense> } />
             <Route path='/:entryId' element={ <Suspense fallback={<Loader/>}><SheetDisplay/></Suspense> } />
             <Route path='/:entryId/*' element={ <Suspense fallback={<Loader/>}><Loader/><Navigate to={`/sheet/${location.pathname.split('/')[2]}`} /></Suspense> } />
           <Route path="/*" element={ <NotFound /> } />
         </Routes>
-      </UserAccessProvider>
     </div>
   );
 }

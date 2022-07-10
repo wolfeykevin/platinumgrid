@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { GlobalContext } from '../../_context/AppProvider'
 import { SheetContext } from '../../_context/SheetProvider';
@@ -29,6 +29,9 @@ const SheetDisplay = () => {
 
   const { user, setSheetAccess, refresh } = store;
 
+  const [ searchString, setSearchString ] = useState('');
+  const [ searchField, setSearchField ] = useState('');
+
   useEffect(() => {
     if (selectedEntry.entry_id > 0) {
       setSheetPageView('edit-entry');
@@ -55,15 +58,17 @@ const SheetDisplay = () => {
 
         smartApi(['GET', `get_sheet/${sheetId}`], user.token)
           .then(result => {
+            // console.log(result);
             if (result.name === undefined) {
               // fix for sheet name location
               result.name = result.sheet.name;
             }
-            // console.log(result.name)
+            // console.log(result);
             sheet.setCurrentSheet(result);
             sheet.setSheetLoading(false);
           })
           .catch(error => {
+            navigate('/')
             sheet.setSheetLoading(false);
             console.log('error', error)});
       }
@@ -72,9 +77,21 @@ const SheetDisplay = () => {
     }
   }, [sheetId])
 
-  // useEffect(() => {
-  //   sheet.setSheetLoading(false);
-  // }, [sheet.currentSheet])
+  const filterEntries = () => {
+    let entries = sheet.currentSheet.entries
+    let fieldIndex = sheet.currentSheet.fields.findIndex(field => field.name === searchField)
+
+    let fieldId = sheet.currentSheet.fields[fieldIndex].field_id;
+
+    console.log(fieldId)
+    // filter out entries that don't have a corresponding value
+    // entries = entries.filter(entry => entry.values.findIndex(value => value.field_id === fieldId) !== -1)
+
+    // entries.map(entry => 
+    //   console.log(entry.values[entry.values.findIndex(value => value.field_id === fieldId)].value))
+
+    return entries.filter(entry => entry.values[entry.values.findIndex(value => value.field_id === fieldId)].value.match(new RegExp(searchString,'i','g')))
+  }
 
   return (
     <>
@@ -83,11 +100,26 @@ const SheetDisplay = () => {
         <div className='sheet-display-header'>
           <div className="sheet-header-meta">
             <img className="sheet-header-icon no-select" src={logo} />
-            <span className="nowrap">{sheet.currentSheet.name}</span>
+            <span className="nowrap">
+              {sheet.currentSheet.name === '' ? 'Loading...' : sheet.currentSheet.name}
+            </span>
           </div>
           <div className="sheet-search no-select">
-            <input placeholder='Search'/>
-            <button>Filter</button>
+            <div className="search-element">
+              <input className="search-element-input" placeholder='Search' 
+                onChange={(e) => {setSearchString(e.target.value)}}/>
+              <select className="search-element-field-select" defaultValue='Choose Field'
+                onChange={(e) => {setSearchField(e.target.value)}}>
+                <option disabled hidden defaultValue>Choose Field</option>
+                {sheet.currentSheet.fields.map((field, i) => {
+                  if (field.type !== 'checkbox') {
+                    return <option key={i}>{field.name}</option>
+                  }
+                }
+                )}
+              </select>
+            </div>
+            <button className='filter-button'>Filter</button>
           </div>
         </div>
         <div id='scroll-container' className='sheet-display-body' onMouseDown={(e) => {
@@ -98,6 +130,8 @@ const SheetDisplay = () => {
             {/* <SheetFields> */}
             <thead className='no-select'>
               <tr>
+                {sheet.currentSheet.fields.length === 0 ? 
+                  <td className='sheet-display-cell'>Loading fields...</td> : <></>}
                 {sheet.currentSheet.fields.map((field, i) =>
                   <td className="sheet-display-cell" key={i}>{field.name}</td>
                 )}
@@ -106,15 +140,23 @@ const SheetDisplay = () => {
             </thead>
             {/* <SheetEntries> */}
             <tbody>
-              {sheet.currentSheet.entries.map((entry, i) => {
+              {(searchString !== '' && searchField !== '') ? 
+                filterEntries().map((entry, i) => {
+                  return <Entry data={entry} key={i}/>})
+                :
+                sheet.currentSheet.entries.map((entry, i) => {
+                  return <Entry data={entry} key={i}/>})
+              }
+              {/* {sheet.currentSheet.entries.map((entry, i) => {
                 return <Entry data={entry} key={i}/>
-              })}
+              })} */}
             </tbody>
           </table>
         </div>
-        <button className="dummy-users-button" onClick={
-          () => navigate(`/sheet/${sheet.currentSheet.sheet_id}/users`)}><img alt='edit-icon'/></button>
+        {/* <button className="dummy-users-button" onClick={
+          () => navigate(`/sheet/${sheet.currentSheet.sheet_id}/users`)}><img alt='edit-icon'/></button> */}
         <button className="new-entry no-select" onClick={() => sheet.setNewEntry(true)}><img alt='edit-icon'/></button>
+        <button className="dummy-filter" onClick={filterEntries}>%</button>
       </div>
       <EntryDetails entryId={entryId}/>
     </>

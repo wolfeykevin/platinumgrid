@@ -18,7 +18,7 @@ const SignInBtn = () => {
   return (
     <>
       <div className="signin-btn" onClick={ () => loginWithGoogle()}> <Img small alt="google" src={google} /> <span>Login with Google</span> </div>
-      <div className="signin-btn2" onClick={() => { setUser({
+      {/* <div className="signin-btn2" onClick={() => { setUser({
         isAuth: true,
         token: "123456789",
         name: {
@@ -30,7 +30,7 @@ const SignInBtn = () => {
         profileImg: defaultProfileImg,
       })
       navigate('/sheet/100')
-      }}>Instant Login</div>
+      }}>Instant Login</div> */}
     </>
     )
     

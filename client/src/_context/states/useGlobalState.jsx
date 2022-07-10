@@ -7,6 +7,7 @@ const useGlobalState = () => {
   const [globalState, setGlobalStateObj] = useState({
     language: "en",
     loading: false,
+    screen: 'desktop',
     theme: defaultTheme,
   })
 
@@ -41,7 +42,18 @@ const useGlobalState = () => {
     localStorage.setItem('smartsheets-theme', newTheme)
   }
 
-  return { globalState, setGlobalState, toggleTheme, setTheme }
+  const setScreen = (screenType) => {
+    if (screenType === null) {
+      screenType = 'desktop'
+    }
+    setGlobalState({
+      ...globalState,
+      screen: screenType,
+    })
+
+  }
+
+  return { globalState, setGlobalState, toggleTheme, setTheme, setScreen }
 
 }
 

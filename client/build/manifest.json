@@ -1,0 +1,8 @@
+{
+  "short_name": "SmartSheets",
+  "name": "SmartSheets",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#42527b",
+  "background_color": "#ffffff"
+}

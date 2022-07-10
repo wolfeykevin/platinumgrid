@@ -9,7 +9,7 @@ const GlobalContext = createContext()
 
 const AppProvider = ({ children }) => {
 
-  const { globalState, setGlobalState, toggleTheme, setTheme } = useGlobalState();
+  const { globalState, setGlobalState, toggleTheme, setTheme, setScreen } = useGlobalState();
   const { user, setUser, resetUser, setIsAuth, setUid, setName, setEmail, setProfileImg, setSheetAccess, addSheetAccess, removeSheetAccess } = useUser();
   const { refresh } = useRefresh();
   const { pageView, setPageView } = usePageView();
@@ -32,6 +32,7 @@ const AppProvider = ({ children }) => {
     setTheme,
     setSheetAccess,
     setPageView,
+    setScreen,
     
     /* EFFECTS */
     resetUser,

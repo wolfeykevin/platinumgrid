@@ -3,18 +3,28 @@ import { GlobalContext } from '../_context/AppProvider';
 import Index from '../routes/Index'
 import Sidebar from '../_components/Sidebar';
 import toast, { Toaster } from 'react-hot-toast'
+import { useLocation } from 'react-router-dom';
+import { Div } from '../_styles/_global'
 
 function App() {
   
   const { store } = useContext(GlobalContext)
-  const { isAuth } = store.user
+  const { user } = store
+  const { isAuth } = user
 
-
+  const location = useLocation();
+  const { pathname } = location;
+  const isHome = pathname === '/';
+console.log(user)
   return (
     <>
-      { isAuth ? (
+      {
+        
+      ['levi', 'kyle', 'dayan', 'danny', 'daniel', 'kevin'].filter(name => user.name.first.toLowerCase() === name).length === 0 ? <Div flex column fills centerchildren>Access Denied</Div> : // comment this out to remove basic access restriction
+      
+      isAuth ? (
           <>
-            <Sidebar />
+            <Sidebar index={false}/>
             <Toaster
               position="bottom-center"
               reverseOrder={true}
@@ -23,7 +33,7 @@ function App() {
               toastOptions={{
                 // Define default options
                 className: 'toast',
-                duration: 3000,
+                duration: 2600,
                 iconTheme: {
                   primary: '#35405d',
                   secondary: '#fff',

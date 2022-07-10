@@ -11,7 +11,7 @@ const request = (req, res) => {
 const add = (req, res) => {
   const sheet_id = req.params.sheet_id
   const { values } = req.body
-
+  console.log(values)
   knex('sheets')
     .select('id')
     .where({id: sheet_id})
@@ -62,10 +62,10 @@ const edit = (req, res) => {
   let { values } = req.body;
 
   values.forEach(value => {
-    if (value.id !== 'new') {
+    if (value.value_id !== 'new') {
       knex('values')
       .select('*')
-      .where({id: value.id})
+      .where({id: value.value_id})
       .update({ value: value.value })
       .then(data => console.log('current',data) )
     } else {

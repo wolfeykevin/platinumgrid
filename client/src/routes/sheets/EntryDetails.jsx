@@ -7,12 +7,15 @@ import { Div } from '../../_styles/_global'
 import { ReactComponent as Check } from '../../_assets/icons/checkmark.svg';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast'
+import smartApi from '../../_helpers/smartApi';
+import { GlobalContext } from '../../_context/AppProvider'
 
 const capitalize = (string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 const EntryDetails = () => {
+  const { store } = useContext(GlobalContext);
   const { sheet } = useContext(SheetContext);
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
@@ -21,25 +24,102 @@ const EntryDetails = () => {
 
   const navigate = useNavigate();
   
+  const refreshSheet = () => {
+    smartApi(['GET', `get_sheet/${sheet.currentSheet.sheet_id}`], store.user.token)
+    .then(result => {
+      // console.log(result);
+      if (result.name === undefined) {
+        // fix for sheet name location
+        result.name = result.sheet.name;
+      }
+      // console.log(result);
+      sheet.setCurrentSheet(result);
+      sheet.setSheetLoading(false);
+    })
+    .catch(error => {
+      navigate('/')
+      sheet.setSheetLoading(false);
+      console.log('error', error)});
+  }
+
   const submitData = () => {
     //TODO: Build json to send to server
-    for (let element of document.getElementsByClassName('entry-details-field')) {
-      let fieldData = JSON.parse(element.dataset.field)
-      let inputElement = element.querySelector('input')
-  
-      // console.log(inputElement.value) // newValue
-      // console.log(inputElement.id) // value id
+    const sheetFields = sheet.currentSheet.fields
+    let payload = {
+      sheet_id: sheet.currentSheet.sheet_id,
+      values: [],
+      entry_id: sheet.selectedEntry.entry_id === undefined ? 'new' : sheet.selectedEntry.entry_id
     }
-  
-    setIsLoading(true);
-  
-    //TODO: Send request to server and set up logic to handle response
-    new Promise(resolve => setTimeout(resolve, 500)).then(() => {
-      sheet.setSelectedEntry({})
-      sheet.setNewEntry(false)
-      setIsLoading(false)
-      navigate(`/sheet/${location.pathname.split('/')[2]}`)
+    // console.log(sheetFields);
+
+    sheetFields.map(field => {
+      let data = {
+        field_id: field.field_id,
+      }
+
+      const fieldElement = document.getElementById(`field-${field.field_id}`)
+      const inputElement = fieldElement.querySelector('input')
+
+      if (field.type === 'checkbox') {
+        data.value = inputElement.checked.toString();
+      } else {
+        data.value = inputElement.value;
+      }
+
+      if (inputElement.id.split('_')[1] !== 'new'){
+        data.value_id = parseInt(inputElement.id.split('_')[1])
+      }
+
+      payload.values.push(data);
+      // console.log(fieldElement, inputElement)
     })
+
+  
+    if (sheet.newEntry === true) {
+      // add new entry
+      smartApi(['POST', `add_entry/${sheet.currentSheet.sheet_id}`, payload], store.user.token)
+        .then(result => {
+          console.log(result); 
+          sheet.setSelectedEntry({})
+          sheet.setNewEntry(false)
+          toast.success('Entry Created')
+          
+          refreshSheet()
+          navigate(`/sheet/${location.pathname.split('/')[2]}`)
+        })
+        .catch(error => {
+          toast.error('Something went wrong. Please try again.')
+          console.log('error', error)
+        });
+    } else {
+      // update entry
+      smartApi(['PATCH', `edit_entry/${sheet.selectedEntry.entry_id}`, payload], store.user.token)
+      .then(result => {
+        console.log(result); 
+        sheet.setSelectedEntry({})
+        sheet.setNewEntry(false)
+        toast.success('Entry Updated')
+       
+        refreshSheet();
+        
+        navigate(`/sheet/${location.pathname.split('/')[2]}`)
+      })
+      .catch(error => {
+        toast.error('Something went wrong. Please try again.')
+        console.log('error', error)
+      });
+    }
+
+    // new Promise(resolve => setTimeout(resolve, 500)).then(() => {
+    //   // setIsLoading(false) // commented out, assuming pane will immediately close and toast will display whether there was success or not
+    //   let rand = Math.floor(Math.random() * 5) + 1; // generate random number between 1 and 5 to simulate success or failure
+    //   if (rand === 4) {
+    //     toast.error('Something went wrong. Please try again.')
+    //     console.log('Simulated failed request, this functionality still needs to be implemented.')
+    //   } else {
+    //     toast.success('Entry Saved')
+    //   }
+    // })
   }
 
   useEffect(() => {
@@ -68,18 +148,8 @@ const EntryDetails = () => {
           navigate(`/sheet/${location.pathname.split('/')[2]}`)
         }
       }
-      // if (sheet.currentSheet.sheet_id === 0 && sheet.sheetLoading === false) {
-      //   // setSheetPageView('sheet')
-      //   setSelectedEntry({})
-      //   navigate(`/`)
-      // }
     } else {
       setSelectedEntry({})
-    }
-    if (sheet.currentSheet.sheet_id === 0 && sheet.sheetLoading === false) {
-      // setSheetPageView('sheet')
-      setSelectedEntry({})
-      navigate(`/`)
     }
   }, [location, sheet.currentSheet, sheet.sheetLoading])
 
@@ -106,7 +176,8 @@ const EntryDetails = () => {
           {/* <img alt='edit icon'/> */}
         </div>
 
-        <form className='entry-details-form'>
+        <form id={sheet.selectedEntry.entry_id === undefined ? 'new' : sheet.selectedEntry.entry_id}
+          className='entry-details-form'>
           {sheet.currentSheet.fields.map((field, i) => {
             // map through each field of the sheet and try to get the corresponding value from the selected entry
             let index;
@@ -116,7 +187,7 @@ const EntryDetails = () => {
               index = -1; // values won't exist for a new entry
             }
             return (
-              <div key={i} data-field={JSON.stringify(field)} className='entry-details-field' onClick={(e)=> {
+              <div id={`field-${field.field_id}`} key={i} className='entry-details-field' onClick={(e)=> {
                   const el = e.currentTarget.getElementsByClassName('entry-details-input')[0];
                   el.focus()
                 }}
@@ -162,26 +233,25 @@ const EntryDetails = () => {
         <button className='entry-details-update no-select' onClick={async (e) => {
           e.preventDefault()
           submitData();
-          toast.success('Entry Updated')
         }}>Submit</button>
 
         {/* Covers the entire component after data is submitted. */}
         {isLoading === true ? <div className="entry-details-loader">Please Wait...</div> : <></>}
       </div>
-      <Div className="entry-details-underlay" fills onClick={
+      <div className="entry-details-underlay" onClick={
         () => {
             navigate(`/sheet/${location.pathname.split('/')[2]}`)
             sheet.setSelectedEntry({})
             sheet.setNewEntry(false)
           }}>
-      </Div>
-      <Div className="entry-details-underlay-sidebar" fills onClick={
+      </div>
+      <div className="entry-details-underlay-sidebar" onClick={
         () => {
             navigate(`/sheet/${location.pathname.split('/')[2]}`)
             sheet.setSelectedEntry({})
             sheet.setNewEntry(false)
           }}>
-      </Div>
+      </div>
     </>
   )
 }

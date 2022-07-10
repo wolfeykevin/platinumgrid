@@ -245,9 +245,11 @@
   z-index: 12000;
 }
 
+
 .entry-details-underlay {
   position: fixed;
   /* display: none; */
+  height: 100%;
   width: calc(400px + 3.3rem);
   top: 0;
   right: 0px;
@@ -258,6 +260,7 @@
 
 .entry-details-underlay-sidebar {
   display: none;
+  height: 100%;
   position: fixed;
   top: 0;
   left: 0;

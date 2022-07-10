@@ -154,7 +154,7 @@ const UserLookup = () => {
 
             return (
               <div key={userId} className='user-lookup-result'>
-                <img src={defaultProfileImage} className='user-lookup-image no-select' alt="profile-image"/>
+                <img src={user.picture !== undefined ? user.picture : defaultProfileImage} className='user-lookup-image no-select' alt="profile-image"/>
                 <div className='user-lookup-data'>
                   <span className='data-name'>{user.name}</span>
                   <span className='data-email'>{user.email}</span>
