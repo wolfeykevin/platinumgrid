@@ -50,9 +50,8 @@ const EntryDetails = () => {
       values: [],
       entry_id: sheet.selectedEntry.entry_id === undefined ? 'new' : sheet.selectedEntry.entry_id
     }
-    // console.log(sheetFields);
 
-    sheetFields.map(field => {
+    sheetFields.filter(field => field.archived !== true).map(field => {
       let data = {
         field_id: field.field_id,
       }
@@ -95,11 +94,11 @@ const EntryDetails = () => {
       // update entry
       smartApi(['PATCH', `edit_entry/${sheet.selectedEntry.entry_id}`, payload], store.user.token)
       .then(result => {
-        console.log(result); 
+        // console.log(result); 
         sheet.setSelectedEntry({})
         sheet.setNewEntry(false)
         toast.success('Entry Updated')
-       
+        
         refreshSheet();
         
         navigate(`/sheet/${location.pathname.split('/')[2]}`)
@@ -178,7 +177,7 @@ const EntryDetails = () => {
 
         <form id={sheet.selectedEntry.entry_id === undefined ? 'new' : sheet.selectedEntry.entry_id}
           className='entry-details-form'>
-          {sheet.currentSheet.fields.map((field, i) => {
+          {sheet.currentSheet.fields.filter(field => field.archived !== true).map((field, i) => {
             // map through each field of the sheet and try to get the corresponding value from the selected entry
             let index;
             if (sheet.newEntry === false) {
@@ -206,7 +205,7 @@ const EntryDetails = () => {
                   <div className='entry-details-checkbox-row'>
                     <input id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
                       key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
-                      className='entry-details-checkbox'
+                      className='entry-details-input checkbox'
                       type="checkbox" defaultChecked={index === -1 ? false : sheet.selectedEntry.values[index].value === 'true'}
                       onChange={(e) => {
                         let element = e.target.nextSibling;

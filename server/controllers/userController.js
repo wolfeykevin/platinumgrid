@@ -11,6 +11,14 @@ const request = async (req, res) => {
   } 
 };
 
+const getUserId = async (req, res) => {
+  const { user_id, name } = req.user
+  const data = await requestCurrentUser(user_id);
+
+  res.status(200).json(data[0])
+
+}
+
 const requestAllUsers = async (req, res) => {
   knex('users')
     .select('*')
@@ -37,15 +45,15 @@ const editUserRoles = (req, res) => {
   const targetId = req.params.sheet_id;
   const { users } = req.body;
 
-  console.log('Target ID:', req.params.sheet_id)
-  console.log('Request Body:', req.body)
+  // console.log('Target ID:', req.params.sheet_id)
+  // console.log('Request Body:', req.body)
 
   users.forEach(user => {
     knex('user_roles')
     .select('*')
     .where({user_id: user.user_id, sheet_id: targetId})
     .update({role_name: user.role_name})
-    .then((data) => console.log('test', data))
+    // .then((data) => console.log('test', data))
   })
   res.status(200).json(`user roles updated`)
 }
@@ -54,8 +62,8 @@ const removeUserRoles = (req, res) => {
   const targetId = req.params.sheet_id;
   const { users } = req.body.title;
 
-  console.log('Target ID:', req.params.sheet_id)
-  console.log('Request Body:', req.body.title)
+  // console.log('Target ID:', req.params.sheet_id)
+  // console.log('Request Body:', req.body.title)
 
   users.forEach(user => {
     knex('user_roles')
@@ -68,7 +76,7 @@ const removeUserRoles = (req, res) => {
 
 const add = (req, res) => {
   const { user_id, name, picture, email } = req.user
-  console.log(req.user);
+  // console.log(req.user);
 
   knex("users")
     .select("*")
@@ -94,4 +102,4 @@ const edit = (req, res) => {
 };
 
 
-export { request, add, remove, edit, getAllSheetUsers, requestAllUsers, editUserRoles, removeUserRoles};
+export { request, add, remove, edit, getAllSheetUsers, requestAllUsers, editUserRoles, removeUserRoles, getUserId};

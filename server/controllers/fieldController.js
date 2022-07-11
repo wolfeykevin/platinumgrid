@@ -11,19 +11,21 @@ const request = (req, res) => {
 const handleField = (req, res) => {
   const targetId = req.params.sheet_id;
   let { fields } = req.body;
-
   fields.forEach(field =>{
+    console.log(field)
     if (field.field_id !== 'new') {
-      console.log(field)
+      console.log("Updated field:", field.field_id)
       knex('fields')
         .select('*')
         .where({id: field.field_id})
-        .update({name: field.name, id: field.field_id})
-        .then((data => console.log(data)))
+        .update({name: field.name, id: field.field_id, favorite: field.favorite, type: field.type, archived: field.archived})
+        .catch(err => console.log(err))
+        // .then((data => console.log(data)))
     } else {
       knex('fields')
-        .insert({type: field.type, sheet_id: targetId, name: field.name})
-        .then((data => console.log(data)))
+        .insert({sheet_id: targetId, name: field.name, favorite: field.favorite, type: field.type, archived: field.archived})
+        .catch(err => console.log(err))
+        // .then((data => console.log(data)))
     }
   })
 

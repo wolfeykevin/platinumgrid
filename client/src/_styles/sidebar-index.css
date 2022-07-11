@@ -354,3 +354,7 @@
 #index.sidebar .sidebar-sheet-item-link {
   flex-grow: 1;
 }
+
+#index.sidebar .sidebar-header-add-sheet {
+  display: none;
+}

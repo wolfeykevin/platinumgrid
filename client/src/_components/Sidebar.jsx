@@ -14,39 +14,52 @@ import { ClickAwayListener } from '@mui/base';
 import smartApi from '../_helpers/smartApi';
 import { SheetContext } from '../_context/SheetProvider';
 import toast from 'react-hot-toast';
+import generateCSV from '../_helpers/generateCSV';
+import { ReactComponent as Edit } from '../_assets/icons/menu-edit.svg';
+// import { CSVLink, CSVDownload } from 'react-csv';
 
 const Sidebar = (props) => {
-
+  
   const { index } = props
-
+  
   const { store } = useContext(GlobalContext)
   const { user, setSheetAccess, refresh, globalState, setScreen } = store
   const { screen } = globalState
   const { profileImg, sheetAccess, token } = user
-
+  
   const { sheet } = useContext(SheetContext);
-
+  
+  const location = useLocation();
   const navigate = useNavigate();
 
-  const data = dummySheetAccessData.sheets  
+  const data = dummySheetAccessData.sheets
+
+  const [ localRefresh, setLocalRefresh ] = useState(false)
+
+
   // get sheet access data
   useEffect(() => {
-
-    // const data = dummySheetAccessData
-    // setSheetAccess(data.sheets);
 
     smartApi(['GET', 'get_sheets/'], user.token)
       .then(result => {
         const allsheets = [...result]
-        setSheetAccess(allsheets)
+        if (result) {
+          setSheetAccess(allsheets)
+        }
       })
-      .catch(error => console.log('error', error));
+      .catch(error => {});
 
-  }, [])
+  }, [location, localRefresh])
 
+   // use useEffect and useState to trigger a rerender every 2 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLocalRefresh(!localRefresh)
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [localRefresh])
 
-  const location = useLocation();
-  const [link, setLink] = useState('/create')
+  const [link, setLink] = useState('/create');
  
 
   // manages global view state for resizing
@@ -115,7 +128,6 @@ const Sidebar = (props) => {
         left: left
       })
     }
-    
   }
   
   // close the menu
@@ -197,9 +209,9 @@ const Sidebar = (props) => {
           onClickAway={closeMenu}
         >
           <div className={`sheet-options-menu-container`} style={menuLocation}>
-            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${menuTargetSheetId}/edit`)}}>Edit Sheet</div>
+            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${menuTargetSheetId}/edit`)}}><Edit/>Edit Sheet</div>
             <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}>Duplicate Sheet</div>
-            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}>Generate Report</div>
+            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();generateCSV(menuTargetSheetId, token)}}>Generate Report</div>
             <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}>Download Sheet</div>
             <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${menuTargetSheetId}/users`)}}>User Access</div>
             <div className={`sheet-options-menu-item break ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`}></div>

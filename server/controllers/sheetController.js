@@ -1,79 +1,88 @@
 import knex from "../db/db.js";
-import { requestCurrentUser } from "./helpers.js"
+import { requestCurrentUser, checkAuthLevel } from "./helpers.js"
 
 const requestSheetData = async (req, res) => {
   const reqId = req.params.sheet_id
-  if (reqId) {
-    const returning = {}
+  let currentUser = await requestCurrentUser(req.user.user_id)
+  if (currentUser.length !== 0) {
+    const { id } = currentUser[0]
 
-    returning.sheet_id = reqId;
-    returning.sheet = await knex.raw(`select name, short_name, templates from sheets where id = ${reqId}`).then(data => data.rows[0])
-    
-    returning.fields = [];
-    returning.entries = [];
+    if (reqId) {
+      // if (!checkAuthLevel('viewer', reqId, id)) {
+      //   res.status(402).json(`As you were`);
+      //   return;
+      // }
+      const returning = {}
 
-    // All fields for the sheet asked for
-    returning.fields = await knex.raw(`select json_agg(fields) as fields from ( select * from fields where sheet_id = ${reqId}) as fields`).then(data => {
-      if (data.rows[0].fields !== null) {
-        console.log(data.rows[0].fields)
-        return data.rows[0].fields.map(field => {
-          field.field_id = field.id
-          delete field.id
-          return field
+      returning.sheet_id = reqId;
+      returning.sheet = await knex.raw(`select name, short_name, templates from sheets where id = ${reqId}`).then(data => data.rows[0])
+
+      returning.fields = [];
+      returning.entries = [];
+
+      // All fields for the sheet asked for
+      returning.fields = await knex.raw(`select json_agg(fields) as fields from ( select * from fields where sheet_id = ${reqId}) as fields`).then(data => {
+        if (data.rows[0].fields !== null) {
+          // console.log(data.rows[0].fields)
+          return data.rows[0].fields.map(field => {
+            field.field_id = field.id
+            delete field.id
+            return field
+          })
+        } else {
+          return [];
+        }
+      }
+      )
+
+      // All values for the sheet asked for
+      const values = await knex.raw(`select json_agg(values) as values from ( select * from values where entry_id in (select id from entries where sheet_id = ${reqId})) as values`).then(data => {
+        if (data.rows[0].values !== null) {
+          return data.rows[0].values.map(value => {
+            value.value_id = value.id
+            delete value.id
+            return value
+          })
+        } else {
+          return null;
+        }
+      }
+      )
+
+      // All entries for requested sheet
+      returning.entries = await knex.raw(`select json_agg(entries) as entries from (select * from entries where sheet_id = ${reqId}) as entries`).then(data => {
+        if (data.rows[0].entries === null) {
+          // res.status(400).send(`there is no data here in entries for ${reqId}`)
+          // return null
+          return [];
+        }
+
+        return data.rows[0].entries.map(entry => {
+          entry.values = []
+          entry.entry_id = entry.id
+          delete entry.id
+          return entry
         })
-      } else {
-        return [];
-      }
-    }
-    )
-
-    // All values for the sheet asked for
-    const values = await knex.raw(`select json_agg(values) as values from ( select * from values where entry_id in (select id from entries where sheet_id = ${reqId})) as values`).then(data => {
-      if (data.rows[0].values !== null) {
-        return data.rows[0].values.map(value => {
-          value.value_id = value.id
-          delete value.id
-          return value
-        })
-      } else {
-        return null;
-      }
-    }
-    )
-    
-    // All entries for requested sheet
-    returning.entries = await knex.raw(`select json_agg(entries) as entries from (select * from entries where sheet_id = ${reqId}) as entries`).then(data => {
-      if (data.rows[0].entries === null) {
-        // res.status(400).send(`there is no data here in entries for ${reqId}`)
-        // return null
-        return [];
-      }
-
-      return data.rows[0].entries.map(entry => {
-        entry.values = []
-        entry.entry_id = entry.id
-        delete entry.id
-        return entry
       })
-    })
 
-    if (returning.entries.length !== 0) {
-      values.forEach(value => {
-        returning.entries.map((entry) => {
-          if (value.entry_id === entry.entry_id) {
-            entry.values.push(value)
-          }
-        })
+      if (returning.entries.length !== 0) {
+        values.forEach(value => {
+          returning.entries.map((entry) => {
+            if (value.entry_id === entry.entry_id) {
+              entry.values.push(value)
+            }
+          })
 
-      });
-    } 
-    // else { // this was breaking response for sheet with no entries
-    //   return []
-    // }
-      
-    res.status(200).json(returning);
-  } else {
-    res.status(400).send(`request Error: reqId = ${reqId}, is not found or is not an sheet id`)
+        });
+      }
+      // else { // this was breaking response for sheet with no entries
+      //   return []
+      // }
+
+      res.status(200).json(returning);
+    } else {
+      res.status(400).send(`request Error: reqId = ${reqId}, is not found or is not an sheet id`)
+    }
   }
 };
 
@@ -128,8 +137,8 @@ const addUserRole = async (req, res) => {
   const { users } = req.body;
   let flag = false;
   let results = [];
-  console.log("Target ID:", targetId);
-  console.log("Request Body:", req.body);
+  // console.log("Target ID:", targetId);
+  // console.log("Request Body:", req.body);
   await users.forEach(user => {
     knex('users')
       .select('id')
@@ -153,11 +162,11 @@ const addUserRole = async (req, res) => {
               }
               return flag
             })
-            .then(data => console.log(data))
+            // .then(data => console.log(data))
         }
       })
   })
- 
+
 
   res.status(201).json(`user role has been added`)
 

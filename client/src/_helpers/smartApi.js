@@ -35,7 +35,7 @@ const newFields = {
 
 smartApi(['GET', `get_sheet_users/${sheetId}`], user.token).then(result => {console.log(result)})
 smartApi(['POST', `add_sheet/`, newSheet], user.token).then(result => {console.log(result)})
-smartApi(['PATCH', `handle_field/${sheetId}`, newFields], {user.token}).then(result => {console.log(result)})
+smartApi(['PATCH', `handle_field/${sheetId}`, newFields], user.token).then(result => {console.log(result)})
 smartApi(['DELETE', `remove_roles/${user_id}`], user.token).then(result => {console.log(result)})
 
 
@@ -78,7 +78,7 @@ const smartApi = async (options, token, callback) => {
       })
       if (!response.ok) {
         const message = `An error has occured: ${response.status}`;
-        throw new Error(message);
+        // throw new Error(message);
       } else {
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.indexOf("application/json") !== -1) {

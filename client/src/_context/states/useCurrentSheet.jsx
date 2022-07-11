@@ -8,6 +8,10 @@ const useCurrentSheet = () => {
       sheet_id: 0,
       fields: [],
       entries: [],
+      sheet: {
+        name: "",
+        short_name: ""
+      }
     }
   );
 

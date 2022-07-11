@@ -282,6 +282,11 @@
   cursor: pointer;
 }
 
+.sheet-options-menu-item:focus, .sheet-options-menu-item:active {
+  background-color: var(--color-quaternary);
+  transition: all var(--global-transition-speed-fast) ease;
+}
+
 .sheet-options-menu-item.break {
   background-color: #00000000;
   color: var(--color-text-menu);
@@ -300,4 +305,8 @@
   border-radius: var(--global-border-radius);
   text-align: center;
   z-index: 2000000;
+}
+
+.sheet-options-menu-item.remove:focus, .sheet-options-menu-item.remove:active {
+  background-color: #c96969;
 }

@@ -26,15 +26,16 @@ const decodedToken = (req, res, next) => {
   }
 
   const idToken = auth.split(" ")[1];
+
   getAuth(admin)
     .verifyIdToken(idToken)
     .then((decodedToken) => {
-      console.log(decodedToken)
+      // console.log(decodedToken)
       if(decodedToken) {
         req.user = decodedToken
         return next()
       }
-      res.send("Unauthorized -> Token provied isn't ours")
+      res.send("Unauthorized -> Token provided isn't ours")
     })
     .catch((e) => {
       res.send({head : `This is the token i have ${idToken}\n=====`, ErrorMessage:e})
