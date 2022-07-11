@@ -1,4 +1,5 @@
 import knex from "../db/db.js";
+import { checkAuthLevel } from "../auth/auth.js";
 
 const request = (req, res) => {
   knex("fields")
