@@ -57,7 +57,7 @@ const editUserRoles = async (req, res) => {
     .select('*')
     .where({user_id: user.user_id, sheet_id: targetId})
     .update({role_name: user.role_name})
-    // .then((data) => console.log('test', data))
+    .then()
   })
   res.status(200).json(`user roles updated`)
 }
