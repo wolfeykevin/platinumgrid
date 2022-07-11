@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import edit from '../_assets/icons/edit-purple.png'
-import Loader from './Loader';
-import { Div } from '../_styles/_global'
-import { ReactComponent as Check } from '../_assets/icons/checkmark.svg';
+import edit from '../../../_assets/icons/edit-purple.png'
+import Loader from '../../../_components/Loader';
+import { Div } from '../../../_styles/_global'
+import { ReactComponent as Check } from '../../../_assets/icons/checkmark.svg';
 import toast from 'react-hot-toast'
-import dummyData from '../_dummy/users.json';
-import '../_styles/user-lookup.css';
-import defaultProfileImage from '../_assets/img/default-profile-img.png';
-import useScrollHandler from '../_helpers/useScrollHandler';
-import { SheetContext } from '../_context/SheetProvider';
-import { GlobalContext } from '../_context/AppProvider'
-import smartApi from '../_helpers/smartApi';
-import { UserAccessContext } from '../_context/UserAccessProvider';
+import dummyData from '../../../_dummy/users.json';
+import '../../../_styles/user-lookup.css';
+import defaultProfileImage from '../../../_assets/img/default-profile-img.png';
+import useScrollHandler from '../../../_helpers/useScrollHandler';
+import { SheetContext } from '../../../_context/SheetProvider';
+import { GlobalContext } from '../../../_context/AppProvider'
+import smartApi from '../../../_helpers/smartApi';
+import { UserAccessContext } from '../../../_context/UserAccessProvider';
 
 const UserLookup = () => {
   const [ userResults, setUserResults ] = useState([])

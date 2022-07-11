@@ -10,7 +10,7 @@ import '../../../_styles/user-display.css';
 import defaultProfileImage from '../../../_assets/img/default-profile-img.png';
 import plus from '../../../_assets/icons/plus.png';
 import dummySheetAccessData from '../../../_dummy/sheet-access.json';
-import UserLookup from '../../../_components/UserLookup';
+import UserLookup from './UserLookup';
 import { GlobalContext } from '../../../_context/AppProvider'
 import smartApi from '../../../_helpers/smartApi';
 import toast from 'react-hot-toast'
