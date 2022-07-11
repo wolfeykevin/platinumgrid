@@ -216,12 +216,19 @@
 
 .favorite-field{
   max-height: 2rem;
+  max-width: 2rem;
+}
+
+.archive-field{
+  max-height: 2rem;
+  max-width: 2rem;
 }
 
 .delete-field{
   height: 2rem;
   content: url('../_assets/icons/delete-light.png');
 }
+
 /* .sheet-modify-body {
   border-top-left-radius: var(--global-border-radius);
   border-top-right-radius: var(--global-border-radius);

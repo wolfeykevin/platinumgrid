@@ -57,7 +57,7 @@ const editUserRoles = async (req, res) => {
     .select('*')
     .where({user_id: user.user_id, sheet_id: targetId})
     .update({role_name: user.role_name})
-    .then((data) => console.log('test', data))
+    // .then((data) => console.log('test', data))
   })
   res.status(200).json(`user roles updated`)
 }
@@ -82,7 +82,7 @@ const removeUserRoles = async (req, res) => {
 
 const add = (req, res) => {
   const { user_id, name, picture, email } = req.user
-  console.log(req.user);
+  // console.log(req.user);
 
   knex("users")
     .select("*")
@@ -102,3 +102,4 @@ const add = (req, res) => {
 
 
 export { request, add, getAllSheetUsers, requestAllUsers, editUserRoles, removeUserRoles, getUserId};
+

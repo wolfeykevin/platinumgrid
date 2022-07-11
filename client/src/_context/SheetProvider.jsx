@@ -4,6 +4,7 @@ import useSelectedEntry from './states/useSelectedEntry'
 import useNewEntry from './states/useNewEntry'
 import useSheetPageView from './states/useSheetPageView'
 import useSheetLoading from './states/useSheetLoading'
+import useEntryMenu from './states/useEntryMenu'
 
 const SheetContext = createContext()
 
@@ -13,6 +14,7 @@ const SheetProvider = ({ children }) => {
   const { newEntry, setNewEntry } = useNewEntry();
   const { sheetPageView, setSheetPageView } = useSheetPageView();
   const { sheetLoading, setSheetLoading } = useSheetLoading();
+  const { entryMenu, setEntryMenu } = useEntryMenu();
   const clickTime = useRef(0);
 
   const sheet = {
@@ -23,6 +25,7 @@ const SheetProvider = ({ children }) => {
     newEntry,
     sheetPageView,
     sheetLoading,
+    entryMenu,
 
     /* SETTERS */
     setCurrentSheet,
@@ -30,6 +33,7 @@ const SheetProvider = ({ children }) => {
     setNewEntry,
     setSheetPageView,
     setSheetLoading,
+    setEntryMenu,
 
     /* EFFECTS */
 

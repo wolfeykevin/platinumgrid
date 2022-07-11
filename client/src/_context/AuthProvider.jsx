@@ -4,17 +4,19 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import auth from '../_config/firebase_config.js';
 import PageLoader from '../_components/PageLoader';
 import { useNavigate, useLocation } from 'react-router-dom';
+import useLogin from './effects/useLogin';
 
 const useAuthProvider = ({children}) => {
   
   const { store } = useContext(GlobalContext)
-  const { setUser, setGlobalState } = store
+  const { setUser, setGlobalState, resetUser } = store
   
   // the magic that checks local storage to see if if a user is already authenticated
   const [user, loading, error] = useAuthState(auth)
+  const { handleSignOut } = useLogin()
   
-  const navigate = useNavigate();
   const prevLocation = useLocation().pathname
+  const navigate = useNavigate();
 
   useEffect(()=>{
     
@@ -48,7 +50,11 @@ const useAuthProvider = ({children}) => {
     if (error) {
       // console.log('auth error')
       setGlobalState({loading: false})
-      console.log(error)
+      console.log('firebase 403, unauthenticated')
+      console.log('logging you out')
+      handleSignOut()
+      resetUser()
+      navigate('/')
     }
 
   }, [user, loading])

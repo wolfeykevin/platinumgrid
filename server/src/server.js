@@ -26,21 +26,5 @@ server.use("/api/", fieldRoutes);
 server.use("/api/", sheetRoutes);
 server.use("/api/", userRoutes);
 
-// server.get("/api/", (request, response) => {
-//   response.set("Access-Control-Allow-Origin", "*");
-//   response.status(200).send("Api root route running");
-// });
-
-// server.get("/api/authors", (request, response) => {
-//   knex("app_authors")
-//     .select("*")
-//     .then((authorRecords) => {
-//       let responseData = authorRecords.map((author) => ({
-//         firstName: author.first_name,
-//         lastName: author.last_name,
-//       }));
-//       response.status(200).send(responseData);
-//     });
-// });
 
 export default server;

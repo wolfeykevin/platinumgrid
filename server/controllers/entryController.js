@@ -74,18 +74,17 @@ const edit = async (req, res) => {
   }
 
   values.forEach(value => {
-    if (value.value_id !== 'new') {
-      console.log('update' ,value)
+    if (value.value_id !== undefined) {
       knex('values')
       .select('*')
       .where({id: value.value_id})
       .update({ value: value.value })
-      .then(data => console.log('current',data) )
+      // .then(data => console.log('current',data) )
     } else {
-      console.log(value)
+      // console.log(value)
       knex('values')
       .insert({ value: value.value, field_id: value.field_id, entry_id: targetId})
-      .then(data => console.log('new',data))
+      // .then(data => console.log('new',data))
     }
   })
 

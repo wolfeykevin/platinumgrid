@@ -313,6 +313,25 @@ tr:nth-child(even) .entry-row-option  {
   /* background: #e7eaf2; */
 }
 
+
+.sheet-checkbox {
+  min-height: 1.5rem;
+  max-height: 1.5rem;
+  min-width: 1.5rem;
+  max-width: 1.5rem;
+  height: auto;
+  border-radius: 3px;
+  margin: 0;
+  -webkit-appearance: none;
+  vertical-align: middle;
+  background-color: #d8dce7;
+}
+
+.sheet-checkbox:checked {
+  /* background-color: var(--color-primary); */
+  content: url('../_assets/icons/checkmark.svg');
+}
+
 .dummy-users-button{
   display: flex;
   align-items: center;

@@ -26,7 +26,7 @@ const useUser = () => {
   }
 
   // reset the user state to default values
-  const resetUser = (updatedUserObj) => {
+  const resetUser = () => {
     setUserState(defaults)
   }
 

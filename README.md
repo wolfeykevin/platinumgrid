@@ -1,4 +1,4 @@
-# <strong>SMARTSHEETS
+# <strong>SMARTSHEETS</strong>
 ### *Group 1:  Daniel Salazer, Dayan Sauerbronn, Levi Fry, Kyle Dilick, & Kevin Wolfe*
 
 <br>
@@ -63,6 +63,19 @@
     - Implemented SEARCH on USER ACCESS screen
     - Added "UPDATE" notification if previously entered data is changed
     - Resolved issue with FIREBASE authentication not passing header
+
+    v0.7 (9 July):
+    - Over weekend, added CREATE SHEET text boxes, CREATE SHEET SCREEN, SHEET SEARCH functionality, cleaned up API routes
+    - Fixed error being generated when attempting to create NEW SHEET
+    - Resolved CREATE SHEET CSS styling issues
+    - Adding functionality to SHEET MENU, esp LEAVE SHEET
+    - Adding lockout functionality to USER ACCESS currently i/w
+    - Formatted containers on NEW SHEET, EDIT SHEET pages
+    - Resolved error between frontend, backend that was crashing server when data in established SHEET was edited
+    - Beginning to incorporate CSV generate/import/export functions
+    - Instituted ROLLBASE authentication 
+    - Beginning QR code integration
+    
 
 <br>
 

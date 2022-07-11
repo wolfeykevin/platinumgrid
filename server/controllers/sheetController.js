@@ -171,7 +171,7 @@ const addUserRole = async (req, res) => {
               }
               return flag
             })
-            .then(data => console.log(data))
+            // .then(data => console.log(data))
         }
       })
   })

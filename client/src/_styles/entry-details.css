@@ -136,24 +136,26 @@
   color: var(--color-entry-field-type);
 }
 
-.entry-details-checkbox {
+.checkbox {
   margin-left: 5px;
-  min-height: 2rem;
-  max-height: 2rem;
-  min-width: 2rem;
-  max-width: 2rem;
+  min-height: 2.5rem;
+  max-height: 2.5rem;
+  min-width: 2.5rem;
+  max-width: 2.5rem;
   height: auto;
-  width: 2.2rem;
-  margin-left: 1rem;
+  /* margin-left: 1rem; */
+  margin-bottom: 1rem;
+  border-radius: 3px;
   -webkit-appearance: none;
   background-color: var(--color-entry-checkbox);
-  border-radius: 3px;
-  /* box-shadow: 0 2px 6px 0 var(--global-box-shadow-color); */
-  margin-bottom: 1rem;
-  padding: 0.3rem;
+  cursor: pointer;
 }
 
-.entry-details-checkbox:checked {
+.entry-details-input.checkbox {
+  padding: 0.5rem;
+}
+
+.checkbox:checked {
   /* background-color: var(--color-primary); */
   content: url('../_assets/icons/checkmark.svg');
 }

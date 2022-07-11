@@ -6,7 +6,6 @@ export const Div = styled.div`
   height: ${(props) => props.fills ? "100%" : props.card? "fit-content" : "fit-content"};
   width: ${(props) => props.fills ? "100%" : props.card? "fit-content" : "fit-content"};
   max-width: ${(props) => props.card? "50vw" : ""};
-  max-height: ${(props) => props.card? "50vh" : ""};
   flex-direction: ${(props) => props.column ? "column" : props.row ? "row" : "row"};
   flex-wrap: ${(props) => props.wrap ? "wrap" : "nowrap"};
   justify-content: ${(props) => props.centerchildren ? "center" : ""};
@@ -15,7 +14,8 @@ export const Div = styled.div`
   overflow-x: ${(props) => props.scrollx ? "scroll" : "hidden"};
   overflow-y: ${(props) => props.scrolly ? "scroll" : "hidden"};
   text-align: ${(props) => props.centertext ? "center" : ""};
-`;
+  `;
+  // max-height: ${(props) => props.card? "50vh" : ""};
 
 export const Fix = styled.div`
   display: block;
