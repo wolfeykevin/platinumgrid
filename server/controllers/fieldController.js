@@ -8,9 +8,14 @@ const request = (req, res) => {
     });
 };
 
-const handleField = (req, res) => {
+const handleField = async (req, res) => {
   const targetId = req.params.sheet_id;
   let { fields } = req.body;
+
+  if (!await checkAuthLevel('sheetManage', targetId, req)) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
 
   fields.forEach(field =>{
     if (field.field_id !== 'new') {
@@ -33,8 +38,13 @@ const handleField = (req, res) => {
     .then(data => res.status(200).json(data))
 };
 
-const flipChecked = (req, res) => {
+const flipChecked = async (req, res) => {
   const targetId = req.params.field_id;
+
+  if (!await checkAuthLevel('sheetManage', targetId, req)) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
 
   knex('values')
     .where({field_id: targetId}).update({
@@ -43,16 +53,28 @@ const flipChecked = (req, res) => {
       .then(data => res.status(200).send("field checked has flipped."))
 }
 
-const favorite = (req, res) => {
+const favorite = async (req, res) => {
   const targetId = req.params.field_id
+
+  if (!await checkAuthLevel('sheetManage', targetId, req)) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+
   knex('fields').where({id: targetId}).update({
     favorite: knex.raw('NOT ??', ['favorite'])
   }).returning('*')
     .then(data => res.status(200).send("field favorite has flipped."))
 };
 
-const archive = (req, res) => {
+const archive = async (req, res) => {
   const targetId = req.params.field_id
+
+  if (!await checkAuthLevel('sheetManage', targetId, req)) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+
   knex('fields').where({id: targetId}).update({
     archived: knex.raw('NOT ??', ['archived'])
   }).returning('*')

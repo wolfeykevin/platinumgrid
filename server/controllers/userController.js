@@ -1,5 +1,5 @@
 import knex from "../db/db.js";
-import { requestCurrentUser } from "./helpers.js";
+import { requestCurrentUser, checkAuthLevel } from "./helpers.js";
 
 const request = async (req, res) => {
   const { user_id, name } = req.user
@@ -10,6 +10,14 @@ const request = async (req, res) => {
     return;
   } 
 };
+
+const getUserId = async (req, res) => {
+  const { user_id, name } = req.user
+  const data = await requestCurrentUser(user_id);
+
+  res.status(200).json(data[0])
+
+}
 
 const requestAllUsers = async (req, res) => {
   knex('users')
@@ -33,9 +41,14 @@ const getAllSheetUsers = (req, res) => {
 
 }
 
-const editUserRoles = (req, res) => {
+const editUserRoles = async (req, res) => {
   const targetId = req.params.sheet_id;
   const { users } = req.body;
+
+  if (!await checkAuthLevel('userManage', targetId, req)) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
 
   console.log('Target ID:', req.params.sheet_id)
   console.log('Request Body:', req.body)
@@ -50,16 +63,18 @@ const editUserRoles = (req, res) => {
   res.status(200).json(`user roles updated`)
 }
 
-const removeUserRoles = (req, res) => {
+const removeUserRoles = async (req, res) => {
   const targetId = req.params.sheet_id;
   const { users } = req.body.title;
 
-  console.log('Target ID:', req.params.sheet_id)
-  console.log('Request Body:', req.body.title)
+  if (!await checkAuthLevel('userManage', targetId, req)) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
 
   users.forEach(user => {
     knex('user_roles')
-    .select('*')
+    .select('*')``
       .where({user_id: user.user_id, sheet_id: targetId})
       .del()
       .then(data => res.status(201).json(`${data} records deleted`))
@@ -86,12 +101,5 @@ const add = (req, res) => {
     });
 };
 
-const remove = (req, res) => {
-  res.status(200).send(`${req.method} - remove`);
-};
-const edit = (req, res) => {
-  res.status(200).send(`${req.method} - edit`);
-};
 
-
-export { request, add, remove, edit, getAllSheetUsers, requestAllUsers, editUserRoles, removeUserRoles};
+export { request, add, getAllSheetUsers, requestAllUsers, editUserRoles, removeUserRoles, getUserId};

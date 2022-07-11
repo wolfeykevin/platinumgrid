@@ -1,4 +1,5 @@
 import knex from "../db/db.js";
+import { checkAuthLevel } from "./helpers.js";
 
 const request = (req, res) => {
   knex("entries")
@@ -8,9 +9,15 @@ const request = (req, res) => {
     });
 };
 
-const add = (req, res) => {
+const add = async (req, res) => {
   const sheet_id = req.params.sheet_id
   const { values } = req.body
+
+  if (!await checkAuthLevel('write', sheet_id, req)) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+
   console.log(values)
   knex('sheets')
     .select('id')
@@ -57,12 +64,18 @@ const archive = (req, res) => {
     })
 };
 
-const edit = (req, res) => {
+const edit = async (req, res) => {
   const targetId = req.params.entry_id;
   let { values } = req.body;
 
+  if (!await checkAuthLevel('write', targetId, req)) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+
   values.forEach(value => {
     if (value.value_id !== 'new') {
+      console.log('update' ,value)
       knex('values')
       .select('*')
       .where({id: value.value_id})

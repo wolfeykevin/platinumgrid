@@ -46,7 +46,7 @@ services:
   client:
     build: client/
     depends_on:
-      - 'server'
+      - 'db'
     ports:
       - '3000:3000'
     volumes:

@@ -29,7 +29,7 @@ const decodedToken = (req, res, next) => {
   getAuth(admin)
     .verifyIdToken(idToken)
     .then((decodedToken) => {
-      console.log(decodedToken)
+      // console.log(decodedToken)
       if(decodedToken) {
         req.user = decodedToken
         return next()
