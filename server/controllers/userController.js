@@ -38,7 +38,6 @@ const getAllSheetUsers = (req, res) => {
     .select('user_id', 'role_name', 'name', 'picture', 'email')
     .where({sheet_id: reqId})
     .then(data => res.status(200).json(data))
-
 }
 
 const editUserRoles = async (req, res) => {
