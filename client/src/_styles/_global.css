@@ -501,7 +501,7 @@ textarea:focus, input:focus{
   display: flex !important;
   right: 14rem !important;
   align-items: center;
-  z-index: 20000;
+  z-index: 400;
   animation-duration: 1400ms;
   animation-name: slidein;
   animation-iteration-count: infinite;
@@ -510,8 +510,8 @@ textarea:focus, input:focus{
 }
 
 #page.extend .entry-tooltip {
-  right: 30rem !important;
-  z-index: 20000;
+  /* right: 30rem !important;
+  z-index: 20000; */
   transition: all var(--global-transition-speed) ease;
 }
 
