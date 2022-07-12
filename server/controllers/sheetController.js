@@ -104,7 +104,7 @@ const requestUserSheets = async (req, res) => {
 
     knex('user_roles')
       .join('sheets', 'user_roles.sheet_id', 'sheets.id')
-      .select('user_roles.sheet_id', 'sheets.name', 'sheets.short_name')
+      .select('user_roles.sheet_id', 'sheets.name', 'sheets.short_name', 'user_roles.role_name')
       .where({ user_id: id })
       .then(data => {
         res.status(200).send(data)

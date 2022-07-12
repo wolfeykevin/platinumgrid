@@ -25,6 +25,7 @@ const UserDisplay = () => {
   
   const { sheet } = useContext(SheetContext);
   const [ sheetName, setSheetName ] = useState('');
+  const [ authLevel, setAuthLevel ] = useState()
   const [ usersChanged, setUsersChanged] = useState(0);
   const [ userDisplayView, setUserDisplayView ] = useState('simple');
   const sheetId = parseInt(location.pathname.split('/')[2]);
@@ -34,7 +35,6 @@ const UserDisplay = () => {
   let usersToUpdate = useRef([]);
   
   const mouseDownHandler = useScrollHandler('scroll-container');
-
 
   useEffect(() => {
 
@@ -55,6 +55,12 @@ const UserDisplay = () => {
         setSheetName(sheetNameResult)
         })
       .catch(error => console.log('error', error))
+
+    smartApi(['GET', `authCheck/${sheetId}`], user.token)
+      .then(result => {
+        setAuthLevel(result);
+      })
+      .catch(error => console.log('error', error));
 
   }, [location])
 
@@ -108,20 +114,11 @@ const UserDisplay = () => {
       })
       .catch(error => console.log('error', error));
 
-    // smartApi(['PATCH', `edit_user_roles/${sheetId}`, payload], user.token)
-    //   .then(result => {
-    //     // toast.success('Users Roles Updated!')
-    //     console.log(result); 
-    //   })
-    //   .catch(error => console.log('error', error));
-
-    // console.log(payload)
   }
 
 
   const deleteUser = (target) => {
     let payload = {users: [target]}
-
     let sheetId = location.pathname.split('/')[2];
 
     smartApi(['DELETE', `remove_roles/${sheetId}`, payload], user.token)
@@ -143,103 +140,117 @@ const UserDisplay = () => {
 
   return (
     <>
-      <div className={`users-display-container ${location.pathname.split('/').length >= 5 && location.pathname.split('/')[4] === 'lookup' ? 'shrink' : ''}`}>
-        <div className='users-display-header'>
-          <div className="users-header-meta">
-            <div className="users-header-icon">
-              <img />
+      {authLevel === undefined ? <></> :
+      <>
+        <div className={`users-display-container ${(location.pathname.split('/').length >= 5 && location.pathname.split('/')[4] === 'lookup' && authLevel === 'Owner') ? 'shrink' : ''}`}>
+          <div className='users-display-header'>
+            <div className="users-header-meta">
+              <div className="users-header-icon">
+                <img />
+              </div>
+              <div className='users-header-title'>
+                <span className="page-name nowrap">User Access</span>
+                <span className={`sheet-name ${sheetName === '' ? 'filler':''} nowrap`}>{sheetName === '' ? 'Loading...': sheetName}</span>
+              </div>
             </div>
-            <div className='users-header-title'>
-              <span className="page-name nowrap">User Access</span>
-              <span className={`sheet-name ${sheetName === '' ? 'filler':''} nowrap`}>{sheetName === '' ? 'Loading...': sheetName}</span>
+            <div className="users-search">
+              {/* <input placeholder='Search'/> */}
+              {usersChanged <= 0 ? 
+                <button className='update-disabled' disabled>Update</button> 
+                : 
+                <button className='update-enabled' onClick={updateUsers}>Update</button>}
             </div>
           </div>
-          <div className="users-search">
-            {/* <input placeholder='Search'/> */}
-            {usersChanged <= 0 ? 
-              <button className='update-disabled' disabled>Update</button> 
-              : 
-              <button className='update-enabled' onClick={updateUsers}>Update</button>}
-          </div>
-        </div>
-        <div id='scroll-container' className='users-display-body' onMouseDown={(e) => {
-          sheet.clickTime.current = new Date();
-          mouseDownHandler(e);
-          }}>
-          {userDisplayView === 'smart' ? 
-            // smart view here
-            <div>
-              Wow!
-            </div>
-            :
-            // simple view here
-            <table className='users-display-table'>
-              <thead>
-                <tr>
-                  <td className='users-display-cell'></td>
-                  <td className='users-display-cell'>Name</td>
-                  <td className='users-display-cell'>Role</td>
-                  <td className='users-display-cell'>E-Mail</td>
-                  <td className='users-display-cell'></td>
-                </tr>
-              </thead>
-              <tbody>
-                {userAccess.sheetUsers.map((user,i) => {
-                  let roles = ['Owner', 'Editor', 'Viewer']
+          <div id='scroll-container' className='users-display-body' onMouseDown={(e) => {
+            sheet.clickTime.current = new Date();
+            mouseDownHandler(e);
+            }}>
+            {userDisplayView === 'smart' ? 
+              // smart view here
+              <div>
+                Wow!
+              </div>
+              :
+              // simple view here
+              <table className='users-display-table'>
+                <thead>
+                  <tr>
+                    <td className='users-display-cell'></td>
+                    <td className='users-display-cell'>Name</td>
+                    <td className='users-display-cell'>Role</td>
+                    <td className='users-display-cell'>E-Mail</td>
+                    {authLevel !== 'Owner' ? <></> :
+                      <td className='users-display-cell'></td>
+                    }
+                  </tr>
+                </thead>
+                <tbody>
+                  {userAccess.sheetUsers.map((user,i) => {
+                    let roles = ['Owner', 'Editor', 'Viewer']
 
-                  if (user.email === undefined || user.email === null) {
-                    user.email = `${user.name.split(' ')[0]}.${user.name.split(' ')[1]}@gmail.com`
-                  }
-                  if (user.role === undefined) {
-                    user.role = user.role_name //fix 
-                  }
-                  return (
-                    <tr id={user.user_id} key={i} className='user-row'>
-                      <td className='user-row-picture'><img referrerPolicy="no-referrer" className='user-profile-picture' src={user.picture !== undefined ? user.picture : defaultProfileImage} /></td>
-                      <td className='users-display-cell'>{user.name}</td>
-                      <td className='users-display-cell'>
-                        <select key={`${i}-${user.role}`} defaultValue={user.role} className='users-display-role-select' onChange={(e) => {
-                          
-                          if (e.target.value !== user.role) {
-                            if (!e.target.classList.contains('role-changed')) {
-                              e.target.classList.add('role-changed')
-                              setUsersChanged(usersChanged + 1)
-                              usersToUpdate.current.push({user_id: user.user_id, role_name: e.target.value})
+                    if (user.email === undefined || user.email === null) {
+                      user.email = `${user.name.split(' ')[0]}.${user.name.split(' ')[1]}@gmail.com`
+                    }
+                    if (user.role === undefined) {
+                      user.role = user.role_name //fix 
+                    }
+                    return (
+                      <tr id={user.user_id} key={i} className='user-row'>
+                        <td className='user-row-picture'><img referrerPolicy="no-referrer" className='user-profile-picture' src={user.picture !== undefined ? user.picture : defaultProfileImage} /></td>
+                        <td className='users-display-cell'>{user.name}</td>
+                        <td className='users-display-cell'>
+                          {authLevel !== 'Owner' ? <span>{user.role}</span> :
+                          <select key={`${i}-${user.role}`} defaultValue={user.role} className='users-display-role-select' onChange={(e) => {
+                            
+                            if (e.target.value !== user.role) {
+                              if (!e.target.classList.contains('role-changed')) {
+                                e.target.classList.add('role-changed')
+                                setUsersChanged(usersChanged + 1)
+                                usersToUpdate.current.push({user_id: user.user_id, role_name: e.target.value})
+                              }
+                            } else {
+                              if (e.target.classList.contains('role-changed')) {
+                                e.target.classList.remove('role-changed')
+                                setUsersChanged(usersChanged - 1)
+                                let index = usersToUpdate.current.findIndex(user => user.user_id === user.id)
+                                usersToUpdate.current.splice(index, 1);
+                              }
                             }
-                          } else {
-                            if (e.target.classList.contains('role-changed')) {
-                              e.target.classList.remove('role-changed')
-                              setUsersChanged(usersChanged - 1)
-                              let index = usersToUpdate.current.findIndex(user => user.user_id === user.id)
-                              usersToUpdate.current.splice(index, 1);
-                            }
+                          }}>
+                            {roles.map(role => 
+                              <option key={`option-${role}`} className={`${role === user.role ? 'previous-value' : 'other-value'}`}value={role}>{role}</option>)}
+                          </select>
                           }
-                        }}>
-                          {roles.map(role => 
-                            <option key={`option-${role}`} className={`${role === user.role ? 'previous-value' : 'other-value'}`}value={role}>{role}</option>)}
-                        </select>
-                      </td>
-                      <td className='users-display-cell'>
-                        {user.email}
-                      </td>
-                      <td className='user-row-option'>
-                        <img alt='delete-icon' onClick={() => {deleteUser(user)}}/>
-                      </td>
-                    </tr>
+                        </td>
+                        <td className='users-display-cell'>
+                          {user.email}
+                        </td>
+                        {authLevel !== 'Owner' ? <></> :
+                        <td className='user-row-option'>
+                          <img alt='delete-icon' onClick={() => {deleteUser(user)}}/>
+                        </td>
+                        }
+                      </tr>
+                    )}
                   )}
-                )}
-              </tbody>
-            </table>
-          }
+                </tbody>
+              </table>
+            }
+          </div>
         </div>
-      </div>
-      <UserLookup/>
-      <button className='add-user' onClick={() => navigate('lookup')}><span>Add User</span><img className='primary-image'/><img className='secondary-image'/></button>
-      {/* <button className='users-display-exit' onClick={
-          () => navigate(-1)
-        }>&lt;</button> */}
-      {/* <button className='toggle-view' onClick={() => 
-      userDisplayView === 'smart' ? setUserDisplayView('simple') : setUserDisplayView('smart')}><img /></button> */}
+        <UserLookup/>
+        {authLevel !== 'Owner' ? <></> :
+        <button className='add-user' onClick={() => navigate('lookup')}>
+          <span>Add User</span><img className='primary-image'/><img className='secondary-image'/>
+        </button>
+        }
+        {/* <button className='users-display-exit' onClick={
+            () => navigate(-1)
+          }>&lt;</button> */}
+        {/* <button className='toggle-view' onClick={() => 
+        userDisplayView === 'smart' ? setUserDisplayView('simple') : setUserDisplayView('smart')}><img /></button> */}
+      </>
+      }
     </>
   );
 }

@@ -6,25 +6,20 @@ import {
   sheetRoutes,
   userRoutes,
 } from "../routes/index.js";
-import decodedToken from "../middleware/decodeToken.js"
+import {corsSetting, decodedToken } from "../middleware/index.js"
 
 const server = express();
-//
-var opts = {
-  origin: "*",
-  optionsSuccessStatus: 200,
-  methods: ["GET", "POST", "DELETE", "UPDATE", "PUT", "PATCH"],
-  credentials: true,
-};
 
-
-server.use(cors(opts));
+server.use(express.json({limit: '50mb'}));
+server.use(express.urlencoded({limit: '50mb'}));
+//Middleware
+server.use(cors(corsSetting));
 server.use(json());
 server.use(decodedToken)
+// Routes Paths
 server.use("/api/", entryRoutes);
 server.use("/api/", fieldRoutes);
 server.use("/api/", sheetRoutes);
 server.use("/api/", userRoutes);
-
 
 export default server;

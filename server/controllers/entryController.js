@@ -1,22 +1,23 @@
 import knex from "../db/db.js";
-import { checkAuthLevel } from "./helpers.js";
+import { checkAuthLevel, checkAuth } from "./helpers.js";
 
-const request = (req, res) => {
-  knex("entries")
-    .select("*")
-    .then((data) => {
-      res.status(200).json(data);
-    });
-};
+// const request = (req, res) => {
+//   knex("entries")
+//     .select("*")
+//     .then((data) => {
+//       res.status(200).json(data);
+//     });
+// };
 
-const add = async (req, res) => {
+const addEntry = async (req, res) => {
   const sheet_id = req.params.sheet_id
   const { values } = req.body
+  // await checkAuth('write', sheet_id, req, res)
 
   if (!await checkAuthLevel('write', sheet_id, req)) {
     res.status(401).send("Unauthorized");
     return;
-  }
+  } 
 
   console.log(values)
   knex('sheets')
@@ -55,10 +56,10 @@ const addMany = async (req, res) => {
     return;
   }
 
-  console.log(entries)
-  entries.forEach(entry => {
+  // console.log(entries)
+  entries.forEach(async entry => {
     let values = entry.values;
-    knex('sheets')
+    await knex('sheets')
       .select('id')
       .where({id: sheet_id})
       .then(data => {
@@ -70,6 +71,8 @@ const addMany = async (req, res) => {
               .then((entry_id) => {
                 values.forEach(value => {
                   value.entry_id = entry_id[0].id
+                  console.log("Sheet ID:", sheet_id)
+                  console.log("Value:", value)
                 })
                 return knex('values')
                   .insert(values)
@@ -83,14 +86,13 @@ const addMany = async (req, res) => {
          }
       })
   })
-  await new Promise(resolve => setTimeout(resolve, 1000));
+
   res.status(201).json(`Entries added.`)
 };
 
 
 const archive = (req, res) => {
   const targetId = req.params.entry_id
-
   knex('entries')
     .select('id')
     .where({id: targetId})
@@ -144,4 +146,4 @@ const ValidataField = async (id) => {
       return false;
     })
 }
-export { request, add, addMany, edit, archive };
+export { addEntry, addMany, edit, archive };

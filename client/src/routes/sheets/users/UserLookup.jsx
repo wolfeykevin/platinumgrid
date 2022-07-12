@@ -20,6 +20,7 @@ const UserLookup = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [ search, setSearch ] = useState('');
+  const [ authLevel, setAuthLevel ] = useState()
   let mouseDownHandler = useScrollHandler('user-scroll-container');
 
   const { store } = useContext(GlobalContext)
@@ -29,8 +30,18 @@ const UserLookup = () => {
   const { user, setSheetAccess, refresh } = store;
 
   useEffect(() => {
+    let sheetId = location.pathname.split('/')[2]
+
+    smartApi(['GET', `authCheck/${sheetId}`], user.token)
+    .then(result => {
+      console.log(result);
+      setAuthLevel(result);
+    })
+    .catch(error => console.log('error', error));
+
 
     if (location.pathname.split('/').length >= 5 && location.pathname.split('/')[4] === 'lookup') {
+      
       setLookupVisible(true);
       // console.log(location.pathname.split('/')[2])
       if (location.pathname.split('/')[2] === '1001' || location.pathname.split('/')[2] === "1002") {
@@ -114,7 +125,7 @@ const UserLookup = () => {
 
   return (
     <>
-      {lookupVisible === false ? 
+      {lookupVisible === false || authLevel !== "Owner" ? 
       <div className="user-lookup-container hidden"><div id='user-scroll-container' className='user-lookup-body'></div></div> 
       : 
       <div className="user-lookup-container">
@@ -128,7 +139,6 @@ const UserLookup = () => {
               navigate(`/sheet/${location.pathname.split('/')[2]}/users`)
               setUserResults([])
             }}>x</button>
-
         </div>
         <div className='user-lookup-search'>
           <div className='user-lookup-input'>

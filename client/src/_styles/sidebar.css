@@ -23,7 +23,7 @@
 .sidebar-header {
   display: flex;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
   min-height: 6rem;
   width: 100%;
   background: var(--color-secondary);
@@ -37,11 +37,14 @@
   white-space: nowrap;
   text-decoration: none;
   color: var(--color-text-menu);
+  padding-left: 1.25rem;
+  transition: all var(--global-transition-speed) ease;
 }
 
 .sidebar-header-logo {
   width: 2.4rem;
   min-width: 2.4rem;
+  transition: all var(--global-transition-speed) ease;
 }
 
 .sidebar-header-text {
@@ -49,6 +52,7 @@
   opacity: 0;
   height: 100%;
   padding: 0 0 0 1rem;
+  z-index: 0;
   font-size: var(--font-size-heading);
   font-weight: var(--heavy);
   color: var(--text-secondary);
@@ -109,6 +113,8 @@
   flex-direction: column;
   overflow-y: scroll;
   width: 100%;
+  align-items: flex-start;
+  transition: all var(--global-transition-speed) ease;
 }
 
 .sidebar-sheet {
@@ -124,9 +130,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* margin-left: 0.5rem; */
   width: 100%;
   height: 100%;
   color: var(--color-text-menu);
+  transition: all var(--global-transition-speed) ease;
 }
 
 .sidebar-sheet-item-link {
@@ -153,9 +161,11 @@
 }
 
 .sidebar-sheet-link-text {
-  display: none;
+  /* display: none; */
+  opacity: 0;
   padding-left: 1rem;
   white-space: nowrap;
+  transition: all var(--global-transition-speed-fast) ease;
 }
 
 .sidebar-sheet-menu {
@@ -193,6 +203,10 @@
 
 .sidebar-sheet.selected .sidebar-sheet-item .sidebar-sheet-item-link .sidebar-sheet-link-text {
   font-weight: var(--bold);
+}
+
+.sidebar-sheet.selected {
+  transition: all 0ms ease;
 }
 
 .sidebar:hover .sidebar-sheet.selected {
@@ -233,13 +247,16 @@
 }
 
 .sidebar-footer-link-text {
-  display: none;
+  /* display: none; */
   padding-left: 1rem;
 }
 
 .sidebar-footer-theme {
-  display: none;
+  /* display: none; */
+  width: 0;
   margin-right: 0.8rem;
+  opacity: 0;
+  transition: opacity var(--global-transition-speed) ease;
 }
 
 .sidebar-footer-theme svg.sun {

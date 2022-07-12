@@ -28,24 +28,32 @@ const requestCurrentUser = async (id) => {
     .then((data) => data);
      return returnData
   }
-  const checkAuthLevel = async (action, sheet, req) => {
-    const currentUser = await requestCurrentUser(req.user.user_id)
-    return knex('user_roles')
-      .select('*')
-      .where({user_id: currentUser[0].id, sheet_id: sheet})
-      .then(data => {
-        if (data.length !== 0) {
-          const userRole = data[0].role_name.toLowerCase()
-          if (AuthObj[userRole][action]) {
-            return true;
-          } else {
-            return false;
-          }
+
+const checkAuthLevel = async (action, sheet, req) => {
+  const currentUser = await requestCurrentUser(req.user.user_id)
+  return knex('user_roles')
+    .select('*')
+    .where({user_id: currentUser[0].id, sheet_id: sheet})
+    .then(data => {
+      if (data.length !== 0) {
+        const userRole = data[0].role_name.toLowerCase()
+        if (AuthObj[userRole][action]) {
+          return true;
         } else {
           return false;
         }
-      })
+      } else {
+        return false;
+      }
+    })
+}
+
+const checkAuth = async (action, sheet, req, res) => {
+  if (!await checkAuthLevel(action, sheet, req)) {
+    res.status(401).send("Unauthorized");
+    return;
   }
+}
 
   /*
       ==Our checker for Authlevel==
@@ -56,4 +64,4 @@ const requestCurrentUser = async (id) => {
   */
 
 
-export {requestCurrentUser, checkAuthLevel}
+export {requestCurrentUser, checkAuthLevel, checkAuth}

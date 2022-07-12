@@ -40,6 +40,7 @@
   white-space: nowrap;
   text-decoration: none;
   color: var(--color-text-menu);
+  transition: all var(--global-transition-speed) ease;
 }
 
 .sidebar-header-logo {
@@ -47,9 +48,9 @@
   min-width: 2.4rem;
 }
 
-.sidebar-header-text {
+#index .sidebar-header-text {
   display: none;
-  opacity: 0;
+  opacity: 1;
   height: 100%;
   padding: 0 0 0 1rem;
   font-size: var(--font-size-heading);
@@ -113,9 +114,11 @@
   flex-direction: column;
   overflow-y: scroll;
   width: 100%;
+  align-items: flex-start;
 }
 
-.sidebar-sheet {
+#index .sidebar-sheet {
+  width: 100%;
   min-height: 4.5rem;
   transition: all var(--global-transition-speed) ease;
 }
@@ -152,12 +155,15 @@
   font-weight: var(--bold);
   min-width: 3.5rem;
   min-height: 3.5rem;
+  margin-left: 0.8rem;
   background-color: var(--color-secondary);
   border-radius: 1000rem;
+  transition: all var(--global-transition-speed) ease;
 }
 
-.sidebar-sheet-link-text {
-  display: none;
+#index .sidebar-sheet-link-text {
+  /* display: none; */
+  opacity: 1;
   padding-left: 1rem;
   white-space: nowrap;
 }
@@ -221,14 +227,15 @@
   width: 2.5rem;
   min-width: 2.5rem;
   box-shadow: 0 0 4px 0px var(--global-box-shadow-color);
+  transition: all var(--global-transition-speed) ease;
 }
 
-.sidebar-footer-link-text {
+#index .sidebar-footer-link-text {
   display: none;
   padding-left: 1rem;
 }
 
-.sidebar-footer-theme {
+#index .sidebar-footer-theme {
   display: none;
   margin-right: 0.8rem;
 }

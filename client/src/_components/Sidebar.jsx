@@ -30,7 +30,7 @@ const Sidebar = (props) => {
   const { store } = useContext(GlobalContext)
   const { user, setSheetAccess, refresh, globalState, setScreen } = store
   const { screenType } = globalState
-  const { profileImg, sheetAccess, token } = user
+  const { profileImg, sheetAccess, token, userAccess } = user
   
   const { sheet } = useContext(SheetContext);
   
@@ -103,6 +103,37 @@ const Sidebar = (props) => {
   //   }
   
   // }, [location, screenType])
+
+  const [myId, setMyId] = useState(null)
+
+  useEffect(() => {
+    smartApi(['GET', `get_user_id`], user.token)
+      .then(result => {
+        if (result) {
+          setMyId(result.id)
+        }
+      })
+      .catch(error => console.log('error', error));
+  }, [])
+
+  const removeMe = (thisSheetId) => {
+
+    let payload = {
+        users: [
+            {user_id : myId}
+        ]
+    }
+
+    smartApi(['DELETE', `remove_roles/${thisSheetId}`, payload], user.token)
+      .then(result => {
+        toast.success(`You Left the Sheet`)
+        const path = window.location.pathname.split('/')
+        if (parseInt(path[2]) === thisSheetId) {
+          navigate('/')
+        }
+      })
+      .catch(error => console.log('error', error));
+  }
 
   const goLink = () => {
     const path = window.location.pathname.split('/')
@@ -247,12 +278,12 @@ const Sidebar = (props) => {
         >
           <div className={`sheet-options-menu-container`} style={menuLocation}>
             <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${menuTargetSheetId}/edit`)}}><Edit/><span>Edit Sheet</span></div>
-            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}><Duplicate/><span>Duplicate Sheet</span></div>
-            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}><Report/><span>Generate Report</span></div>
-            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();generateCSV(menuTargetSheetId, token)}}><Download/><span>Download Sheet</span></div>
+            {/* <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}><Duplicate/><span>Duplicate Sheet</span></div> */}
+            {/* <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}><Report/><span>Generate Report</span></div> */}
+            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();generateCSV(menuTargetSheetId, token)}}><Download/><span>Export to CSV</span></div>
             <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${menuTargetSheetId}/users`)}}><Lock/><span>User Access</span></div>
             <div className={`sheet-options-menu-item break ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`}></div>
-            <div className={`sheet-options-menu-item remove ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}><Leave/><span>Leave Sheet</span></div>
+            <div className={`sheet-options-menu-item remove ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={(e)=>{closeMenu();removeMe(menuTargetSheetId)}}><Leave/><span>Leave Sheet</span></div>
           </div>
         </ClickAwayListener>
       </nav>

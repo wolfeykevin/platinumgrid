@@ -21,12 +21,12 @@ import { ReactComponent as NotArchived } from '../../../_assets/icons/archive.sv
 const SheetModify = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
+  
   const { store } = useContext(GlobalContext);
   const { sheet } = useContext(SheetContext);
 
-  const { user, theme, isAuth, setIsAuth } = store;
-
+  const { user, theme, checkAuth, isAuth, setIsAuth } = store;
+  
   const [ newSheet, setNewSheet ] = useState(true);
   const [ isLoading, setIsLoading ] = useState(true);
   
@@ -38,6 +38,7 @@ const SheetModify = () => {
   const [ sheetFields, setSheetFields ] = useState([]);
   const [ sheetFieldsNew, setSheetFieldsNew ] = useState([]);
   const [ sheetFieldsArchived, setSheetFieldsArchived ] = useState([]);
+  const [ authLevel, setAuthLevel ] = useState();
 
   const setSheetFieldsOrdered = (data) => {
     setSheetFields(data.sort((a, b) => (a.field_id > b.field_id) ? 1 : -1))
@@ -58,17 +59,19 @@ const SheetModify = () => {
        reader.readAsText(file,'UTF-8');
     
        reader.onload = readerEvent => {
-          var content = readerEvent.target.result.split('\n').map(row => row.split(','));
+          var content = readerEvent.target.result.replaceAll("\r","").split('\n').map(row => row.split(','));
           
           let headers = content.splice(0, 1);
 
           console.log("Name:", file.name.replace(/\.csv/g, ''))
           console.log("Shortname:", file.name.replace(/\.csv/g, '').substring(0, 3))
           console.log("Headers:", headers)
-          console.log("Content:", content)
+          // console.log("Content:", content)
 
           addMultipleFields(headers)
 
+          let headerLength = headers[0].length;
+          console.log(headerLength)
           //TODO: Implement the rest
           let data = {
             sheet_id: 'new',
@@ -87,9 +90,11 @@ const SheetModify = () => {
                   value: value,
                 })
             })
+
+            entry.values = entry.values.slice(0, headerLength)
             data.entries.push(entry);
           })
-
+          console.log(data.entries);
           setSheetName(file.name.replace(/\.csv/g, ''))
           setShortName(file.name.replace(/\.csv/g, '').substring(0, 3))
 
@@ -116,10 +121,11 @@ const SheetModify = () => {
         }
       });
     } else {
+      const sheetId = location.pathname.split('/')[2]
+
       setNewSheet(false);
       setIsLoading(true);
       // fetch and parse sheet info here
-      const sheetId = location.pathname.split('/')[2]
       if (isNaN(sheetId)) {
         console.log('Sheet ID is NaN')
         navigate('/')
@@ -142,6 +148,7 @@ const SheetModify = () => {
   }, [location.pathname])
 
   useEffect(() => {
+    setAuthLevel(checkAuth(sheet.currentSheet.sheet_id))
     setSheetName(sheet.currentSheet.sheet.name)
     setShortName(sheet.currentSheet.sheet.short_name)
     setSheetFieldsOrdered(sheet.currentSheet.fields.filter(field => field.archived === false))
@@ -172,7 +179,7 @@ const SheetModify = () => {
         type: 'text',
         favorite: true,
         archived: false,
-        importedIndex: i,
+        importedId: i,
       })
     })
 
@@ -261,16 +268,16 @@ const SheetModify = () => {
             result.forEach(field => {
               // console.log(entry.values);
               // console.log(field.importedIndex)
-              let index = entry.values.findIndex(value => value.importedId === field.importedIndex)
+              let index = entry.values.findIndex(value => value.importedId === field.importedId)
               if (index !== -1) {
                 entry.values[index].field_id = field.field_id
               }
               // console.log(index)
-              // console.log(entry.values[index])
+              // console.log(entry)
               delete entry.values[index].importedId;
             })
           })
-
+          console.log(importedData)
           await smartApi(['POST', `/add_many_entries/${sheetId}`, importedData], user.token)
             .then(result => console.log(result))
             .catch(err => console.log(err))
@@ -442,7 +449,7 @@ const SheetModify = () => {
               <button className='add-field' onClick={addField}>+</button>
             </div>
           </div>
-          <div className='column options'>
+          <div className='column archived'>
             <div className='section archived'>
               <span className='column-title'>Archived</span>
               <div className='field-list'>

@@ -1,6 +1,6 @@
 .user-lookup-container {
   /* padding: 0.2rem; */
-  background-color: var(--color-background);
+  background-color: var(--color-entry-details-background);
   box-shadow: 0 0 4px 0 var(--global-box-shadow-color);
   z-index: 9999;
 }
@@ -20,7 +20,7 @@
   padding-left: 2rem;
   font-size: var(--font-size-subheading);
   font-weight: var(--bold);
-  background-color: var(--color-background);
+  background-color: var(--color-entry-details-background);
   /* box-shadow: 0 0 4px 0 var(--global-box-shadow-color);
   border-top-left-radius: 0;
   border-top-right-radius: 0; */
@@ -63,7 +63,7 @@
   /* max-height: calc(100% - 160px); */
   /* margin: 5px; */
   overflow: scroll;
-  background-color: var(--color-background);
+  background-color: var(--color-entry-details-background);
   padding: 0rem 1rem 2rem 1rem;
   height: 100%;
 }

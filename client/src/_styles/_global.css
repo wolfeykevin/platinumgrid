@@ -7,7 +7,7 @@
   --global-padding: 1rem;
   --global-padding-half: 0.5rem;
   --global-border-radius: 24px;
-  --global-transition-speed: 400ms;
+  --global-transition-speed: 350ms;
   --global-transition-speed-fast: 100ms;
 
   --input-padding: 0.5rem 1rem 0.5rem 1rem;
@@ -407,13 +407,13 @@ textarea:focus, input:focus{
 }
 
 #page.extend .index-welcome-container {
-  transform: translateX(23rem);
+  transform: translateX(-23rem);
   opacity: 0;
   transition: all var(--global-transition-speed-fast) ease-in-out;
 }
 
 .index-app {
-  z-index: 2000;
+  z-index: 404;
   transition: all var(--global-transition-speed) ease;
 }
 
@@ -495,6 +495,51 @@ textarea:focus, input:focus{
 .intro-tooltip svg path {
   fill: var(--color-sheet-title) !important;
   transition: all var(--global-transition-speed) ease;
+}
+
+.entry-tooltip {
+  display: flex !important;
+  right: 14rem !important;
+  align-items: center;
+  z-index: 20000;
+  animation-duration: 1400ms;
+  animation-name: slidein;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  transition: all var(--global-transition-speed) ease;
+}
+
+#page.extend .entry-tooltip {
+  right: 30rem !important;
+  z-index: 20000;
+  transition: all var(--global-transition-speed) ease;
+}
+
+.entry-tooltip svg {
+  height: auto;
+  width: 2rem;
+  transition: all var(--global-transition-speed) ease;
+}
+
+.entry-tooltip svg path {
+  fill: var(--color-sheet-title) !important;
+  transition: all var(--global-transition-speed) ease;
+}
+.entry-tooltip span {
+  height: auto;
+  color: var(--color-sheet-title);
+  padding-right: 0.8rem;
+  font-weight: var(--bold);
+  transition: all var(--global-transition-speed) ease;
+}
+
+.sheet-display-container.shrink ~ .entry-tooltip {
+  opacity: 0;
+  transition: all var(--global-transition-speed-fast) ease;
+}
+
+.entry-tooltip.hide {
+  display: none !important;
 }
 
 
@@ -661,7 +706,13 @@ textarea:focus, input:focus{
   }
 
   .sidebar-header-text {
+    display: none;
     opacity: 1;
+  }
+
+  #main .sidebar-footer-link-text {
+    display: none;
+    padding-left: 1rem;
   }
 
 }
@@ -670,6 +721,10 @@ textarea:focus, input:focus{
 /* LARGE SCREENS */
 
 @media only screen and (min-width: 768px) {
+
+  /* .sidebar * {
+    transition: all var(--global-transition-speed) ease;
+  } */
 
   #page.extend  {
     height: 100%;
@@ -716,15 +771,19 @@ textarea:focus, input:focus{
     align-items: center;
     white-space: nowrap;
     text-decoration: none;
-    width: initial;
-    justify-content: center;
+    width: 0;
+    /* padding-left: 1.2rem; */
+    /* justify-content: center; */
     color: var(--color-text-menu);
     height: 100%;
     flex-grow: 1;
+    margin-left: 1.2rem;
+    transition: all var(--global-transition-speed) ease;
   }
 
   .sidebar-footer-link-text {
-    display: none;
+    width: 0;
+    opacity: 0;
     flex-grow: 2;
   }
 
@@ -740,9 +799,18 @@ textarea:focus, input:focus{
     z-index: 405;
   }
 
+  .sidebar:hover .sidebar-sheet {
+    width: 100%;
+  }
+
   .sidebar:hover {
     width: 28rem;
     padding-right: 6rem;
+  }
+
+  .sidebar:hover .sidebar-header-link {
+    padding-left: 1.45rem;
+    transition: all var(--global-transition-speed) ease;
   }
 
   .sidebar:hover .sidebar-header {
@@ -750,14 +818,15 @@ textarea:focus, input:focus{
   }
 
   .sidebar:hover .sidebar-header-logo {
-    margin-left: 2rem;
+    margin-left: 0.5rem;
     transition: all var(--global-transition-speed) ease;
   }
 
   .sidebar:hover .sidebar-header-text {
     opacity: 1;
-    display: inline;
-    transition: var(--global-transition-speed-fast);
+    /* display: inline; */
+    transition: var(--global-transition-speed);
+    transition-delay: 50ms;
   }
 
   .sidebar:hover .sidebar-header-add-sheet {
@@ -770,29 +839,42 @@ textarea:focus, input:focus{
   }
 
   .sidebar:hover .sidebar-sheet-circle {
-    margin-left: 1.5rem;
+    margin-left: 1.4rem;
     transition: all var(--global-transition-speed) ease;
   }
-
+  
   .sidebar:hover .sidebar-sheet-link-text {
-    display: inline;
+    /* display: inline; */
+    opacity: 1;
+    transition: all var(--global-transition-speed-fast) ease;
   }
 
   .sidebar:hover .sidebar-footer {
     justify-content: start;
   }
 
+  .sidebar:hover .sidebar-footer-link {
+    margin-left: 1.75rem;
+    padding-left: 0rem;
+    transition: all var(--global-transition-speed) ease;
+  }
+
   .sidebar:hover .sidebar-footer-link img {
-    margin-left: 2rem;
     transition: all var(--global-transition-speed) ease;
   }
 
   .sidebar:hover .sidebar-footer-link-text {
-    display: inline;
+    opacity: 1;
+    transition: opacity var(--global-transition-speed) ease;
+    transition-delay: 50ms;
   }
 
   .sidebar:hover .sidebar-footer-theme {
     display: flex;
+    width: auto;
+    opacity: 1;
+    transition: opacity var(--global-transition-speed) ease;
+    transition-delay: 50ms;
   }
 
   .sidebar:hover ~ #page .entry-details-container {

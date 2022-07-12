@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { GlobalContext } from '../_context/AppProvider'
 import { SheetContext } from '../_context/SheetProvider';
-import { Div } from '../_styles/_global'
+import { Div, Fix } from '../_styles/_global'
 import Entry from './Entry';
 import EntryDetails from './EntryDetails';
 import logo from '../_assets/img/logo.png';
@@ -12,6 +12,7 @@ import edit from '../_assets/icons/edit-purple.png'
 import useScrollHandler from '../_helpers/useScrollHandler';
 import smartApi from '../_helpers/smartApi';
 import OptionsMenu from './OptionsMenu';
+import { ReactComponent as Left } from '../_assets/icons/left.svg';
 
 const SheetDisplay = () => {
   const navigate = useNavigate();
@@ -32,6 +33,8 @@ const SheetDisplay = () => {
 
   const [ searchString, setSearchString ] = useState('');
   const [ searchField, setSearchField ] = useState('');
+  const [ authLevel, setAuthLevel ] = useState();
+  const [ paginatedEntries, setPaginatedEntries ] = useState([])
 
   useEffect(() => {
     if (selectedEntry.entry_id > 0) {
@@ -43,8 +46,6 @@ const SheetDisplay = () => {
     }
   }, [selectedEntry, newEntry])
 
-
-
   const [ localRefresh, setLocalRefresh ] = useState(false)
    // use useEffect and useState to trigger a rerender every 2 seconds
    useEffect(() => {
@@ -52,6 +53,13 @@ const SheetDisplay = () => {
       setLocalRefresh(!localRefresh)
       // console.log('refreshing sheet')
     }, 2000);
+    // refresh auth level as well
+    smartApi(['GET', `authCheck/${sheetId}`], user.token)
+    .then(result => {
+      // console.log(result);
+      setAuthLevel(result);
+    })
+    .catch(error => console.log('error', error));
     return () => clearInterval(interval);
   }, [localRefresh])
 
@@ -80,7 +88,8 @@ const SheetDisplay = () => {
         .catch(error => {
           navigate('/')
           sheet.setSheetLoading(false);
-          console.log('error', error)});
+          // console.log('error', error)
+        });
     }
   }, [sheetId, localRefresh])
 
@@ -94,6 +103,9 @@ const SheetDisplay = () => {
 
     return entries.filter(entry => entry.values[entry.values.findIndex(value => value.field_id === fieldId)].value.match(new RegExp(searchString,'i','g')))
   }
+
+  const filteredEntries = sheet.currentSheet.entries.filter(entry => entry.archived === false)
+  // console.log(sheet.currentSheet)
 
   return (
     <>
@@ -143,10 +155,10 @@ const SheetDisplay = () => {
             {/* <SheetEntries> */}
             <tbody>
               {(searchString !== '' && searchField !== '') ? 
-                filterEntries().map((entry, i) => {
+                filterEntries().filter(entry => entry.archived === false).map((entry, i) => {
                   return <Entry data={entry} key={i}/>})
                 :
-                sheet.currentSheet.entries.map((entry, i) => {
+                sheet.currentSheet.entries.filter(entry => entry.archived === false).map((entry, i) => {
                   return <Entry data={entry} key={i}/>})
               }
             </tbody>
@@ -154,14 +166,19 @@ const SheetDisplay = () => {
         </div>
         {/* <button className="dummy-users-button" onClick={
           () => navigate(`/sheet/${sheet.currentSheet.sheet_id}/users`)}><img alt='edit-icon'/></button> */}
-        <button className="new-entry no-select" onClick={() => sheet.setNewEntry(true)}><span>New Entry</span><img alt='edit-icon'/></button>
+        {authLevel === 'Viewer' ? <></>:<button className="new-entry no-select" onClick={() => sheet.setNewEntry(true)}><span>New Entry</span><img alt='edit-icon'/></button>}
         {/* <button className="dummy-filter" onClick={filterEntries}>%</button> */}
       </div>
       <EntryDetails entryId={entryId}/>
       <OptionsMenu/>
+      <Fix className={`entry-tooltip ${filteredEntries.length > 0 ? 'hide' : ''}`} offset="2.8rem" lower right>
+        <span>Create a new entry</span><Left className="flip-horizontal"/>
+      </Fix>
     </>
   );
 }
+
+
 
 export default SheetDisplay;
 //sidebar

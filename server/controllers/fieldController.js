@@ -18,33 +18,39 @@ const handleField = async (req, res) => {
     return;
   }
 
-  await Promise.all(fields.map((field, i) =>{
-    // console.log(field)
-    if (field.field_id !== 'new') {
-      console.log("Updated field:", field.field_id)
-      knex('fields')
-        .select('*')
-        .where({id: field.field_id})
-        .update({name: field.name, id: field.field_id, favorite: field.favorite, type: field.type, archived: field.archived})
-        .catch(err => console.log(err))
-        // .then((data => console.log(data)))
-    } else {
-      knex('fields')
-        .insert({sheet_id: targetId, name: field.name, favorite: field.favorite, type: field.type, archived: field.archived})
-        .returning('id')
-        .then(returned => {
-          fields[i].field_id = returned[0].id
-        })
-        .catch(err => console.log(err))
-        // .then((data => console.log(data)))
-    }
-  }))
+  
+  Promise.all(
+    fields.map(async (field, i) =>{
+      if (field.field_id !== 'new') {
+        console.log("Updated field:", field.field_id)
+        return knex('fields')
+          .select('*')
+          .where({id: field.field_id})
+          .update({name: field.name, id: field.field_id, favorite: field.favorite, type: field.type, archived: field.archived})
+          .catch(err => console.log(err))
+          .then()
+      } else {
+        return knex('fields')
+          .insert({sheet_id: targetId, name: field.name, favorite: field.favorite, type: field.type, archived: field.archived})
+          .returning('id')
+          .then(returned => {
+            fields[i].field_id = returned[0].id
+          })
+          .catch(err => console.log(err))
+          .then()
+      }
+    })
+  ).then(data => res.status(200).json(fields))
 
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  knex('fields')
-    .select('*')
-    .where({sheet_id: targetId})
-    .then(data => res.status(200).json(fields))
+  // await new Promise(resolve => setTimeout(resolve, 1000)); // fix this
+  // test.then((res) => {
+  //   knex('fields')
+  //     .select('*')
+  //     .where({sheet_id: targetId})
+  //     .returning('*')
+  //     .then(data => res.status(200).json(data))
+
+  // })
 };
 
 const flipChecked = async (req, res) => {

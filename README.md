@@ -64,7 +64,7 @@
     - Added "UPDATE" notification if previously entered data is changed
     - Resolved issue with FIREBASE authentication not passing header
 
-    v0.7 (9 July):
+    v0.7 (11 July):
     - Over weekend, added CREATE SHEET text boxes, CREATE SHEET SCREEN, SHEET SEARCH functionality, cleaned up API routes
     - Fixed error being generated when attempting to create NEW SHEET
     - Resolved CREATE SHEET CSS styling issues
@@ -77,6 +77,17 @@
     - Beginning QR code integration
     - Resolved inability to edit SHEET FIELDS in ENTRY EDIT
     - QR code generation instantiated, req add'l refactoring to make printable, separate from button
+
+    v0.8 (12 July):
+    - QR functionality refactored, ops checked, print dialogue added w/ formatting i/w
+    - Redesigned landing page to be more appealing
+    - Implemented ability to upload CSV files to backend, have them display properly on frontend
+    - Bumping out data size limit for server to 1MB; seeking to remove REQUESTTOOLARGE error upon CSV file upload
+    - Resolving CSV formatting errors, prevent returning of empty arrays from backend
+    - Implementing LEAVE SHEET, TOOLTIPS, DUPLICATE ENTRY features
+    - Fixed sidebar menu icon movement, no longer 'jumps' when side menu expands
+    - Refactoring EDIT PAGE code to address issues with editing data in backend
+
 
 <br>
 
@@ -198,6 +209,11 @@ Install Router package
 
 Install styled components
 > npm install --save styled-components
+
+<br>
+
+Install QR code package
+> npm install qrcode.react
 
 <br>
 

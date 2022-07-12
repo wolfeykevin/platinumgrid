@@ -1,6 +1,21 @@
 import knex from "../db/db.js";
 import { requestCurrentUser, checkAuthLevel } from "./helpers.js";
 
+const myAuth = async (req, res) => {
+  const currentUser = await requestCurrentUser(req.user.user_id)
+  const sheet = req.params 
+  return knex('user_roles')
+    .select('*')
+    .where({user_id: currentUser[0].id, sheet_id: sheet.sheet_id})
+    .then(data => {
+      if (data[0]) {
+        res.status(200).send(data[0].role_name) 
+        return
+      }
+      res.status(401).send('GET out here')
+    })
+}
+
 const request = async (req, res) => {
   const { user_id, name } = req.user
 
@@ -65,11 +80,15 @@ const editUserRoles = async (req, res) => {
 const removeUserRoles = async (req, res) => {
   const targetId = req.params.sheet_id;
   const { users } = req.body.title;
+  const currentUser = await requestCurrentUser(req.user.user_id)
 
-  if (!await checkAuthLevel('userManage', targetId, req)) {
-    res.status(401).send("Unauthorized");
-    return;
+  if(currentUser[0].id !== users[0].user_id) {
+    if (!await checkAuthLevel('userManage', targetId, req)) {
+      res.status(401).send("Unauthorized");
+      return;
+    }
   }
+
 
   users.forEach(user => {
     knex('user_roles')
@@ -101,5 +120,5 @@ const add = (req, res) => {
 };
 
 
-export { request, add, getAllSheetUsers, requestAllUsers, editUserRoles, removeUserRoles, getUserId};
+export { myAuth, request, add, getAllSheetUsers, requestAllUsers, editUserRoles, removeUserRoles, getUserId};
 

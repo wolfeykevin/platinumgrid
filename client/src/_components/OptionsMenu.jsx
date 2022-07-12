@@ -10,11 +10,12 @@ import { ReactComponent as Edit } from '../_assets/icons/menu-edit.svg';
 import { ReactComponent as Duplicate } from '../_assets/icons/menu-duplicate.svg';
 import { ReactComponent as Qr } from '../_assets/icons/menu-qr.svg';
 import { Fix } from '../_styles/_global';
+import smartApi from '../_helpers/smartApi';
 
 const OptionsMenu = () => {
 
   const { store } = useContext(GlobalContext)
-  const { globalState } = store
+  const { globalState, user } = store
   const { screenType } = globalState
 
   const { sheet } = useContext(SheetContext)
@@ -24,6 +25,7 @@ const OptionsMenu = () => {
 
   const [applyStyle, setApplyStyle] = useState(false)
   const [displayQR, setDisplayQR] = useState(false)
+  const [ QRdata, setQRData ] = useState();
   const [menuLocation, setMenuLocation] = useState({
     visibility: 'hidden',
     top: 0,
@@ -49,18 +51,30 @@ const OptionsMenu = () => {
     setApplyStyle(true)
     const { top, left } = e.target.getBoundingClientRect()
     let bottomDist = window.innerHeight - e.target.offsetTop + e.target.offsetHeight
-    if (bottomDist < 440) {
+    let rightDist = e.clientX
+    // console.log(rightDist)
+    // console.log(e.target.getBoundingClientRect().x)
+    // console.log(window.innerWidth)
+    if (screenType === 'mobile' && bottomDist < 440) {
+      setMenuLocation({
+        visibility: 'visible',
+        top: 'unset',
+        bottom: 72,
+        right: 20,
+        // right: 20
+      })
+    } else if (bottomDist < 440) {
       setMenuLocation({
         visibility: 'visible',
         top: 'unset',
         bottom: 20,
-        left: left - 148,
+        left: rightDist - 140
         // right: 20
       })
     } else if (screenType === 'mobile') {
       setMenuLocation({
         visibility: 'visible',
-        top: top,
+        top: top + 20,
         left: 'unset',
         right: 20
       })
@@ -68,7 +82,7 @@ const OptionsMenu = () => {
       setMenuLocation({
         visibility: 'visible',
         top: top + 28,
-        left: left - 124
+        left: rightDist - 140
       })
     }
   }
@@ -89,23 +103,32 @@ const OptionsMenu = () => {
     })
   }
 
+  const archiveEntry = (entry) => {
+    console.log('attempting to archive entry:', entry)
+    smartApi(['PATCH', `archive_entry/${entry.entry_id}`], user.token)
+    .then(result => {
+      toast.success(`Entry Archived`)
+    })
+    .catch(error => console.log('error', error));
+  }
+
   return (
     <>
       <ClickAwayListener
         mouseEvent="onMouseDown"
         touchEvent="onTouchStart"
-        onClickAway={() => {closeMenu();setDisplayQR(false)}}>
+        onClickAway={() => {closeMenu()}}>
         <div className={`sheet-options-menu-container no-select`} style={menuLocation}>
           <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${entryDetails.sheet_id}/${entryDetails.entry_id}`)}}><Edit/><span>Edit</span></div>
           <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}><Duplicate/><span>Duplicate</span></div>
-          <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();setDisplayQR(!displayQR)}}><Qr/><span>QR Code</span></div>
+          <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();setDisplayQR(!displayQR);setQRData(entryDetails)}}><Qr/><span>QR Code</span></div>
           <div className={`sheet-options-menu-item break ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`}></div>
-          <div className={`sheet-options-menu-item remove ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}><Archive/><span>Archive</span></div>
+          <div className={`sheet-options-menu-item remove ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();archiveEntry(entryDetails)}}><Archive/><span>Archive</span></div>
         </div>
       </ClickAwayListener>
-      <Fix offsetBottom="-100rem" lower center className={`qr-code ${displayQR ? 'visible' : ''}`}>
+      <Fix offsetBottom="-100rem" lower center className={`qr-code ${displayQR ? 'visible' : ''}`} onClick={() => {closeMenu();setDisplayQR(false)}}>
         { displayQR ? 
-          <QrCodeGen entry={entryDetails} fields={sheet.currentSheet.fields}/>
+          <QrCodeGen entry={QRdata} fields={sheet.currentSheet.fields}/>
           : <></>
         }
       </Fix>
