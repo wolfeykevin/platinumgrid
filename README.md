@@ -43,7 +43,6 @@
     - Resolved FIREBASE login issue where token wasn't being passed between host, client
     - Beginning to implement GET requests from backend to frontend
     - Implementing USER ACCESS/menus page from mobile view
-    - Wolfe bought GitHub Co-Pilot because of Levi's peer pressure
     - Clicking on a sheet now generates a dynamic route
     - Beginning to tie together backend, frontend tables/presentation together
     - USER ACCESS screen now displayers access rights per user
