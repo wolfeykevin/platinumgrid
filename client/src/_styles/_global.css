@@ -462,9 +462,62 @@ textarea:focus, input:focus{
   opacity: 0;
   transition: all var(--global-transition-speed-fast) ease;
 }
+
 .dod-img {
   padding-right: 1rem;
   transition: all var(--global-transition-speed) ease;
+}
+
+.intro-tooltip {
+  display: flex !important;
+  left: 6.4rem !important;
+  align-items: center;
+  z-index: 20000;
+  animation-duration: 1400ms;
+  animation-name: slidein;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  transition: all var(--global-transition-speed) ease;
+}
+
+#page.extend .intro-tooltip {
+  left: 30rem !important;
+  z-index: 20000;
+  transition: all var(--global-transition-speed) ease;
+}
+
+.intro-tooltip svg {
+  height: auto;
+  width: 2rem;
+  transition: all var(--global-transition-speed) ease;
+}
+
+.intro-tooltip svg path {
+  fill: var(--color-sheet-title) !important;
+  transition: all var(--global-transition-speed) ease;
+}
+
+
+@keyframes slidein {
+  from {
+    transform: translateX(0.8rem);
+  }
+  
+  to {
+    transform: translateX(0rem);
+  }
+}
+
+.intro-tooltip span {
+  height: auto;
+  color: var(--color-sheet-title);
+  padding-left: 0.8rem;
+  font-weight: var(--bold);
+  transition: all var(--global-transition-speed) ease;
+}
+
+.intro-tooltip.hide {
+  display: none !important;
 }
 
 .home-lite {
@@ -606,7 +659,11 @@ textarea:focus, input:focus{
     margin-left: 0;
     z-index: 120000 !important;
   }
-  
+
+  .sidebar-header-text {
+    opacity: 1;
+  }
+
 }
 
 
@@ -698,7 +755,9 @@ textarea:focus, input:focus{
   }
 
   .sidebar:hover .sidebar-header-text {
+    opacity: 1;
     display: inline;
+    transition: var(--global-transition-speed-fast);
   }
 
   .sidebar:hover .sidebar-header-add-sheet {

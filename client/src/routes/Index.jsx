@@ -18,6 +18,7 @@ import SheetModify from './sheets/create-edit/SheetModify';
 import menu from '../_assets/icons/grip.png';
 import { ClickAwayListener } from '@mui/base';
 import Sidebar from '../_components/Sidebar';
+import { ReactComponent as Left } from '../_assets/icons/left.svg';
 
 const Index = () => {
 
@@ -121,6 +122,9 @@ const Page = () => {
           <div className="index-name">
             {name.first} {name.last}
           </div>
+        </Fix>
+        <Fix className={`intro-tooltip ${sheetAccess.length > 0 ? 'hide' : ''}`} offset="5rem" offsetLeft="10rem" upper left>
+          <Left/><span>Get started by creating a new sheet</span>
         </Fix>
       </Div>
     )

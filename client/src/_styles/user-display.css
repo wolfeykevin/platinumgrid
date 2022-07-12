@@ -260,13 +260,22 @@ tbody .users-display-cell {
   width: 50px;
 }
 
-.user-row-option img{
+.user-row-option img {
   display: flex;
   align-items: center;
   justify-content: center;
-  max-width: 40px;
+  width: 2rem;
   height: auto;
   content: url('../_assets/icons/delete-light.png');
+}
+
+#dark .user-row-option img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: auto;
+  content: url('../_assets/icons/delete-dark.png');
 }
 
 tr:nth-child(even) .user-row-option  {

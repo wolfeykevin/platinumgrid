@@ -49,13 +49,14 @@
 
 .sidebar-header-text {
   display: none;
+  opacity: 0;
   height: 100%;
   padding: 0 0 0 1rem;
   font-size: var(--font-size-heading);
   font-weight: var(--heavy);
   color: var(--text-secondary);
   letter-spacing: 0ch;
-  transition: var(--global-transition-speed);
+  transition: var(--global-transition-speed-fast);
 }
 
 .sidebar-header-add-sheet {
