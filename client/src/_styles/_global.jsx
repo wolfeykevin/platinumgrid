@@ -21,9 +21,19 @@ export const Fix = styled.div`
   display: block;
   position: fixed;
   top: ${(props) => props.lower ? "unset" : props.offset};
-  bottom: ${(props) => props.lower ? props.offset : "unset"};
-  left: ${(props) => props.right ? "unset" : props.offset};
+  bottom: ${(props) => props.lower && props.offsetBottom ? props.offsetBottom : props.lower ? props.offset : "unset"};
+  left: ${(props) => props.offsetLeft ? props.offsetLeft : props.right ? "unset" : props.center ? "50%" : props.offset};
   right: ${(props) => props.right ? props.offset : "unset"};
+  transform: ${(props) => props.center ? "translateX(-50%)" : ""};
+`;
+
+export const Cover = styled.div`
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
 `;
 
 export const Img = styled.img`

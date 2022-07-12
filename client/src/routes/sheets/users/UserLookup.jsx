@@ -29,9 +29,10 @@ const UserLookup = () => {
   const { user, setSheetAccess, refresh } = store;
 
   useEffect(() => {
+
     if (location.pathname.split('/').length >= 5 && location.pathname.split('/')[4] === 'lookup') {
       setLookupVisible(true);
-      console.log(location.pathname.split('/')[2])
+      // console.log(location.pathname.split('/')[2])
       if (location.pathname.split('/')[2] === '1001' || location.pathname.split('/')[2] === "1002") {
         setUserResults(dummyData.users)
         mouseDownHandler = useScrollHandler('user-scroll-container');
@@ -62,7 +63,7 @@ const UserLookup = () => {
     let clickDuration = new Date() - sheet.clickTime.current
 
     if (clickDuration < threshold) {
-      console.log(`Attempting to add User ID: ${userId}, Name: ${userName}`)
+      // console.log(`Attempting to add User ID: ${userId}, Name: ${userName}`)
 
       let index = userAccess.sheetUsers.findIndex(user => user.user_id === parseInt(userId))
 
@@ -89,7 +90,7 @@ const UserLookup = () => {
             .then(result => {
               userAccess.setSheetUsers(result);
               if (result.length === 0) {
-                console.log(result);
+                // console.log(result);
                 navigate('/')
               }
             })
@@ -141,7 +142,9 @@ const UserLookup = () => {
           mouseDownHandler(e);
           }}>
           {userResults.filter(user => //change one of these to email once we have that data
-            (user.name.match(new RegExp(search,'i','g')) || user.name.match(new RegExp(search,'i','g')))
+            (user.name.match(new RegExp(search,'i','g')) || user.email.match(new RegExp(search,'i','g')))
+            // filter out users who are already members of the sheet
+            && userAccess.sheetUsers.findIndex(sheetUser => sheetUser.user_id === user.user_id) === -1
             ).map(user => {
             let userId = user.user_id;
             let userName = user.name;
@@ -153,8 +156,11 @@ const UserLookup = () => {
             }
 
             return (
-              <div key={userId} className='user-lookup-result'>
-                <img src={user.picture !== undefined ? user.picture : defaultProfileImage} className='user-lookup-image no-select' alt="profile-image"/>
+              <div key={userId} className={`user-lookup-result`}>
+              {/* <div key={userId} className={`user-lookup-result ${
+                (userAccess.sheetUsers.findIndex(user => user.user_id === userId) !== -1) ? 'hide-me' : ''
+              }`}> */}
+                <img referrerPolicy="no-referrer" src={user.picture !== undefined ? user.picture : defaultProfileImage} className='user-lookup-image no-select' alt="profile-image"/>
                 <div className='user-lookup-data'>
                   <span className='data-name'>{user.name}</span>
                   <span className='data-email'>{user.email}</span>

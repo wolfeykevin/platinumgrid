@@ -46,6 +46,48 @@ const add = async (req, res) => {
   
 };
 
+const addMany = async (req, res) => {
+  const sheet_id = req.params.sheet_id
+  const { entries } = req.body
+
+  if (!await checkAuthLevel('write', sheet_id, req)) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+
+  console.log(entries)
+  entries.forEach(entry => {
+    let values = entry.values;
+    knex('sheets')
+      .select('id')
+      .where({id: sheet_id})
+      .then(data => {
+        if (data.length) {
+          if (values.every((elm) => ValidataField(elm.field_id))) {
+            knex('entries')
+              .insert({sheet_id})
+              .returning('id')
+              .then((entry_id) => {
+                values.forEach(value => {
+                  value.entry_id = entry_id[0].id
+                })
+                return knex('values')
+                  .insert(values)
+                  // .then(() => res.status(201).json(`entry added to sheet ${sheet_id}.`))
+              })
+         } else {
+          // res.status(400).send("User Error, Check body and please try again.")
+         }
+        } else {
+          // res.status(400).send("User Error, Check body and please try again.")
+         }
+      })
+  })
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  res.status(201).json(`Entries added.`)
+};
+
+
 const archive = (req, res) => {
   const targetId = req.params.entry_id
 
@@ -66,9 +108,9 @@ const archive = (req, res) => {
 
 const edit = async (req, res) => {
   const targetId = req.params.entry_id;
-  let { values } = req.body;
+  let { values, sheet_id } = req.body;
 
-  if (!await checkAuthLevel('write', targetId, req)) {
+  if (!await checkAuthLevel('write', sheet_id, req)) {
     res.status(401).send("Unauthorized");
     return;
   }
@@ -79,12 +121,11 @@ const edit = async (req, res) => {
       .select('*')
       .where({id: value.value_id})
       .update({ value: value.value })
-      // .then(data => console.log('current',data) )
+      .then()
     } else {
-      // console.log(value)
       knex('values')
       .insert({ value: value.value, field_id: value.field_id, entry_id: targetId})
-      // .then(data => console.log('new',data))
+      .then()
     }
   })
 
@@ -98,10 +139,9 @@ const ValidataField = async (id) => {
     .select('*')
     .where({sheet_id: parseInt(id)})
     .then((data) => {
-
       return true;
     }).catch(() => {
       return false;
     })
 }
-export { request, add, edit, archive };
+export { request, add, addMany, edit, archive };

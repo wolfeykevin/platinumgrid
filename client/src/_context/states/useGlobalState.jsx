@@ -7,7 +7,7 @@ const useGlobalState = () => {
   const [globalState, setGlobalStateObj] = useState({
     language: "en",
     loading: false,
-    screen: 'desktop',
+    screenType: 'desktop',
     theme: defaultTheme,
   })
 
@@ -48,7 +48,7 @@ const useGlobalState = () => {
     }
     setGlobalState({
       ...globalState,
-      screen: screenType,
+      screenType: screenType,
     })
 
   }

@@ -37,7 +37,7 @@
   padding: 0 1rem 0 0;
 }
 
-.create-sheet, .handle-fields {
+.create-sheet, .handle-fields , .import-data{
   display: flex;
   align-items: center;
   justify-content: center;
@@ -62,6 +62,12 @@
 }
 
 .handle-fields {
+  position: absolute;
+  right: 0;
+  bottom: 5.6rem;
+}
+
+.import-data {
   position: absolute;
   right: 0;
   bottom: 5.6rem;

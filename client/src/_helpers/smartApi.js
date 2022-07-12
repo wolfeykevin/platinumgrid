@@ -78,7 +78,7 @@ const smartApi = async (options, token, callback) => {
       })
       if (!response.ok) {
         const message = `An error has occured: ${response.status}`;
-        // throw new Error(message);
+        throw new Error(message);
       } else {
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.indexOf("application/json") !== -1) {

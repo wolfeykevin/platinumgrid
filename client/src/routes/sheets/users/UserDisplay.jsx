@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { SheetContext } from '../../../_context/SheetProvider';
 import { Div } from '../../../_styles/_global'
-import logo from '../../../_assets/img/logo-dark.png';
 import dummyData from '../../../_dummy/users.json';
 import edit from '../../../_assets/icons/edit-purple.png'
 import useScrollHandler from '../../../_helpers/useScrollHandler';
@@ -70,7 +69,7 @@ const UserDisplay = () => {
       .then(result => {
         userAccess.setSheetUsers(result);
         if (result.length === 0) {
-          console.log(result);
+          // console.log(result);
           navigate('/')
         } else {
           navigate(location.pathname);
@@ -82,7 +81,7 @@ const UserDisplay = () => {
   const updateUsers = () => {
     let payload = {users: []}
     for (let element of document.getElementsByClassName('role-changed')) {
-      console.log(`Set User ID: ${element.closest('tr').id} to ${element.value}`)
+      // console.log(`Set User ID: ${element.closest('tr').id} to ${element.value}`)
       payload.users.push({user_id: element.closest('tr').id, "role_name": element.value})
     }
     setUsersChanged(0)
@@ -102,8 +101,8 @@ const UserDisplay = () => {
     fetch(`http://localhost:8080/api/edit_user_roles/${sheetId}`, requestOptions)
       .then(response => response.json())
       .then(result => {
-        toast.success('Users Roles Updated!')
-        console.log(result); // user role has been added
+        toast.success('User Roles Updated')
+        // console.log(result); // user role has been added
         getSheetUsers();
         // window.location.reload();
       })
@@ -116,7 +115,7 @@ const UserDisplay = () => {
     //   })
     //   .catch(error => console.log('error', error));
 
-    console.log(payload)
+    // console.log(payload)
   }
 
 
@@ -128,12 +127,12 @@ const UserDisplay = () => {
     smartApi(['DELETE', `remove_roles/${sheetId}`, payload], user.token)
       .then(result => {
         toast.success('User Removed')
-        console.log(result); 
+        // console.log(result); 
         smartApi(['GET', `get_sheet_users/${sheetId}`], user.token)
         .then(result => {
           userAccess.setSheetUsers(result);
           if (result.length === 0) {
-            console.log(result);
+            // console.log(result);
             navigate('/')
           }
         })
@@ -186,7 +185,7 @@ const UserDisplay = () => {
               </thead>
               <tbody>
                 {userAccess.sheetUsers.map((user,i) => {
-                  let roles = ['Owner', 'Editor', 'Viewer', 'Daniel']
+                  let roles = ['Owner', 'Editor', 'Viewer']
 
                   if (user.email === undefined || user.email === null) {
                     user.email = `${user.name.split(' ')[0]}.${user.name.split(' ')[1]}@gmail.com`
@@ -196,7 +195,7 @@ const UserDisplay = () => {
                   }
                   return (
                     <tr id={user.user_id} key={i} className='user-row'>
-                      <td className='user-row-picture'><img className='user-profile-picture' src={user.picture !== undefined ? user.picture : defaultProfileImage} /></td>
+                      <td className='user-row-picture'><img referrerPolicy="no-referrer" className='user-profile-picture' src={user.picture !== undefined ? user.picture : defaultProfileImage} /></td>
                       <td className='users-display-cell'>{user.name}</td>
                       <td className='users-display-cell'>
                         <select key={`${i}-${user.role}`} defaultValue={user.role} className='users-display-role-select' onChange={(e) => {
@@ -235,7 +234,7 @@ const UserDisplay = () => {
         </div>
       </div>
       <UserLookup/>
-      <button className='add-user' onClick={() => navigate('lookup')}><img className='primary-image'/><img className='secondary-image'/></button>
+      <button className='add-user' onClick={() => navigate('lookup')}><span>Add User</span><img className='primary-image'/><img className='secondary-image'/></button>
       {/* <button className='users-display-exit' onClick={
           () => navigate(-1)
         }>&lt;</button> */}

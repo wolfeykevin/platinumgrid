@@ -1,5 +1,5 @@
 import knex from "../db/db.js";
-import { checkAuthLevel } from "../auth/auth.js";
+import { checkAuthLevel } from "./helpers.js";
 
 const request = (req, res) => {
   knex("fields")
@@ -18,8 +18,8 @@ const handleField = async (req, res) => {
     return;
   }
 
-  fields.forEach(field =>{
-    console.log(field)
+  await Promise.all(fields.map((field, i) =>{
+    // console.log(field)
     if (field.field_id !== 'new') {
       console.log("Updated field:", field.field_id)
       knex('fields')
@@ -31,15 +31,20 @@ const handleField = async (req, res) => {
     } else {
       knex('fields')
         .insert({sheet_id: targetId, name: field.name, favorite: field.favorite, type: field.type, archived: field.archived})
+        .returning('id')
+        .then(returned => {
+          fields[i].field_id = returned[0].id
+        })
         .catch(err => console.log(err))
         // .then((data => console.log(data)))
     }
-  })
+  }))
 
+  await new Promise(resolve => setTimeout(resolve, 1000));
   knex('fields')
     .select('*')
     .where({sheet_id: targetId})
-    .then(data => res.status(200).json(data))
+    .then(data => res.status(200).json(fields))
 };
 
 const flipChecked = async (req, res) => {

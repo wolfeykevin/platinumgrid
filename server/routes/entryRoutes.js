@@ -1,11 +1,13 @@
 import express from "express";
 const router = express.Router();
 
-import { add, edit, archive } from "../controllers/entryController.js";
+import { add, edit, archive, addMany } from "../controllers/entryController.js";
 
 router.route("/edit_entry/:entry_id").patch(edit);
 
 router.route("/add_entry/:sheet_id").post(add);
+
+router.route("/add_many_entries/:sheet_id").post(addMany);
 
 router.route('/archive_entry/:entry_id').patch(archive)
 

@@ -72,10 +72,11 @@
     - Adding lockout functionality to USER ACCESS currently i/w
     - Formatted containers on NEW SHEET, EDIT SHEET pages
     - Resolved error between frontend, backend that was crashing server when data in established SHEET was edited
-    - Beginning to incorporate CSV generate/import/export functions
+    - Instantiated download of given SHEET to CSV file
     - Instituted ROLLBASE authentication 
     - Beginning QR code integration
-    
+    - Resolved inability to edit SHEET FIELDS in ENTRY EDIT
+    - QR code generation instantiated, req add'l refactoring to make printable, separate from button
 
 <br>
 

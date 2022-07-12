@@ -8,6 +8,8 @@ import { SignInBtn } from '../_components/SignInOutBtns';
 import p1login from '../_assets/img/p1login.png';
 import p1loginmobile from '../_assets/img/p1loginmobile.png';
 import home from '../_assets/img/home-images.png';
+import homeDark from '../_assets/img/home-images-dark.png';
+import logoBlue from '../_assets/img/logo-blue.png';
 import pentagon from '../_assets/img/pentagon.png';
 import dod from '../_assets/img/dod-seal.png';
 import { SheetProvider } from '../_context/SheetProvider'
@@ -43,7 +45,7 @@ const Page = () => {
 
   const { store } = useContext(GlobalContext)
   const { globalState, user } = store
-  const { loading, screen } = globalState
+  const { loading, screenType } = globalState
   const { isAuth, name, sheetAccess } = user
 
 
@@ -91,7 +93,7 @@ const Page = () => {
       </Div>
     )
     
-    : (screen === 'mobile') ? (
+    : (screenType === 'mobile') ? (
       <>
         <Sidebar index={true}/>
       </>
@@ -99,21 +101,27 @@ const Page = () => {
     
     : (
       <Div centerchildren flex fills>
-        <Fix offset="2rem" lower right className="dod-img">
-          <Img alt="home" style={{width: '7rem', borderRadius: '2rem', marginBottom: '0rem'}} src={dod} />
+        <Fix offset="2.5rem" lower right className="dod-img">
+          {/* <Img alt="home" style={{width: '5rem', borderRadius: '2rem', marginBottom: '0rem'}} src={dod} /> */}
+          <Img alt="home" style={{width: '8rem', borderRadius: '2rem', marginBottom: '0rem'}} src={pentagon} />
         </Fix>
-        <Div flex column centertext>
-          <Img alt="home" style={{width: '22rem', borderRadius: '2rem', marginBottom: '2rem'}} src={home} />
-          <div className="index-welcome">
-            Welcome to
-          </div>
+        <Div flex column centertext fills centerchildren>
+          {/* <Img alt="home" className="home-lite" style={{width: '22rem', borderRadius: '2rem', marginBottom: '0rem'}} src={home} /> */}
+          {/* <Img alt="home" className="home-dark" style={{width: '22rem', borderRadius: '2rem', marginBottom: '0rem'}} src={homeDark} /> */}
+          {/* <Img alt="home" style={{width: '18em', borderRadius: '2rem', marginBottom: '0.5rem'}} src={pentagon} /> */}
           <div className="index-app">
+            <Img alt="home" className="prime-logo" style={{width: '4rem',borderRadius: '0rem', marginBottom: '-.5rem', marginRight: '1rem'}} src={logoBlue} />
             SmartSheets
+          </div>
+        </Div>
+        <Fix className="index-welcome-container" offsetBottom="3rem" offsetLeft="10rem" lower left>
+          <div className="index-welcome">
+            Welcome,
           </div>
           <div className="index-name">
             {name.first} {name.last}
           </div>
-        </Div>
+        </Fix>
       </Div>
     )
 

@@ -14,13 +14,13 @@ const Account = () => {
 
   const copy = () => {
     navigator.clipboard.writeText(user.token)
-    toast.success('Copied token to clipboard!')
+    toast.success('Token Copied')
   }
 
   return (
     <>
       <Div centerchildren flex fills className="account-page">
-        <Div flex column card centertext className="account-details">
+        <Div flex column card centertext centerchildren className="account-details">
           <div className="account-meta">
             <div className="account-meta-img">
               { profileImg ? <img referrerPolicy="no-referrer" src={profileImg} alt='profile' className='profile-img' /> : 'no profile image' }

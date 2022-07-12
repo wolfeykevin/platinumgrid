@@ -25,15 +25,21 @@ const generateCSV = (sheetId, token) => {
       let entryData = []
       result.fields.filter(field => field.archived !== true).map(field => {
         let index = entry.values.findIndex(value => value.field_id === field.field_id);
-        index === -1 ? entryData.push('') : entryData.push(entry.values[index].value)
+        index === -1 ? entryData.push('') : entryData.push(entry.values[index].value.replaceAll(',', ' '))
       })
       
       data.push(entryData.join(','))
     })
+    data = data.join("\n")
+    data = new Blob([data], { type: 'text/csv;charset=utf-8;' });
+    var downloadLink = document.createElement("a");
+    var url = URL.createObjectURL(data);
+    downloadLink.href = url;
+    downloadLink.download = `${result.name}.csv`;
 
-    // data = new Blob([data], { type: 'text/csv;charset=utf-8;' });
-
-    // return <CSVDownload data={data} target="_blank" />;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
   })
   .catch(error => {
     toast.error(error);

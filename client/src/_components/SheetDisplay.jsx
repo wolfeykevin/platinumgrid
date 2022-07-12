@@ -5,7 +5,7 @@ import { SheetContext } from '../_context/SheetProvider';
 import { Div } from '../_styles/_global'
 import Entry from './Entry';
 import EntryDetails from './EntryDetails';
-import logo from '../_assets/img/logo-dark.png';
+import logo from '../_assets/img/logo.png';
 import dummyData from '../_dummy/sheet.json';
 import dummyData2 from '../_dummy/sheet2.json'
 import edit from '../_assets/icons/edit-purple.png'
@@ -65,15 +65,17 @@ const SheetDisplay = () => {
 
       smartApi(['GET', `get_sheet/${sheetId}`], user.token)
         .then(result => {
-          // console.log(result);
-          if (result.name === undefined) {
+          if (result.ErrorMessage) {
+            window.location.reload();
+            // console.log('error:', result.ErrorMessage)
+          } else if (result.sheet.name !== undefined) {
             // fix for sheet name location
             result.name = result.sheet.name;
+            // order fields by id
+            result.fields =  result.fields.sort((a, b) => (a.field_id > b.field_id) ? 1 : -1)
+            sheet.setCurrentSheet(result);
+            sheet.setSheetLoading(false);
           }
-          // order fields by id
-          result.fields =  result.fields.sort((a, b) => (a.field_id > b.field_id) ? 1 : -1)
-          sheet.setCurrentSheet(result);
-          sheet.setSheetLoading(false);
         })
         .catch(error => {
           navigate('/')
@@ -89,11 +91,6 @@ const SheetDisplay = () => {
     let fieldId = sheet.currentSheet.fields[fieldIndex].field_id;
 
     console.log(fieldId)
-    // filter out entries that don't have a corresponding value
-    // entries = entries.filter(entry => entry.values.findIndex(value => value.field_id === fieldId) !== -1)
-
-    // entries.map(entry => 
-    //   console.log(entry.values[entry.values.findIndex(value => value.field_id === fieldId)].value))
 
     return entries.filter(entry => entry.values[entry.values.findIndex(value => value.field_id === fieldId)].value.match(new RegExp(searchString,'i','g')))
   }
@@ -157,7 +154,7 @@ const SheetDisplay = () => {
         </div>
         {/* <button className="dummy-users-button" onClick={
           () => navigate(`/sheet/${sheet.currentSheet.sheet_id}/users`)}><img alt='edit-icon'/></button> */}
-        <button className="new-entry no-select" onClick={() => sheet.setNewEntry(true)}><img alt='edit-icon'/></button>
+        <button className="new-entry no-select" onClick={() => sheet.setNewEntry(true)}><span>New Entry</span><img alt='edit-icon'/></button>
         {/* <button className="dummy-filter" onClick={filterEntries}>%</button> */}
       </div>
       <EntryDetails entryId={entryId}/>

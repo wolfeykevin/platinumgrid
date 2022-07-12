@@ -16,7 +16,12 @@ import { SheetContext } from '../_context/SheetProvider';
 import toast from 'react-hot-toast';
 import generateCSV from '../_helpers/generateCSV';
 import { ReactComponent as Edit } from '../_assets/icons/menu-edit.svg';
-// import { CSVLink, CSVDownload } from 'react-csv';
+import { ReactComponent as Duplicate } from '../_assets/icons/menu-duplicate.svg';
+import { ReactComponent as Report } from '../_assets/icons/menu-report.svg';
+import { ReactComponent as Download } from '../_assets/icons/menu-download.svg';
+import { ReactComponent as Lock } from '../_assets/icons/menu-lock.svg';
+import { ReactComponent as Leave } from '../_assets/icons/menu-leave.svg';
+
 
 const Sidebar = (props) => {
   
@@ -24,7 +29,7 @@ const Sidebar = (props) => {
   
   const { store } = useContext(GlobalContext)
   const { user, setSheetAccess, refresh, globalState, setScreen } = store
-  const { screen } = globalState
+  const { screenType } = globalState
   const { profileImg, sheetAccess, token } = user
   
   const { sheet } = useContext(SheetContext);
@@ -64,40 +69,53 @@ const Sidebar = (props) => {
 
   // manages global view state for resizing
   window.onresize = () => {
-    if (screen === 'desktop' && window.innerWidth < 768) {
+    if (screenType === 'desktop' && window.innerWidth < 768) {
       setScreen('mobile')
-    } else if (screen === 'mobile' && window.innerWidth >= 768) {
+    } else if (screenType === 'mobile' && window.innerWidth >= 768) {
       setScreen('desktop')
     }
   }
 
   // manages global view state for onload
   useEffect(() => {
-    if (screen === 'desktop' && window.innerWidth < 768) {
+    if (screenType === 'desktop' && window.innerWidth < 768) {
       setScreen('mobile')
-    } else if (screen === 'mobile' && window.innerWidth >= 768) {
+    } else if (screenType === 'mobile' && window.innerWidth >= 768) {
       setScreen('desktop')
     }
   }, [])
 
-  useEffect(() => {
+  // useEffect(() => {
         
-    const path = window.location.pathname.split('/')
+  //   const path = window.location.pathname.split('/')
 
-    if (screen === 'mobile') {
-      if (path.length < 3) {
-        // console.log('set to create sheet on mobile')
-        setLink('/create')
-      } else {
-        // console.log('set to new entry on mobile')
-        setLink('/sheet/create') // TODO update to open new entry sidebar
-      }
-    } else {
-      // console.log('set to create sheet on desktop')
-      setLink('/create')
-    }
+  //   if (screenType === 'mobile') {
+  //     if (path.length < 3) {
+  //       // console.log('set to create sheet on mobile')
+  //       setLink('/create')
+  //     } else {
+  //       // console.log('set to new entry on mobile')
+  //       setLink('/sheet/create') // TODO update to open new entry sidebar
+  //     }
+  //   } else {
+  //     // console.log('set to create sheet on desktop')
+  //     setLink('/create')
+  //   }
   
-  }, [location, screen])
+  // }, [location, screenType])
+
+  const goLink = () => {
+    const path = window.location.pathname.split('/')
+    if (screenType === 'mobile') {
+      if (path.length < 3) {
+        navigate('/create')
+      } else if (path[3] === 'users') {
+        navigate(location.pathname + '/lookup')
+      } else if (path[1] === 'sheet') {
+        sheet.setNewEntry(true)
+      }
+    }
+  }
 
   const [applyStyle, setApplyStyle] = useState(false)
   const [menuLocation, setMenuLocation] = useState({
@@ -114,22 +132,41 @@ const Sidebar = (props) => {
     setMenuTargetSheetId(target)
     setApplyStyle(true)
     const { top, left } = e.target.getBoundingClientRect()
-    if (screen === 'mobile') {
+    let bottomDist = window.innerHeight - e.target.offsetTop + e.target.offsetHeight
+    if (screenType === "mobile" && bottomDist < 480) {
+      setMenuLocation({
+        visibility: 'visible',
+        top: 'unset',
+        bottom: 84,
+        right: 20
+        // right: 20
+      })
+    } else if (screenType === 'mobile') {
       setMenuLocation({
         visibility: 'visible',
         top: top,
         left: 'unset',
         right: 20
       })
-    } else {
+    } else if (screenType === "desktop" && bottomDist < 750) {
       setMenuLocation({
         visibility: 'visible',
-        top: top + 20,
+        top: 'unset',
+        bottom: 320,
         left: left
+        // right: 20
       })
-    }
+    } else {
+        setMenuLocation({
+          visibility: 'visible',
+          top: top + 20,
+          left: left
+        })
+      }
+
   }
   
+
   // close the menu
   const closeMenu = () => {
 
@@ -164,10 +201,10 @@ const Sidebar = (props) => {
 
           <span className="sidebar-add-entry-btn-dummy" />
           
-          <span className="sidebar-add-entry-btn">
-            <Link to={link}>
+          <span className="sidebar-add-entry-btn" onClick={goLink}>
+            {/* <Link to={link}> */}
               <img alt='add entry' src={add} className="sidebar-add-entry" />
-            </Link>
+            {/* </Link> */}
           </span>
 
           <li className="sidebar-main">
@@ -209,13 +246,13 @@ const Sidebar = (props) => {
           onClickAway={closeMenu}
         >
           <div className={`sheet-options-menu-container`} style={menuLocation}>
-            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${menuTargetSheetId}/edit`)}}><Edit/>Edit Sheet</div>
-            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}>Duplicate Sheet</div>
-            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();generateCSV(menuTargetSheetId, token)}}>Generate Report</div>
-            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}>Download Sheet</div>
-            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${menuTargetSheetId}/users`)}}>User Access</div>
+            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${menuTargetSheetId}/edit`)}}><Edit/><span>Edit Sheet</span></div>
+            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}><Duplicate/><span>Duplicate Sheet</span></div>
+            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}><Report/><span>Generate Report</span></div>
+            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();generateCSV(menuTargetSheetId, token)}}><Download/><span>Download Sheet</span></div>
+            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${menuTargetSheetId}/users`)}}><Lock/><span>User Access</span></div>
             <div className={`sheet-options-menu-item break ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`}></div>
-            <div className={`sheet-options-menu-item remove ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}>Leave Sheet</div>
+            <div className={`sheet-options-menu-item remove ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}><Leave/><span>Leave Sheet</span></div>
           </div>
         </ClickAwayListener>
       </nav>

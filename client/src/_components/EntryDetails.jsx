@@ -73,12 +73,12 @@ const EntryDetails = () => {
       // console.log(fieldElement, inputElement)
     })
 
-  
+    // console.log(payload)
     if (sheet.newEntry === true) {
       // add new entry
       smartApi(['POST', `add_entry/${sheet.currentSheet.sheet_id}`, payload], store.user.token)
         .then(result => {
-          console.log(result); 
+          // console.log(result); 
           sheet.setSelectedEntry({})
           sheet.setNewEntry(false)
           toast.success('Entry Created')

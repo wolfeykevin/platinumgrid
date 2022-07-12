@@ -189,6 +189,10 @@
   font-weight: 300;
 }
 
+.user-lookup-result.hide-me {
+  display: none;
+}
+
 
 /* SMALL SCREENS */
 

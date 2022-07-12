@@ -266,18 +266,17 @@
   background-color: var(--color-primary);
   color: var(--color-text-menu);
   padding: 0.8rem 1.7rem;
-  /* margin: 1rem; */
   border-radius: var(--global-border-radius);
   text-align: center;
   z-index: 2000000;
   cursor: pointer;
+  transition: background-color var(--global-transition-speed) ease;
 }
 
 .sheet-options-menu-item.break {
   background-color: #00000000;
   color: var(--color-text-menu);
   padding: 0.2rem 1.7rem;
-  /* margin: 1rem; */
   border-radius: var(--global-border-radius);
   text-align: center;
   z-index: 2000000;
@@ -287,7 +286,6 @@
   background-color: #dc7777;
   color: var(--color-text-menu);
   padding: 0.8rem 1.7rem;
-  /* margin: 1rem; */
   border-radius: var(--global-border-radius);
   text-align: center;
   z-index: 2000000;

@@ -1,13 +1,13 @@
 :root {
   --global-font: 'Poppins', sans-serif;
-  --global-font-multiplier: 0.9;
+  --global-font-multiplier: 0.85;
   --global-font-weight: 400; /* ultra-thin 200, thin 300, body 400, thick 500, bold 600, black 800 */
   --global-margin: 1rem;
   --global-margin-half: 0.5rem;
   --global-padding: 1rem;
   --global-padding-half: 0.5rem;
   --global-border-radius: 24px;
-  --global-transition-speed: 300ms;
+  --global-transition-speed: 400ms;
   --global-transition-speed-fast: 100ms;
 
   --input-padding: 0.5rem 1rem 0.5rem 1rem;
@@ -69,16 +69,17 @@
   --color-entry-text: #5a688b;
   --color-entry-checkbox: #ced0d9;
   --color-entry-field-type: #c8c9cc;
+  --color-entry-details-background: #ffffff;
 
   --color-menu-plus: #55658a;
-  --color-cover: #dce6f633;
+  --color-cover: #dce6f68a;
 
   --color-undenary: #413768;
   --color-duodenary: #352b57;
   
   --edit-dark: url('../_assets/icons/edit-blue.png');
   --edit-light: url('../_assets/icons/edit.png');
-
+  
   --arrow-up: url('../_assets/icons/up-arrow.png');
   --arrow-down: url('../_assets/icons/down-arrow.png');
 
@@ -108,7 +109,8 @@
 }
 
 #dark {
-  --color-background: #111520;
+  --color-background: #0d0e1e;
+  /* --color-background: #111520; */
   --color-text: #ffffff;
   --color-text-menu: #ffffff;
   --color-bright-text: #98aad1;
@@ -127,12 +129,12 @@
   --color-quinary-bright: #283146;
   --color-quinary-off-bright: #374159;
 
-  --color-cover: #22233244;
+  --color-cover: #111328ad;
 
-  --color-odd-row: #2d364b;
-  --color-even-row: #242c3e;
-  --color-row-hover: #323b52;
-  --color-highlighted: #586789;
+  --color-odd-row: #323f5c;
+  --color-even-row: #293550;
+  --color-row-hover: #404e6f;
+  --color-highlighted: #616f8e;
   --color-highlighted-text: #ffffff;
   --color-input-text: #222222;
   --color-sheet-title: #eff1f6;
@@ -141,6 +143,7 @@
   --color-entry-text: #cccfd6;
   --color-entry-checkbox: #ffffff;
   --color-entry-field-type: #535d73;
+  --color-entry-details-background: #15172c;
 
   --color-menu-plus: #ffffff;
 
@@ -295,8 +298,14 @@ textarea:focus, input:focus{
   top: 0;
   left: 0;
   opacity: 0;
-  background: var(--color-cover)
+  background: var(--color-cover);
   /* background: #272a3035; */
+}
+
+.portal-cover {
+  background-color: var(--color-cover);
+  z-index: 1400;
+  cursor: pointer;
 }
 
 .login-screen {
@@ -393,23 +402,49 @@ textarea:focus, input:focus{
   padding-right: 0.8rem;
 }
 
+.index-welcome-container {
+  transition: all var(--global-transition-speed) ease;
+}
+
+#page.extend .index-welcome-container {
+  transform: translateX(23rem);
+  opacity: 0;
+  transition: all var(--global-transition-speed-fast) ease-in-out;
+}
+
+.index-app {
+  z-index: 2000;
+  transition: all var(--global-transition-speed) ease;
+}
+
+#page.extend .index-app {
+  transform: translateX(calc(-50vw + 26rem)) scale(1.25);
+  transition: all var(--global-transition-speed) ease;
+}
+
 .index-welcome {
-  font-size: var(--font-size-title);
+  font-size: var(--font-size-heading);
   font-weight: var(--bold);
-  margin-bottom: -1.2rem;
+  /* margin-top: 12rem; */
+  margin-bottom: -1rem;
   color: var(--color-quinary-bright);
   background-image: url('../_assets/img/dod-seal.png');
 }
 
 .index-app {
-  font-size: var(--font-size-title-large);
+  font-size: var(--font-size-massive);
   font-weight: var(--heavy);
-  padding-bottom: 0.6rem;
-  color: var(--color-quinary-bright);
+  color: var(--color-primary);
+}
+
+#dark .index-app {
+  font-size: var(--font-size-massive);
+  font-weight: var(--heavy);
+  color: #eaecf1;
 }
 
 .index-name {
-  font-size: var(--font-size-huge);
+  font-size: var(--font-size-big);
   font-weight: var(--medium);
   color: var(--color-quinary-off-bright);
   letter-spacing: -2px;
@@ -423,12 +458,35 @@ textarea:focus, input:focus{
 }
 
 #page.extend .dod-img {
-  transform: translateX(29rem);
-  transition: all var(--global-transition-speed) ease;
+  transform: translateX(23rem);
+  opacity: 0;
+  transition: all var(--global-transition-speed-fast) ease;
 }
 .dod-img {
+  padding-right: 1rem;
   transition: all var(--global-transition-speed) ease;
 }
+
+.home-lite {
+  display: block;
+  align-self: center;
+}
+
+#dark .home-lite {
+  display: none;
+  align-self: center;
+}
+
+.home-dark {
+  display: none;
+  align-self: center;
+}
+
+#dark .home-dark {
+  display: block;
+  align-self: center;
+}
+
 
 
 
@@ -546,6 +604,7 @@ textarea:focus, input:focus{
   .toaster {
     height: calc(100% - 7rem);
     margin-left: 0;
+    z-index: 120000 !important;
   }
   
 }
@@ -626,6 +685,7 @@ textarea:focus, input:focus{
 
   .sidebar:hover {
     width: 28rem;
+    padding-right: 6rem;
   }
 
   .sidebar:hover .sidebar-header {

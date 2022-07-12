@@ -73,7 +73,7 @@ const removeUserRoles = async (req, res) => {
 
   users.forEach(user => {
     knex('user_roles')
-    .select('*')``
+    .select('*')
       .where({user_id: user.user_id, sheet_id: targetId})
       .del()
       .then(data => res.status(201).json(`${data} records deleted`))
