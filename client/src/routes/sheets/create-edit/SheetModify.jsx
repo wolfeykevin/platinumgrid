@@ -373,27 +373,28 @@ const SheetModify = () => {
         <div className='sheet-modify-header'>
           <div className="sheet-modify-meta">
             <div className="sheet-modify-icon">
-              <img />
+              {/* <img /> */}
+              <span className="sheet-modify-short-name">{shortName}</span>
             </div>
             <div className='sheet-modify-title'>
               <span className="page-name nowrap">{newSheet ? 'Create Sheet' : 'Edit Sheet'}</span>
               <span className={`sheet-name nowrap`}>
-                {sheetName !== '' ? sheetName : 'Enter a sheet name'}{shortName !== '' ? ' - ' + shortName : ' '}
+                {sheetName !== '' ? sheetName : 'Enter a sheet name'}
               </span>
             </div>
           </div>
         </div>
         <div className='sheet-modify-body'>
-          <div className='column meta'>
+          <div className='meta'>
             <div className='section name'>
-              <span className='column-title'>Sheet Name</span>
-              <input defaultValue={sheetName} onChange={(e) => {setSheetName(e.target.value)}} />
               <span className='column-title'>Short Name</span>
               <input defaultValue={shortName} onChange={(e) => {setShortName(e.target.value.toUpperCase())}} maxLength={3} className='input-short'/>
+              <span className='column-title'>Sheet Name</span>
+              <input defaultValue={sheetName} onChange={(e) => {setSheetName(e.target.value)}} />
             </div>
-            <div className='section template'>
+            {/* <div className='section template'>
               <span className='column-title'>Templates</span>
-            </div>
+            </div> */}
           </div>
           <div className='column fields'>
             <div className='section field'>
@@ -474,10 +475,10 @@ const SheetModify = () => {
           </div>
         </div>
       </div>
-      {newSheet === true ? <button className='import-data' onClick={importFromCSV}>?</button> : <></>}
-      <button className='create-sheet' onClick={submitData}>+</button>
+      {newSheet === true ? <button className='import-data' onClick={importFromCSV}><span>Import CSV</span><img alt='edit-icon'/></button> : <></>}
+      <button className='create-sheet' onClick={submitData}><span>{newSheet ? 'Create Sheet' : 'Save Sheet'}</span><img alt='edit-icon'/></button>
       
-      <div className='debug-container'>
+      {/* <div className='debug-container'>
           <span className='debug-title'>New Sheet: {newSheet.toString()}</span>
           <div className='debug-fields'>
             <div className='field-label'>Fields:</div>
@@ -521,7 +522,7 @@ const SheetModify = () => {
               )
             })}
           </div>
-      </div>
+      </div> */}
     </>
   );
 }
