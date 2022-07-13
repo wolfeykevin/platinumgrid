@@ -1,5 +1,5 @@
 import React, { useContext, lazy, Suspense, useState } from 'react';
-import { Route, Routes, Navigate, Link } from 'react-router-dom';
+import { Route, Routes, Navigate, Link, useLocation } from 'react-router-dom';
 import { GlobalContext } from '../_context/AppProvider'
 import { Div, Img, Fix } from '../_styles/_global'
 import PageLoader from '../_components/PageLoader'
@@ -25,7 +25,6 @@ const Index = () => {
   const { store } = useContext(GlobalContext)
   const { user } = store
   const { isAuth } = user
-
 
   // const Sheets = lazy(() => import('./sheets/Sheets'));
   const Account = lazy(() => import('./account/Account'));

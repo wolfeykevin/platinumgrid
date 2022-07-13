@@ -39,11 +39,9 @@ const UserLookup = () => {
     })
     .catch(error => console.log('error', error));
 
-
     if (location.pathname.split('/').length >= 5 && location.pathname.split('/')[4] === 'lookup') {
       
       setLookupVisible(true);
-      // console.log(location.pathname.split('/')[2])
       if (location.pathname.split('/')[2] === '1001' || location.pathname.split('/')[2] === "1002") {
         setUserResults(dummyData.users)
         mouseDownHandler = useScrollHandler('user-scroll-container');
@@ -51,9 +49,7 @@ const UserLookup = () => {
 
         smartApi(['GET', 'get_all_users/'], user.token)
           .then(result => {
-            // console.log(result);
-            //fix user id
-            result.map(user => user.user_id = user.id)
+            result.map(user => user.user_id = user.id) //fix for user id location
             setUserResults(result);
             setLookupVisible(true);
           })
@@ -71,7 +67,7 @@ const UserLookup = () => {
 
   const addUser = (userId, userName) => {
     let threshold = 150 // milliseconds
-    let clickDuration = new Date() - sheet.clickTime.current
+    let clickDuration = new Date() - store.clickTime.current
 
     if (clickDuration < threshold) {
       // console.log(`Attempting to add User ID: ${userId}, Name: ${userName}`)
@@ -148,7 +144,7 @@ const UserLookup = () => {
           <div className='user-search-line'/>
         </div>
         <div id='user-scroll-container' className='user-lookup-body' onMouseDown={(e) => {
-          sheet.clickTime.current = new Date();
+          store.clickTime.current = new Date();
           mouseDownHandler(e);
           }}>
           {userResults.filter(user => //change one of these to email once we have that data

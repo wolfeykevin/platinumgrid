@@ -46,13 +46,14 @@ const SheetDisplay = () => {
     }
   }, [selectedEntry, newEntry])
 
-  const [ localRefresh, setLocalRefresh ] = useState(false)
+  const [ authRefresh, setAuthRefresh ] = useState(false)
+
    // use useEffect and useState to trigger a rerender every 2 seconds
    useEffect(() => {
     const interval = setInterval(() => {
-      setLocalRefresh(!localRefresh)
+      setAuthRefresh(!authRefresh)
       // console.log('refreshing sheet')
-    }, 2000);
+    }, 5000); // had to increase because it triggered ~40 renders per second
     // refresh auth level as well
     smartApi(['GET', `authCheck/${sheetId}`], user.token)
     .then(result => {
@@ -61,7 +62,7 @@ const SheetDisplay = () => {
     })
     .catch(error => console.log('error', error));
     return () => clearInterval(interval);
-  }, [localRefresh])
+  }, [authRefresh])
 
   useEffect(() => {
     // get user's sheets here
@@ -91,21 +92,48 @@ const SheetDisplay = () => {
           // console.log('error', error)
         });
     }
-  }, [sheetId, localRefresh])
+  }, [sheetId, authRefresh])
+
+  useEffect(() => {
+    // handle scroll position
+    let previousSheetId = sheet.prevPath.current.split('/')[2];
+    let currentSheetId = location.pathname.split('/')[2]
+
+    // only maintain scroll position if the sheet id is the same
+    if (previousSheetId === currentSheetId) {
+      document.getElementById('scroll-container').scroll({
+        top: sheet.sheetScroll.current,
+      })
+    } else {
+      document.getElementById('scroll-container').scroll({
+        top: 0,
+      })
+    }
+
+    // update prevPath for use later
+    sheet.prevPath.current = location.pathname;
+  },[location.pathname])
 
   const filterEntries = () => {
     let entries = sheet.currentSheet.entries
-    let fieldIndex = sheet.currentSheet.fields.findIndex(field => field.name === searchField)
-
-    let fieldId = sheet.currentSheet.fields[fieldIndex].field_id;
-
-    console.log(fieldId)
-
-    return entries.filter(entry => entry.values[entry.values.findIndex(value => value.field_id === fieldId)].value.match(new RegExp(searchString,'i','g')))
+    
+    // return entries where the entry value matches the search string -- no longer have to define which field you want to search for
+    return entries.filter(entry => {
+      let entryValues = entry.values
+      for (let i = 0; i < entryValues.length; i++) {
+        if (entryValues[i].value.toLowerCase().includes(searchString.toLowerCase())) {
+          return entry
+        }
+      }
+    })
+    
+    // commented out the below code to use filter which matches any field, feel free to change it back!
+    // let fieldIndex = sheet.currentSheet.fields.findIndex(field => field.name === searchField)
+    // let fieldId = sheet.currentSheet.fields[fieldIndex].field_id;
+    // return entries.filter(entry => entry.values[entry.values.findIndex(value => value.field_id === fieldId)].value.match(new RegExp(searchString,'i','g')))
   }
 
   const filteredEntries = sheet.currentSheet.entries.filter(entry => entry.archived === false)
-  // console.log(sheet.currentSheet)
 
   return (
     <>
@@ -136,9 +164,13 @@ const SheetDisplay = () => {
             <button className='filter-button'>Filter</button>
           </div>
         </div>
-        <div id='scroll-container' className='sheet-display-body' onMouseDown={(e) => {
-          sheet.clickTime.current = new Date();
-          mouseDownHandler(e);
+        <div id='scroll-container' className='sheet-display-body' 
+          onScroll={(e) => {
+            sheet.sheetScroll.current = e.target.scrollTop;
+          }}
+          onMouseDown={(e) => {
+            store.clickTime.current = new Date();
+            mouseDownHandler(e);
           }}>
           <table className='sheet-display-table'>
             {/* <SheetFields> */}
@@ -154,7 +186,9 @@ const SheetDisplay = () => {
             </thead>
             {/* <SheetEntries> */}
             <tbody>
-              {(searchString !== '' && searchField !== '') ? 
+              {/* //comented out below to use new filter algorithm, feel free to change back! */}
+              {/* {(searchString !== '' && searchField !== '') ?   */}
+              {(searchString !== '') ? 
                 filterEntries().filter(entry => entry.archived === false).map((entry, i) => {
                   return <Entry data={entry} key={i}/>})
                 :

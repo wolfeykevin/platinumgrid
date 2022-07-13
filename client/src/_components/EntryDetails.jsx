@@ -74,6 +74,8 @@ const EntryDetails = () => {
     })
 
     // console.log(payload)
+
+    // console.log(payload)
     if (sheet.newEntry === true) {
       // add new entry
       smartApi(['POST', `add_entry/${sheet.currentSheet.sheet_id}`, payload], store.user.token)
@@ -93,32 +95,18 @@ const EntryDetails = () => {
     } else {
       // update entry
       smartApi(['PATCH', `edit_entry/${sheet.selectedEntry.entry_id}`, payload], store.user.token)
-      .then(result => {
-        // console.log(result); 
-        sheet.setSelectedEntry({})
-        sheet.setNewEntry(false)
-        toast.success('Entry Updated')
-        
-        refreshSheet();
-        
-        navigate(`/sheet/${location.pathname.split('/')[2]}`)
-      })
-      .catch(error => {
-        toast.error('Something went wrong. Please try again.')
-        console.log('error', error)
-      });
+        .then(result => {
+          sheet.setSelectedEntry({})
+          sheet.setNewEntry(false)
+          toast.success('Entry Updated')
+          refreshSheet();
+          navigate(`/sheet/${location.pathname.split('/')[2]}`)
+        })
+        .catch(error => {
+          toast.error('Something went wrong. Please try again.')
+          console.log('error', error)
+        });
     }
-
-    // new Promise(resolve => setTimeout(resolve, 500)).then(() => {
-    //   // setIsLoading(false) // commented out, assuming pane will immediately close and toast will display whether there was success or not
-    //   let rand = Math.floor(Math.random() * 5) + 1; // generate random number between 1 and 5 to simulate success or failure
-    //   if (rand === 4) {
-    //     toast.error('Something went wrong. Please try again.')
-    //     console.log('Simulated failed request, this functionality still needs to be implemented.')
-    //   } else {
-    //     toast.success('Entry Saved')
-    //   }
-    // })
   }
 
   useEffect(() => {

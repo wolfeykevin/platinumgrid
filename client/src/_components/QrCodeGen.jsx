@@ -10,13 +10,15 @@ const QrCodeGen = ({ entry, fields }) => {
 
   useEffect(() => {
 
-    console.log(entry, fields)
+    // console.log(entry, fields)
     if (entry.values !== undefined) {
       fields.filter(field => field.archived !== true).map(field => {
         let index = entry.values.findIndex(value => value.field_id === field.field_id);
         index === -1 ? data.push(field.name + " = ") : data.push(field.name + ": " + entry.values[index].value)
       })
     }
+
+    // console.log(data)
 
     setOutput(data.join('\n'))
   }, [])

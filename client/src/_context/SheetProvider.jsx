@@ -15,7 +15,8 @@ const SheetProvider = ({ children }) => {
   const { sheetPageView, setSheetPageView } = useSheetPageView();
   const { sheetLoading, setSheetLoading } = useSheetLoading();
   const { entryMenu, setEntryMenu } = useEntryMenu();
-  const clickTime = useRef(0);
+  const sheetScroll = useRef(0);
+  const prevPath = useRef('');
 
   const sheet = {
 
@@ -39,7 +40,8 @@ const SheetProvider = ({ children }) => {
 
 
     /* REFS */
-    clickTime,
+    sheetScroll,
+    prevPath,
   }
 
   return (

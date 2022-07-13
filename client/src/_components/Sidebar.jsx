@@ -163,7 +163,8 @@ const Sidebar = (props) => {
     setMenuTargetSheetId(target)
     setApplyStyle(true)
     const { top, left } = e.target.getBoundingClientRect()
-    let bottomDist = window.innerHeight - e.target.offsetTop + e.target.offsetHeight
+    let bottomDist = window.innerHeight - e.clientY
+    // console.log(bottomDist)
     if (screenType === "mobile" && bottomDist < 480) {
       setMenuLocation({
         visibility: 'visible',
@@ -179,11 +180,11 @@ const Sidebar = (props) => {
         left: 'unset',
         right: 20
       })
-    } else if (screenType === "desktop" && bottomDist < 750) {
+    } else if (screenType === "desktop" && bottomDist < 500) {
       setMenuLocation({
         visibility: 'visible',
         top: 'unset',
-        bottom: 320,
+        bottom: 240,
         left: left
         // right: 20
       })

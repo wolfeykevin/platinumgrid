@@ -148,7 +148,7 @@ const SheetModify = () => {
   }, [location.pathname])
 
   useEffect(() => {
-    setAuthLevel(checkAuth(sheet.currentSheet.sheet_id))
+    setAuthLevel(checkAuth(user.sheetAccess, sheet.currentSheet.sheet_id)) // broken, had to disable to continue working
     setSheetName(sheet.currentSheet.sheet.name)
     setShortName(sheet.currentSheet.sheet.short_name)
     setSheetFieldsOrdered(sheet.currentSheet.fields.filter(field => field.archived === false))

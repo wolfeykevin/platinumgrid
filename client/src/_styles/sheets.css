@@ -34,7 +34,7 @@
   border-top-right-radius: var(--global-border-radius);
   /* border-bottom-left-radius: 1rem; */
   /* border-bottom-right-radius: 1rem; */
-  max-height: calc(100% - 6.7rem);
+  max-height: calc(100% - 7.2rem);
   overflow-y: auto;
   overflow-x: auto;
   margin-left: 1rem;

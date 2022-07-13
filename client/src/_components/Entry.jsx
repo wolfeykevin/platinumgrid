@@ -5,6 +5,7 @@ import { GlobalContext } from '../_context/AppProvider';
 import OptionsMenu from './OptionsMenu';
 
 const Entry = (props) => {
+  const { store } = useContext(GlobalContext);
   const { sheet } = useContext(SheetContext);
   const { setEntryMenu } = sheet
   let entry = props.data;
@@ -13,7 +14,7 @@ const Entry = (props) => {
 
   const onClickHandler = (e) => {
     let threshold = 150 // milliseconds
-    let clickDuration = new Date() - sheet.clickTime.current
+    let clickDuration = new Date() - store.clickTime.current
 
     if (clickDuration < threshold) {
       navigate(`/sheet/${sheet.currentSheet.sheet_id}/${entry.entry_id}`)
@@ -29,7 +30,7 @@ const Entry = (props) => {
           if (field.type === 'checkbox') {
             return index === -1 ? 
               <td key={i} className="sheet-display-cell" onClick={(e) => onClickHandler(e)}>
-                {console.log('no checkbox')}
+                {/* {console.log('no checkbox')} */}
                 <input className="sheet-checkbox" type="checkbox" disabled/>
               </td>
               :

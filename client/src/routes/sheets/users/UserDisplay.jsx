@@ -64,12 +64,6 @@ const UserDisplay = () => {
 
   }, [location])
 
-
-  // if (sheetId === 1001 || sheetId === 1002) {
-  //   let index = dummySheetAccessData.sheets.findIndex(sheet => sheet.sheet_id === sheetId)
-  //   setSheetName(dummySheetAccessData.sheets[index].name);
-  //   userAccess.setSheetUsers(dummyData.users);
-
   const getSheetUsers = () => {
     smartApi(['GET', `get_sheet_users/${sheetId}`], user.token)
       .then(result => {
@@ -162,7 +156,7 @@ const UserDisplay = () => {
             </div>
           </div>
           <div id='scroll-container' className='users-display-body' onMouseDown={(e) => {
-            sheet.clickTime.current = new Date();
+            store.clickTime.current = new Date();
             mouseDownHandler(e);
             }}>
             {userDisplayView === 'smart' ? 
