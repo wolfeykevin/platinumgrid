@@ -34,7 +34,7 @@ const UserLookup = () => {
 
     smartApi(['GET', `authCheck/${sheetId}`], user.token)
     .then(result => {
-      console.log(result);
+      // console.log(result);
       setAuthLevel(result);
     })
     .catch(error => console.log('error', error));

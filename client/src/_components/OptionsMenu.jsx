@@ -5,27 +5,30 @@ import { SheetContext } from '../_context/SheetProvider';
 import toast from 'react-hot-toast';
 import { ClickAwayListener } from '@mui/base';
 import QrCodeGen from './QrCodeGen';
-import { ReactComponent as Archive } from '../_assets/icons/archive.svg';
+import { ReactComponent as Archive } from '../_assets/icons/menu-archive.svg';
+import { ReactComponent as Unarchive } from '../_assets/icons/menu-unarchive.svg';
 import { ReactComponent as Edit } from '../_assets/icons/menu-edit.svg';
 import { ReactComponent as Duplicate } from '../_assets/icons/menu-duplicate.svg';
+import { ReactComponent as Dupe } from '../_assets/icons/menu-dupe.svg';
+import { ReactComponent as Copy } from '../_assets/icons/menu-copy.svg';
 import { ReactComponent as Qr } from '../_assets/icons/menu-qr.svg';
 import { Fix } from '../_styles/_global';
 import smartApi from '../_helpers/smartApi';
 
-const OptionsMenu = () => {
+const OptionsMenu = (props) => {
 
   const { store } = useContext(GlobalContext)
   const { globalState, user } = store
   const { screenType } = globalState
 
   const { sheet } = useContext(SheetContext)
-  const { entryMenu, setEntryMenu } = sheet
+  const { entryMenu, setEntryMenu, triggerRefresh } = sheet
   const { entryDetails } = entryMenu
   const navigate = useNavigate();
 
-  const [applyStyle, setApplyStyle] = useState(false)
   const [displayQR, setDisplayQR] = useState(false)
-  const [ QRdata, setQRData ] = useState();
+  const [QRdata, setQRData] = useState();
+  const [applyStyle, setApplyStyle] = useState(false)
   const [menuLocation, setMenuLocation] = useState({
     visibility: 'hidden',
     top: 0,
@@ -70,21 +73,21 @@ const OptionsMenu = () => {
         visibility: 'visible',
         top: 'unset',
         bottom: 20,
-        left: rightDist - 140
+        left: rightDist - 158
         // right: 20
       })
     } else if (screenType === 'mobile') {
       setMenuLocation({
         visibility: 'visible',
-        top: top + 20,
+        top: top + 48,
         left: 'unset',
         right: 20
       })
     } else {
       setMenuLocation({
         visibility: 'visible',
-        top: top + 28,
-        left: rightDist - 140
+        top: top + 48,
+        left: rightDist - 158
       })
     }
   }
@@ -116,6 +119,7 @@ const OptionsMenu = () => {
       // console.log(result);
       sheet.setCurrentSheet(result);
       sheet.setSheetLoading(false);
+      triggerRefresh();
     })
     .catch(error => {
       navigate('/')
@@ -132,6 +136,20 @@ const OptionsMenu = () => {
     })
     .catch(error => console.log('error', error));
   }
+
+  const copyEntry = (entry, fields) => {  
+    let data = []
+    if (entry.values !== undefined) {
+      fields.filter(field => field.archived !== true).map(field => {
+        let index = entry.values.findIndex(value => value.field_id === field.field_id);
+        index === -1 ? data.push(field.name + ": N/A") : data.push(field.name + ": " + entry.values[index].value)
+      })
+    }
+
+    navigator.clipboard.writeText(data.join('\n'))
+    toast.success('Copied Entry')
+  }
+  
 
   const duplicateEntry = (dupeEntry) => { //incoming entry
 
@@ -167,11 +185,20 @@ const OptionsMenu = () => {
         touchEvent="onTouchStart"
         onClickAway={() => {closeMenu()}}>
         <div className={`sheet-options-menu-container no-select`} style={menuLocation}>
-          <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${entryDetails.sheet_id}/${entryDetails.entry_id}`)}}><Edit/><span>Edit</span></div>
-          <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();duplicateEntry(entryDetails)}}><Duplicate/><span>Duplicate</span></div>
+          { props.authLevel === 'Viewer' ? <></>
+            : <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${entryDetails.sheet_id}/${entryDetails.entry_id}`)}}><Edit/><span>Edit</span></div>
+          }
+          <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();copyEntry(entryDetails, sheet.currentSheet.fields);}}><Copy/><span>Copy</span></div>
           <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();setDisplayQR(!displayQR);setQRData(entryDetails)}}><Qr/><span>QR Code</span></div>
-          <div className={`sheet-options-menu-item break ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`}></div>
-          <div className={`sheet-options-menu-item remove ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();archiveEntry(entryDetails)}}><Archive/><span>Archive</span></div>
+          { props.authLevel === 'Viewer' ? <></>
+            : <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();duplicateEntry(entryDetails)}}><Dupe/><span>Duplicate</span></div>
+          }
+          { props.authLevel === 'Viewer' ? <></>
+            : <div className={`sheet-options-menu-item break ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`}></div>
+          }
+          { props.authLevel === 'Viewer' ? <></>
+            : <div className={`sheet-options-menu-item ${entryDetails.archived ? 'add' : 'remove'} ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();archiveEntry(entryDetails)}}>{entryDetails.archived ? <Unarchive/> : <Archive/>}<span>{entryDetails.archived ? 'Unarchive' : 'Archive'}</span></div>
+          }
         </div>
       </ClickAwayListener>
       <Fix offsetBottom="-100rem" lower center className={`qr-code ${displayQR ? 'visible' : ''}`} onClick={() => 

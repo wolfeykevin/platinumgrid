@@ -93,7 +93,7 @@
 .users-display-body {
   border-top-left-radius: var(--global-border-radius);
   border-top-right-radius: var(--global-border-radius);
-  max-height: calc(100% - 8.1rem);
+  max-height: calc(100% - 6.3rem);
   overflow-y: auto;
   overflow-x: auto;
   margin-left: 1rem;
@@ -132,7 +132,7 @@
   align-items: center;
   justify-content: flex-start;
   max-width: 300px;
-  padding: 1rem 2rem;
+  padding: 1rem 1rem;
   padding-right: 0rem;
 }
 
@@ -150,7 +150,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-tertiary);
+  background-color: var(--color-secondary);
   border-radius: 90px;
   box-shadow: 0 1px 4px 0 var(--global-box-shadow-color);
   margin-right: 1rem;
@@ -159,13 +159,13 @@
 .users-display-header img {
   height: 24px;
   width: 24px;
-  padding: 1rem;
+  padding: 0.8rem;
   content: url('../_assets/icons/access.png');
 }
 
 .users-display-header span {
-  font-size: var(--font-size-heading);
-  font-weight: 700;
+  font-size: var(--font-size-subheading);
+  font-weight: var(--bold);
   color: var(--color-sheet-title);
 }
 
@@ -198,7 +198,7 @@ tr:nth-child(even), tr:nth-child(even) .entry-row-option {
 }
 
 .users-display-table thead tr td {
-  background-color: var(--color-tertiary);
+  background-color: var(--color-secondary);
 }
 
 .users-display-table {
@@ -220,7 +220,7 @@ tr:nth-child(even), tr:nth-child(even) .entry-row-option {
 
 thead .users-display-cell {
   color: var(--color-text-menu);
-  border-bottom: 4px solid var(--color-primary);
+  border-bottom: 4px solid var(--color-border);
 }
 
 .users-display-table thead {
@@ -308,22 +308,20 @@ tr:nth-child(even), tr:nth-child(even) .user-row-option {
 }
 
 .users-display-role-select{
-  background-color: var(--color-background);
-  color: var(--color-text);
-  border: thin solid var(--color-quaternary);
+  background-color: var(--color-secondary);
+  color: var(--color-text-menu);
   border-radius: 4px;
+  border: 0;
   display: inline-block;
   font: inherit;
   line-height: 1.5em;
   padding: 0.5em 3.5em 0.5em 1em;
-
   margin: 0;      
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   -webkit-appearance: none;
   -moz-appearance: none;
-
   background-image:
   var(--arrow-down),
   linear-gradient(to right, var(--color-quaternary), var(--color-quaternary));
@@ -336,10 +334,10 @@ tr:nth-child(even), tr:nth-child(even) .user-row-option {
   background-repeat: no-repeat;
 }
 
-.users-display-role-select:focus{
+.users-display-role-select:focus {
   background-image:
   var(--arrow-up),
-  linear-gradient(to right, var(--color-quinary), var(--color-quinary));
+  linear-gradient(to right, var(--color-highlighted), var(--color-highlighted));
   background-position:
     calc(100% - 10px) 0.6em,
     calc(100% - 2.5em) 0.5em;
@@ -351,20 +349,20 @@ tr:nth-child(even), tr:nth-child(even) .user-row-option {
   outline: 0;
 }
 
-.role-changed{
-  box-shadow: 0 0px 8px 0 var(--color-quaternary);
-  background-color: var(--color-primary);
+.role-changed {
+  box-shadow: 0 0px 4px 0 var(--global-box-shadow-color);
+  background-color: var(--color-highlighted);
   color: var(--color-text-menu);
 }
 
 .previous-value{
   background-color: var(--color-primary);
-  color: white;
+  color: var(--color-text-menu);
 }
 
 .other-value{
-  background-color: var(--color-background);
-  color: var(--color-text);
+  background-color: var(--color-secondary);
+  color: var(--color-text-menu);
 }
 
 .user-row-picture{
@@ -390,23 +388,38 @@ tr:nth-child(even), tr:nth-child(even) .user-row-option {
   border: none;
 }
 
-.update-enabled{
-  background-color: var(--color-tertiary);
-  border: 1px solid var(--color-quaternary);
-  color: white;
-  box-shadow: 0 1px 4px 0 var(--global-box-shadow-color);
+.user-update-button {
+  background-color: var(--color-highlighted);
+  color: var(--color-text-menu);
+  border: 0;
+  border-radius: var(--global-border-radius);
+  /* border-top-left-radius: 0;
+  border-bottom-left-radius: 0; */
   cursor: pointer;
+  transition: all var(--global-transition-speed-fast) ease;
+}
+
+.user-update-button.update-disabled {
+  background-color: var(--color-primary);
+  color: var(--color-quaternary);
+  border: 0;
+  border-radius: var(--global-border-radius);
+  /* border-top-left-radius: 0;
+  border-bottom-left-radius: 0; */
+  cursor: default;
+  transition: all var(--global-transition-speed-fast) ease;
 }
 
 .users-header-title{
   position: relative;
   display: flex;
   flex-direction: column;
+  margin-top: -0.3rem;
 }
 
 
 .page-name{
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 -0.2rem 0;
 }
 
 .sheet-name{
@@ -414,13 +427,20 @@ tr:nth-child(even), tr:nth-child(even) .user-row-option {
   left: 0px;
   top: 2.2rem;
   font-size: var(--font-size-body) !important;
-  font-weight: 700 !important;
+  font-weight: var(--thick);
 }
 /* why importants */
 .filler{
   color: var(--color-background) !important;
 }
 
+#page.extend .add-user {
+  opacity: 0;
+}
+
+.users-display-container.shrink ~ .add-user {
+  opacity: 0;
+}
 
 
 
@@ -456,9 +476,17 @@ tr:nth-child(even), tr:nth-child(even) .user-row-option {
 
   .users-display-container.shrink {
     width: calc(100% - 365px);
-    margin-right: 1.5rem;
+    /* margin-right: 1.5rem; */
     padding-right: 28rem;
     transition: all var(--global-transition-speed) ease;
+  }
+
+  .users-display-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: inherit;
+    margin-top: -1rem;
   }
 
 }
@@ -468,6 +496,10 @@ tr:nth-child(even), tr:nth-child(even) .user-row-option {
 
 @media only screen and (max-width: 767px) {
   
+  .user-lookup-container {
+    background-color: var(--user-entry-detail-background-color-mobile);
+  }
+
   .users-page {
     padding: 0;
     max-height: calc(100%);
@@ -493,7 +525,7 @@ tr:nth-child(even), tr:nth-child(even) .user-row-option {
 
   .users-display-body {
     border-radius: 0;
-    max-height: calc(100% - 4.5rem);
+    max-height: calc(100% - 5.2rem);
   }
 
   .users-display-container {
@@ -526,6 +558,7 @@ tr:nth-child(even), tr:nth-child(even) .user-row-option {
     align-items: center;
     justify-content: space-between;
     min-width: inherit;
+    margin-top: 0rem;
   }
 
 }

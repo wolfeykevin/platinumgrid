@@ -28,7 +28,7 @@ const Sidebar = (props) => {
   const { index } = props
   
   const { store } = useContext(GlobalContext)
-  const { user, setSheetAccess, refresh, globalState, setScreen } = store
+  const { user, setSheetAccess, refresh, globalState, setScreen, pageView } = store
   const { screenType } = globalState
   const { profileImg, sheetAccess, token, userAccess } = user
   
@@ -40,7 +40,6 @@ const Sidebar = (props) => {
   const data = dummySheetAccessData.sheets
 
   const [ localRefresh, setLocalRefresh ] = useState(false)
-
 
   // get sheet access data
   useEffect(() => {
@@ -156,16 +155,18 @@ const Sidebar = (props) => {
   })
 
   const [menuTargetSheetId, setMenuTargetSheetId] = useState(null)
+  const [menuAuth, setMenuAuth] = useState('')
 
   // open a menu next to the component clicked on
-  const openMenu = (e, target) => {
+  const openMenu = (e, target, role) => {
     e.preventDefault()
+    setMenuAuth(role)
     setMenuTargetSheetId(target)
     setApplyStyle(true)
     const { top, left } = e.target.getBoundingClientRect()
     let bottomDist = window.innerHeight - e.clientY
     // console.log(bottomDist)
-    if (screenType === "mobile" && bottomDist < 480) {
+    if (screenType === "mobile" && bottomDist < 360) {
       setMenuLocation({
         visibility: 'visible',
         top: 'unset',
@@ -176,7 +177,7 @@ const Sidebar = (props) => {
     } else if (screenType === 'mobile') {
       setMenuLocation({
         visibility: 'visible',
-        top: top,
+        top: top + 12,
         left: 'unset',
         right: 20
       })
@@ -185,14 +186,14 @@ const Sidebar = (props) => {
         visibility: 'visible',
         top: 'unset',
         bottom: 240,
-        left: left
+        left: left - 42
         // right: 20
       })
     } else {
         setMenuLocation({
           visibility: 'visible',
           top: top + 20,
-          left: left
+          left: left - 42
         })
       }
 
@@ -219,7 +220,7 @@ const Sidebar = (props) => {
 
   return (
     <>
-      <nav id={id} className="sidebar" onMouseOver={(e)=>{eHandler(e, 'showCover', null, noCallback)}} onMouseEnter={(e)=>{eHandler(e, 'showCover', null, noCallback)}} onMouseLeave={(e)=>{closeMenu(); eHandler(e, 'hideCover', null, noCallback)}}>
+      <nav id={id} className="sidebar pointer" onMouseOver={(e)=>{eHandler(e, 'showCover', null, noCallback)}} onMouseEnter={(e)=>{eHandler(e, 'showCover', null, noCallback)}} onMouseLeave={(e)=>{closeMenu(); eHandler(e, 'hideCover', null, noCallback)}}>
         <ul className="sidebar-container">
           <li className="sidebar-header">
             <Link to="/" className="sidebar-header-link">
@@ -233,7 +234,7 @@ const Sidebar = (props) => {
 
           <span className="sidebar-add-entry-btn-dummy" />
           
-          <span className="sidebar-add-entry-btn" onClick={goLink}>
+          <span className={`sidebar-add-entry-btn ${pageView === 'createSheet' || pageView === 'modifySheet' ? 'hide' : ''}`} onClick={goLink}>
             {/* <Link to={link}> */}
               <img alt='add entry' src={add} className="sidebar-add-entry" />
             {/* </Link> */}
@@ -252,7 +253,7 @@ const Sidebar = (props) => {
                           <span className="sidebar-sheet-link-text">{sheet.name}</span>
                         </div>
                       </Link>
-                      <img alt='Options' src={menu} className="sidebar-sheet-menu" onClick={(e)=>openMenu(e, sheet.sheet_id)}/> {/*refactor to load options for this sheet*/}
+                      <img alt='Options' src={menu} className="sidebar-sheet-menu" onClick={(e)=>openMenu(e, sheet.sheet_id, sheet.role_name)}/> {/*refactor to load options for this sheet*/}
                     </div>
                   </span>
                 )
@@ -278,11 +279,13 @@ const Sidebar = (props) => {
           onClickAway={closeMenu}
         >
           <div className={`sheet-options-menu-container`} style={menuLocation}>
-            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${menuTargetSheetId}/edit`)}}><Edit/><span>Edit Sheet</span></div>
+            { menuAuth === 'Viewer' ? <></>
+              : <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${menuTargetSheetId}/edit`)}}><Edit/><span>Edit Sheet</span></div>
+            }
             {/* <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}><Duplicate/><span>Duplicate Sheet</span></div> */}
             {/* <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}><Report/><span>Generate Report</span></div> */}
-            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();generateCSV(menuTargetSheetId, token)}}><Download/><span>Export to CSV</span></div>
             <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${menuTargetSheetId}/users`)}}><Lock/><span>User Access</span></div>
+            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();generateCSV(menuTargetSheetId, token)}}><Download/><span>Export to CSV</span></div>
             <div className={`sheet-options-menu-item break ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`}></div>
             <div className={`sheet-options-menu-item remove ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={(e)=>{closeMenu();removeMe(menuTargetSheetId)}}><Leave/><span>Leave Sheet</span></div>
           </div>

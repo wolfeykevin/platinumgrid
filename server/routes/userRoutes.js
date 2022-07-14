@@ -1,11 +1,9 @@
 import express from "express";
 const router = express.Router();
 
-import { myAuth,request, add, getAllSheetUsers, requestAllUsers, editUserRoles, removeUserRoles, getUserId } from "../controllers/userController.js";
+import { myAuth, addUser, getAllSheetUsers, requestAllUsers, editUserRoles, removeUserRoles, getUserId } from "../controllers/userController.js";
 
-router.route("/add_user").post(add);
-
-router.route("/get_user").get(request);
+router.route("/add_user").post(addUser);
 
 router.route("/get_user_id").get(getUserId);
 
@@ -18,7 +16,5 @@ router.route("/edit_user_roles/:sheet_id").patch(editUserRoles)
 router.route("/remove_roles/:sheet_id").delete(removeUserRoles)
 
 router.route("/authCheck/:sheet_id").get(myAuth)
-
-
 
 export default router;

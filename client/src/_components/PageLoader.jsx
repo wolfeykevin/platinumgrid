@@ -7,7 +7,7 @@ const PageLoader = () => {
 
   const style = {
     height: 'auto',
-    width: '6rem',
+    width: '18rem',
   }
 
   return (

@@ -21,7 +21,7 @@ const UserDisplay = () => {
   const navigate = useNavigate();
 
   const { store } = useContext(GlobalContext)
-  const { user } = store;
+  const { user, setPageView } = store;
   
   const { sheet } = useContext(SheetContext);
   const [ sheetName, setSheetName ] = useState('');
@@ -31,10 +31,14 @@ const UserDisplay = () => {
   const sheetId = parseInt(location.pathname.split('/')[2]);
 
   const { userAccess } = useContext(UserAccessContext);
-  const { setSheetUsers } = userAccess
+  const { setSheetUsers } = userAccess;
   let usersToUpdate = useRef([]);
   
   const mouseDownHandler = useScrollHandler('scroll-container');
+
+  useEffect(() => {
+    setPageView('users')
+  }, [])
 
   useEffect(() => {
 
@@ -107,9 +111,7 @@ const UserDisplay = () => {
         // window.location.reload();
       })
       .catch(error => console.log('error', error));
-
   }
-
 
   const deleteUser = (target) => {
     let payload = {users: [target]}
@@ -149,10 +151,11 @@ const UserDisplay = () => {
             </div>
             <div className="users-search">
               {/* <input placeholder='Search'/> */}
-              {usersChanged <= 0 ? 
-                <button className='update-disabled' disabled>Update</button> 
+              {authLevel !== 'Owner' ? <></> : 
+                usersChanged <= 0 ? 
+                <button className='user-update-button update-disabled' disabled>Update</button> 
                 : 
-                <button className='update-enabled' onClick={updateUsers}>Update</button>}
+                <button className='user-update-button update-enabled' onClick={updateUsers}>Update</button>}
             </div>
           </div>
           <div id='scroll-container' className='users-display-body' onMouseDown={(e) => {
@@ -235,7 +238,7 @@ const UserDisplay = () => {
         <UserLookup/>
         {authLevel !== 'Owner' ? <></> :
         <button className='add-user' onClick={() => navigate('lookup')}>
-          <span>Add User</span><img className='primary-image'/><img className='secondary-image'/>
+          <span className="no-select">Add User</span><img className='primary-image'/><img className='secondary-image'/>
         </button>
         }
         {/* <button className='users-display-exit' onClick={

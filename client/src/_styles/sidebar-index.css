@@ -244,7 +244,7 @@
   width: 3rem;
   min-width: 3rem;
   height: auto;
-  fill: var(--color-quinary);
+  fill: var(--color-highlighted);
 }
 
 .sidebar-footer-theme svg.moon {
@@ -253,12 +253,12 @@
   margin-top: -0.3rem;
   margin-right: 0.15rem;
   height: auto;
-  fill: var(--color-quinary);
+  fill: var(--color-highlighted);
 }
 
 .sheet-options-menu-container {
   position: fixed;
-  background-color: var(--color-tertiary);
+  background-color: var(--color-secondary);
   padding: 1rem;
   border-radius: var(--global-border-radius);
   box-shadow: 0 1rem 1rem 0 var(--global-menu-box-shadow-color);
@@ -271,9 +271,19 @@
 }
 
 .sheet-options-menu-item {
-  background-color: var(--color-primary);
+  background-color: var(--color-secondary);
   color: var(--color-text-menu);
-  padding: 0.8rem 1.7rem;
+  padding: 0.8rem 0.8rem;
+  border-radius: var(--global-border-radius);
+  text-align: center;
+  z-index: 2000000;
+  cursor: pointer;
+  transition: background-color var(--global-transition-speed) ease;
+}
+
+.sheet-options-menu-item:hover {
+  background-color: var(--color-tertiary);
+  color: var(--color-text-menu);
   border-radius: var(--global-border-radius);
   text-align: center;
   z-index: 2000000;
@@ -297,6 +307,27 @@
   border-radius: var(--global-border-radius);
   text-align: center;
   z-index: 2000000;
+  transition: background-color var(--global-transition-speed) ease;
+}
+
+.sheet-options-menu-item.add {
+  background-color: #69d4b0;
+  color: var(--color-text-menu);
+  padding: 0.8rem 1.7rem;
+  border-radius: var(--global-border-radius);
+  text-align: center;
+  z-index: 2000000;
+  transition: background-color var(--global-transition-speed) ease;
+}
+
+.sheet-options-menu-item.add:hover {
+  background-color: #61e5b9;
+  color: var(--color-text-menu);
+  padding: 0.8rem 1.7rem;
+  border-radius: var(--global-border-radius);
+  text-align: center;
+  z-index: 2000000;
+  transition: background-color var(--global-transition-speed) ease;
 }
 
 
@@ -309,12 +340,20 @@
   width: 100%;
 }
 
+#index.sidebar .sidebar-main {
+  height: calc(100% - 10.2rem)
+}
+
 #index.sidebar .sidebar-header {
-  justify-content: space-between;
+  justify-content: center;
 }
 
 #index.sidebar .sidebar-header-logo {
-  margin-left: 2rem;
+  /* margin-left: 2rem; */
+  transition: all var(--global-transition-speed) ease;
+}
+#index.sidebar .sidebar-header-link {
+  padding-left: 0rem;
   transition: all var(--global-transition-speed) ease;
 }
 

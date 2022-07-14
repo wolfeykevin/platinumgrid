@@ -20,10 +20,11 @@ const EntryDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
   const entryId = useParams().entryId;
-  const { sheetPageView, setSheetPageView, setSelectedEntry } = sheet;
+  const { sheetPageView, setSheetPageView, setSelectedEntry, triggerRefresh } = sheet;
+  const [ authLevel, setAuthLevel ] = useState();
 
   const navigate = useNavigate();
-  
+
   const refreshSheet = () => {
     smartApi(['GET', `get_sheet/${sheet.currentSheet.sheet_id}`], store.user.token)
     .then(result => {
@@ -35,12 +36,14 @@ const EntryDetails = () => {
       // console.log(result);
       sheet.setCurrentSheet(result);
       sheet.setSheetLoading(false);
+      triggerRefresh()
     })
     .catch(error => {
       navigate('/')
       sheet.setSheetLoading(false);
       console.log('error', error)});
   }
+
 
   const submitData = () => {
     //TODO: Build json to send to server
@@ -74,6 +77,7 @@ const EntryDetails = () => {
     })
 
     // console.log(payload)
+    navigate(`/sheet/${location.pathname.split('/')[2]}`)
 
     // console.log(payload)
     if (sheet.newEntry === true) {
@@ -84,23 +88,21 @@ const EntryDetails = () => {
           sheet.setSelectedEntry({})
           sheet.setNewEntry(false)
           toast.success('Entry Created')
-          
           refreshSheet()
-          navigate(`/sheet/${location.pathname.split('/')[2]}`)
         })
         .catch(error => {
           toast.error('Something went wrong. Please try again.')
           console.log('error', error)
         });
     } else {
-      // update entry
+      // update entry (this guy slow)
       smartApi(['PATCH', `edit_entry/${sheet.selectedEntry.entry_id}`, payload], store.user.token)
         .then(result => {
           sheet.setSelectedEntry({})
           sheet.setNewEntry(false)
           toast.success('Entry Updated')
           refreshSheet();
-          navigate(`/sheet/${location.pathname.split('/')[2]}`)
+          // navigate(`/sheet/${location.pathname.split('/')[2]}`)
         })
         .catch(error => {
           toast.error('Something went wrong. Please try again.')
@@ -110,24 +112,38 @@ const EntryDetails = () => {
   }
 
   useEffect(() => {
+    if (entryId !== undefined) {
+      for (let page in sheet.displayEntries) {
+        let pageEntries = sheet.displayEntries[page]
+        if (pageEntries.findIndex(entry => entry.entry_id === parseInt(entryId)) > -1) {
+          // console.log("Entry is on page", parseInt(page) + 1)
+          sheet.setCurrentPage(parseInt(page));
+        }
+      }
+    }
+  },[entryId, sheet.sheetPageView])
 
+  useEffect(() => {
     //TODO: Move some of this to SheetDisplay
     if (entryId !== undefined) {
       let index = sheet.currentSheet.entries.findIndex(entry => entry.entry_id === parseInt(entryId))
 
       if (index !== -1) {
-        
         sheet.setSelectedEntry(sheet.currentSheet.entries[index])
+        
+        // console.log(page);
 
-        var topPos = document.getElementById(entryId).offsetTop
-        var containerHeight = document.getElementsByClassName('sheet-display-body')[0].offsetHeight
-        // console.log("Offset Top:", topPos)
-        if (topPos > containerHeight-200) {
-          document.getElementsByClassName('sheet-display-body')[0].scroll({
-            top: topPos-400,
-            behavior: 'smooth'
-          })
-        } 
+        if (document.getElementById(entryId) !== null) {
+          var topPos = document.getElementById(entryId).offsetTop
+          var containerHeight = document.getElementsByClassName('sheet-display-body')[0].offsetHeight
+          // console.log("Offset Top:", topPos)
+          if (topPos > containerHeight-200) {
+            document.getElementsByClassName('sheet-display-body')[0].scroll({
+              top: topPos-400,
+              behavior: 'smooth'
+            })
+          } 
+        }
       } else {
         if (sheet.currentSheet.sheet_id !== 0 && sheet.sheetLoading === false) {
           // setSheetPageView('sheet')
@@ -138,6 +154,14 @@ const EntryDetails = () => {
     } else {
       setSelectedEntry({})
     }
+
+    // refresh auth
+    smartApi(['GET', `authCheck/${location.pathname.split('/')[2]}`], store.user.token)
+    .then(result => {
+      // console.log(result);
+      setAuthLevel(result);
+    })
+    .catch(error => console.log('error', error));
   }, [location, sheet.currentSheet, sheet.sheetLoading])
 
 
@@ -147,9 +171,8 @@ const EntryDetails = () => {
     :
     <>
       <div className="entry-details-container">
-
         <div className="entry-details-header no-select">
-          <span>{sheet.newEntry === true ? 'New Entry' : 'Update Entry'}</span>
+          <span>{authLevel === 'Viewer' ? 'Entry Details' : sheet.newEntry === true ? 'New Entry' : 'Update Entry'}</span>
           <button className="entry-details-cancel cancel-desktop" onClick={() => {
             navigate(`/sheet/${location.pathname.split('/')[2]}`)
             sheet.setSelectedEntry({})
@@ -162,7 +185,6 @@ const EntryDetails = () => {
           }}>x</button>
           {/* <img alt='edit icon'/> */}
         </div>
-
         <form id={sheet.selectedEntry.entry_id === undefined ? 'new' : sheet.selectedEntry.entry_id}
           className='entry-details-form'>
           {sheet.currentSheet.fields.filter(field => field.archived !== true).map((field, i) => {
@@ -189,26 +211,48 @@ const EntryDetails = () => {
                   <span className="field-type">{capitalize(field.type)}</span>
                 </div>
                 <hr />
-                {field.type === 'checkbox' ? 
-                  <div className='entry-details-checkbox-row'>
+                {authLevel === 'Viewer' || authLevel === undefined ?
+                  field.type === 'checkbox' ? 
+                    <div className='entry-details-checkbox-row'>
+                      <input id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
+                        key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
+                        className='entry-details-input checkbox'
+                        type="checkbox" defaultChecked={index === -1 ? false : sheet.selectedEntry.values[index].value === 'true'}
+                        onChange={(e) => {
+                          let element = e.target.nextSibling;
+                          element.innerText = element.innerText === 'Yes' ? 'No' : 'Yes';
+                        }}
+                      disabled/>
+                      <div className='entry-details-checkbox-text'>
+                        {index === -1 ? 'No' : (sheet.selectedEntry.values[index].value === 'true' ? 'Yes' : 'No')}
+                      </div>
+                    </div>
+                    :
                     <input id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
                       key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
-                      className='entry-details-input checkbox'
-                      type="checkbox" defaultChecked={index === -1 ? false : sheet.selectedEntry.values[index].value === 'true'}
-                      onChange={(e) => {
-                        let element = e.target.nextSibling;
-                        element.innerText = element.innerText === 'Yes' ? 'No' : 'Yes';
-                      }}
-                    />
-                    <div className='entry-details-checkbox-text'>
-                      {index === -1 ? 'No' : (sheet.selectedEntry.values[index].value === 'true' ? 'Yes' : 'No')}
-                    </div>
-                  </div>
+                      className='entry-details-input'
+                      defaultValue={index === -1 ? '': sheet.selectedEntry.values[index].value} disabled/>
                   :
-                  <input id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
-                    key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
-                    className='entry-details-input'
-                    defaultValue={index === -1 ? '': sheet.selectedEntry.values[index].value} />
+                  field.type === 'checkbox' ? 
+                    <div className='entry-details-checkbox-row'>
+                      <input id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
+                        key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
+                        className='entry-details-input checkbox'
+                        type="checkbox" defaultChecked={index === -1 ? false : sheet.selectedEntry.values[index].value === 'true'}
+                        onChange={(e) => {
+                          let element = e.target.nextSibling;
+                          element.innerText = element.innerText === 'Yes' ? 'No' : 'Yes';
+                        }}
+                      />
+                      <div className='entry-details-checkbox-text'>
+                        {index === -1 ? 'No' : (sheet.selectedEntry.values[index].value === 'true' ? 'Yes' : 'No')}
+                      </div>
+                    </div>
+                    :
+                    <input id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
+                      key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
+                      className='entry-details-input'
+                      defaultValue={index === -1 ? '': sheet.selectedEntry.values[index].value} />
                 }
                 <div className='entry-field-line' />
               </div>
@@ -216,11 +260,17 @@ const EntryDetails = () => {
             }
           )}
         </form>
-
+        {authLevel === 'Viewer' || authLevel === undefined ?
+        <div onClick={async (e) => {
+          e.preventDefault()
+          submitData();
+        }} disabled></div>
+        : <span className="entry-details-footer">
         <button className='entry-details-update no-select' onClick={async (e) => {
           e.preventDefault()
           submitData();
-        }}>Submit</button>
+        }}>Submit</button></span>
+        }
 
         {/* Covers the entire component after data is submitted. */}
         {isLoading === true ? <div className="entry-details-loader">Please Wait...</div> : <></>}

@@ -197,7 +197,7 @@
 }
 
 .sidebar-sheet.selected .sidebar-sheet-item .sidebar-sheet-item-link .sidebar-sheet-circle {
-  background: var(--color-quaternary);
+  background: var(--color-highlighted);
   transition: all var(--global-transition-speed) ease;
 }
 
@@ -210,7 +210,7 @@
 }
 
 .sidebar:hover .sidebar-sheet.selected {
-  background: var(--color-tertiary);
+  background: var(--color-quaternary);
   transition: all var(--global-transition-speed) ease;
 }
 
@@ -306,18 +306,33 @@
   height: auto;
   width: 1.5rem;
   vertical-align: middle;
-  padding-right: 0.8rem;
+  padding-right: 1.5rem;
 }
 
 .sheet-options-menu-item span {
   vertical-align: middle;
   flex-grow: 1;
-  justify-content: center;
+  /* justify-content: center; */
+  text-align: left;
 }
 
-.sheet-options-menu-item:focus, .sheet-options-menu-item:active, .sheet-options-menu-item:hover {
-  background-color: var(--color-quaternary);
+.sidebar .sheet-options-menu-item:focus, .sidebar .sheet-options-menu-item:active, .sidebar .sheet-options-menu-item:hover {
+  background-color: var(--color-tertiary);
   transition: all var(--global-transition-speed-fast) ease;
+}
+
+.sheet-page .sheet-options-menu-container:nth-of-type(3) .sheet-options-menu-item:focus, .sheet-page .sheet-options-menu-container:nth-of-type(3) .sheet-options-menu-item:active, .sheet-page .sheet-options-menu-container:nth-of-type(3) .sheet-options-menu-item:hover {
+  background-color: var(--color-tertiary);
+  transition: opacity var(--global-transition-speed-fast) ease;
+}
+
+.sheet-page .sheet-options-menu-container {
+  transition: opacity var(--global-transition-speed-fast) ease;
+}
+
+.sidebar:hover ~ #page .sheet-options-menu-container {
+  opacity: 0;
+  transition: opacity var(--global-transition-speed-fast) ease;
 }
 
 .sheet-options-menu-item.break {

@@ -55,13 +55,16 @@ const checkAuth = async (action, sheet, req, res) => {
   }
 }
 
-  /*
-      ==Our checker for Authlevel==
-  if (!await checkAuthLevel('read', {TARGET}, req)) {
-    res.status(401).send("Unauthorized");
-    return;
-  }
-  */
+const valiDataField = async (id) => {
+  await knex('fields')
+    .select('*')
+    .where({sheet_id: parseInt(id)})
+    .then((data) => {
+      return true;
+    }).catch(() => {
+      return false;
+    })
+}
 
 
-export {requestCurrentUser, checkAuthLevel, checkAuth}
+export {requestCurrentUser, checkAuthLevel, checkAuth, valiDataField}

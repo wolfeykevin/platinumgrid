@@ -81,11 +81,20 @@
     - QR functionality refactored, ops checked, print dialogue added w/ formatting i/w
     - Redesigned landing page to be more appealing
     - Implemented ability to upload CSV files to backend, have them display properly on frontend
-    - Bumping out data size limit for server to 1MB; seeking to remove REQUESTTOOLARGE error upon CSV file upload
+    - Bumping out data size limit for server to 1MB; seeking to remove REQUESTTOOLARGE error upon CSV file upload (SEE:  Memory Issue.md in root directory)
     - Resolving CSV formatting errors, prevent returning of empty arrays from backend
     - Implementing LEAVE SHEET, TOOLTIPS, DUPLICATE ENTRY features
     - Fixed sidebar menu icon movement, no longer 'jumps' when side menu expands
     - Refactoring EDIT PAGE code to address issues with editing data in backend
+
+    v0.9 (13 July):
+    - Resolved QR generation error when unarchiving sheet fields
+    - Disabled sheet fields if only VIEWER status
+    - Added ability to SORT COLUMNS both ascending and descending
+    - Styled NEW/EDIT SHEET pages to be more aesthetically pleasing
+    - DUPLICATE ENTRY function implemented
+    - ARCHIVE function implemented on SHEET SCREEN using FILTER button
+    - Implemented COPY functionality for selected entries
 
 
 <br>

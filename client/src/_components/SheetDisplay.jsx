@@ -13,6 +13,10 @@ import useScrollHandler from '../_helpers/useScrollHandler';
 import smartApi from '../_helpers/smartApi';
 import OptionsMenu from './OptionsMenu';
 import { ReactComponent as Left } from '../_assets/icons/left.svg';
+import { ClickAwayListener } from '@mui/base';
+import { applyActionCode } from 'firebase/auth';
+import { ReactComponent as Up } from '../_assets/icons/sort-up.svg';
+import { ReactComponent as Down } from '../_assets/icons/sort-down.svg';
 
 const SheetDisplay = () => {
   const navigate = useNavigate();
@@ -21,20 +25,26 @@ const SheetDisplay = () => {
   const mouseDownHandler = useScrollHandler('scroll-container');
 
   const { store } = useContext(GlobalContext)
-  const { theme, isAuth, setIsAuth } = store
+  const { theme, isAuth, setIsAuth, globalState } = store
+  const { screenType } = globalState
 
   const { sheet } = useContext(SheetContext);
 
   const { sheetId } = useParams();
 
   const { sheetPageView, setSheetPageView, setSelectedEntry, selectedEntry, newEntry, setCurrentSheet } = sheet;
+  const { masterRefresh, triggerRefresh } = sheet;
 
-  const { user, setSheetAccess, refresh } = store;
+  const { user, setSheetAccess, refresh, setPageView } = store;
 
   const [ searchString, setSearchString ] = useState('');
   const [ searchField, setSearchField ] = useState('');
   const [ authLevel, setAuthLevel ] = useState();
-  const [ paginatedEntries, setPaginatedEntries ] = useState([])
+  const [ localRefresh, setLocalRefresh ] = useState(false);
+
+  useEffect(() => {
+    setPageView('sheet')
+  }, [])
 
   useEffect(() => {
     if (selectedEntry.entry_id > 0) {
@@ -47,8 +57,8 @@ const SheetDisplay = () => {
   }, [selectedEntry, newEntry])
 
   const [ authRefresh, setAuthRefresh ] = useState(false)
-
-   // use useEffect and useState to trigger a rerender every 2 seconds
+    
+  // use useEffect and useState to trigger a rerender every 2 seconds
    useEffect(() => {
     const interval = setInterval(() => {
       setAuthRefresh(!authRefresh)
@@ -63,6 +73,23 @@ const SheetDisplay = () => {
     .catch(error => console.log('error', error));
     return () => clearInterval(interval);
   }, [authRefresh])
+
+  useEffect(() => {
+    let previousPath = sheet.prevPath.current.split('/').length;
+    let currentPath = location.pathname.split('/').length;
+    if (previousPath === currentPath) {
+      sheet.setCurrentPage(0)
+      sheet.setDisplayEntries(paginateEntries(
+        sortEntries(
+          filterCheckbox(
+            filterArchived(
+              searchEntries(sheet.currentSheet.entries))))))
+    }
+  }, [sheet.searchString, sheet.sortByOrder, sheet.archiveFilter, sheet.checkboxFilter.length, masterRefresh])
+
+  // useEffect(() => {
+  //   sheet.setDisplayEntries(paginateEntries(sheet.currentSheet.entries))
+  // }, [])
 
   useEffect(() => {
     // get user's sheets here
@@ -82,8 +109,19 @@ const SheetDisplay = () => {
             result.name = result.sheet.name;
             // order fields by id
             result.fields =  result.fields.sort((a, b) => (a.field_id > b.field_id) ? 1 : -1)
+            
+            // console.log('Sheet Refreshed')
+            // console.log("Previous Sheet Id:", sheet.currentSheet.sheet_id)
+            // console.log("New Sheet Id:", result.sheet_id)
+            // console.log(sheet.currentSheet.sheet_id === result.sheet_id)
             sheet.setCurrentSheet(result);
             sheet.setSheetLoading(false);
+            if (sheet.currentSheet.sheet_id !== result.sheet_id){
+              // console.log('Display Entries Initialized')
+              sheet.setDisplayEntries(paginateEntries(result.entries.filter(entry => 
+                entry.archived === false)))
+            }
+
           }
         })
         .catch(error => {
@@ -109,24 +147,85 @@ const SheetDisplay = () => {
         top: 0,
       })
     }
+    
+    if (previousSheetId !== currentSheetId) {
+      // console.log('reset search string')
+      sheet.setSearchString(''); // handle search string
+      sheet.setArchiveFilter([false]); // handle archive filter
+      sheet.setCheckboxFilter([]); // handle checkbox filter
+      sheet.setDisplayEntries([]); // handle entry display
+      sheet.setCurrentPage(0);
+    }
+
+    // refresh auth
+    smartApi(['GET', `authCheck/${sheetId}`], user.token)
+    .then(result => {
+      // console.log(result);
+      setAuthLevel(result);
+    })
+    .catch(error => console.log('error', error));
 
     // update prevPath for use later
     sheet.prevPath.current = location.pathname;
   },[location.pathname])
 
-  const filterEntries = () => {
-    let entries = sheet.currentSheet.entries
+  const sortHandler = (fieldId) => {
+    if (fieldId !== sheet.sortById) {
+      sheet.setSortByOrder('ascending')
+    } else {
+      sheet.setSortByOrder(sheet.sortByOrder === 'ascending' ? 'descending' : 'ascending')
+    }
+
+    sheet.setSortById(fieldId);
+  }
+
+  const sortEntries = (entries) => {
+    if (sheet.sortById !== 0 && entries !== undefined) {
+      let fieldId = sheet.sortById;
+  
+      // separate entries with and without values
+      let entriesWithValues = entries.filter(
+        entry => entry.values.findIndex(value => value.field_id === fieldId) !== -1)
+
+      let entriesWithEmptyValues = entriesWithValues.filter(entry => entry.values[entry.values.findIndex(value => value.field_id === fieldId)].value === '')
+
+      entriesWithValues = entriesWithValues.filter(entry => entry.values[entry.values.findIndex(value => value.field_id === fieldId)].value !== '')
+
+      let entriesWithoutValues = entries.filter(
+        entry => entry.values.findIndex(value => value.field_id === fieldId) === -1)  
+  
+      // only sort entries with values
+      if (sheet.sortByOrder === 'ascending') {
+        entriesWithValues.sort((a, b) => 
+          (a.values[a.values.findIndex(value => value.field_id === fieldId)].value.localeCompare(b.values[b.values.findIndex(value => value.field_id === fieldId)].value)))
+      } else {
+        entriesWithValues.sort((a, b) => 
+          (a.values[a.values.findIndex(value => value.field_id === fieldId)].value.localeCompare(b.values[b.values.findIndex(value => value.field_id === fieldId)].value))).reverse()
+      }
+  
+      // concat and return arrays
+      return entriesWithValues.concat(entriesWithEmptyValues).concat(entriesWithoutValues)
+    } 
+
+    return entries;
+  }
+
+  const searchEntries = (entries) => {
+    // let entries = sheet.currentSheet.entries
     
     // return entries where the entry value matches the search string -- no longer have to define which field you want to search for
-    return entries.filter(entry => {
-      let entryValues = entry.values
-      for (let i = 0; i < entryValues.length; i++) {
-        if (entryValues[i].value.toLowerCase().includes(searchString.toLowerCase())) {
-          return entry
+    if (sheet.search !== undefined || sheet.search !== '') {
+      return entries.filter(entry => {
+        let entryValues = entry.values
+        for (let i = 0; i < entryValues.length; i++) {
+          if (entryValues[i].value.toLowerCase().includes(sheet.searchString.toLowerCase())) {
+            return entry
+          }
         }
-      }
-    })
+      })
+    }
     
+    return entries;
     // commented out the below code to use filter which matches any field, feel free to change it back!
     // let fieldIndex = sheet.currentSheet.fields.findIndex(field => field.name === searchField)
     // let fieldId = sheet.currentSheet.fields[fieldIndex].field_id;
@@ -135,22 +234,200 @@ const SheetDisplay = () => {
 
   const filteredEntries = sheet.currentSheet.entries.filter(entry => entry.archived === false)
 
+  const [menuTargetSheetId, setMenuTargetSheetId] = useState(null)
+  const [applyStyle, setApplyStyle] = useState(false)
+  const [menuLocation, setMenuLocation] = useState({
+    visibility: 'hidden',
+    top: 0,
+    left: 0
+  })
+
+  const openMenu = (e, target) => {
+    e.preventDefault()
+    // console.log(sheet_id)
+    // console.log(entry_id)
+    setMenuTargetSheetId(target)
+    setApplyStyle(true)
+    const { top, left } = e.target.getBoundingClientRect()
+    // let bottomDist = window.innerHeight - e.target.offsetTop + e.target.offsetHeight
+    let bottomDist = window.innerHeight - e.clientY
+    let rightDist = e.clientX
+    if (screenType === 'mobile' && bottomDist < 320) {
+      setMenuLocation({
+        visibility: 'visible',
+        top: 54,
+        right: '1rem'
+        // right: 20
+      })
+    } else if (bottomDist <320) {
+      setMenuLocation({
+        visibility: 'visible',
+        top: 54,
+        left: left - e.target.offsetWidth + 8
+        // right: 20
+      })
+    } else if (screenType === 'mobile') {
+      setMenuLocation({
+        visibility: 'visible',
+        top: top + 54,
+        right: '1rem'
+      })
+    } else {
+      setMenuLocation({
+        visibility: 'visible',
+        top: top + 54,
+        // right: e.target.offsetWidth - '4rem',
+        left: left - e.target.offsetWidth + 8
+      })
+    }
+    // console.log('thing: ', e)
+  }
+  
+  // close the menu
+  const closeMenu = () => {
+    setMenuTargetSheetId(null)
+    setApplyStyle(false)
+    setMenuLocation({
+      visibility: "hidden",
+      top: 0,
+      left: 0
+    })
+  }
+
+  const toggleArchiveFilters = (value) => {
+    if (sheet.archiveFilter.includes(false) && sheet.archiveFilter.includes(true)) {
+      sheet.setArchiveFilter([false])
+    } else if (sheet.archiveFilter.includes(false) && !sheet.archiveFilter.includes(true)) {
+      sheet.setArchiveFilter([true])
+    } else {
+      sheet.setArchiveFilter([false, true])
+    }
+    // if (sheet.archiveFilter.includes(value)) {
+    //   let tempArray = sheet.archiveFilter;
+    //   let index = sheet.archiveFilter.indexOf(value);
+    //   tempArray.splice(index, 1);
+    //   sheet.setArchiveFilter(tempArray)
+    // } else {
+    //   let tempArray = sheet.archiveFilter;
+    //   tempArray.push(value);
+    //   sheet.setArchiveFilter(tempArray)
+    // }
+    setLocalRefresh(!localRefresh);
+  }
+
+  const checkCheckboxFilter = (fieldData, value) => {
+    if (sheet.checkboxFilter === undefined || sheet.checkboxFilter.length === 0) {
+      return -1;
+    }
+
+    return sheet.checkboxFilter.findIndex(field => field.field_id === fieldData.field_id && field.filter === value);
+  }
+
+  const handleCheckboxFilters = (fieldData, value) => {
+    let index = sheet.checkboxFilter.findIndex(field => 
+      field.field_id === fieldData.field_id && field.filter === value)
+    if (index !== -1) {
+      let tempArray = sheet.checkboxFilter;
+      tempArray.splice(index, 1);
+      sheet.setCheckboxFilter(tempArray)
+    } else {
+      let tempData = {...fieldData}
+      tempData.filter = value;
+      let tempArray = sheet.checkboxFilter;
+      tempArray.push(tempData);
+      sheet.setCheckboxFilter(tempArray)
+    }
+
+    setLocalRefresh(!localRefresh);
+  }
+
+  const filterCheckbox = (entries) => {
+    // let entries = sheet.currentSheet.entries;
+    if (entries !== undefined && sheet.checkboxFilter !== undefined) {
+      return entries.filter(entry => {
+        for (let field of sheet.checkboxFilter) {
+          let index = entry.values.findIndex(value => value.field_id === field.field_id)
+          if (index === -1 || entry.values[index].value === field.filter) {
+            return false;
+          }
+        }
+        return true;
+      })
+    }
+
+    return entries;
+  }
+
+  const filterArchived = (entries) => {
+    // let entries = sheet.currentSheet.entries;
+    if (entries !== undefined && sheet.archiveFilter !== undefined) {
+      return entries.filter(entry => {
+        for (let value of sheet.archiveFilter) {
+          if (entry.archived === value) {
+            return true;
+          }
+        }
+        return false;
+      })
+    }
+    return entries
+  }
+
+  const pageNavigationHandler = (page) => {
+    document.getElementById('scroll-container').scroll({
+      top: 0,
+    })
+    if (page < 0) {
+      sheet.setCurrentPage(0)
+    } else if (page >= sheet.displayEntries.length - 1) {
+      sheet.setCurrentPage(sheet.displayEntries.length - 1)
+    } else {
+      sheet.setCurrentPage(page);
+    }
+  }
+
+  const paginateEntries = (entries) => {
+    let entriesPerPage = 25;
+    // let entries = sheet.currentSheet.entries;
+    let index = 0;
+    let paginatedEntries = [];
+    while (index < entries.length) {
+      // check remaining entries
+      if (entries.length - index > entriesPerPage) {
+        paginatedEntries.push(entries.slice(index, index+entriesPerPage))
+      } else {
+        paginatedEntries.push(entries.slice(index))
+      }
+      index += entriesPerPage;
+    }
+
+    // sheet.setPaginatedEntries(paginatedEntries);
+    return paginatedEntries
+  }
+  // console.log(sheet.archiveFilter)
+  // console.log(sheet.checkboxFilter)
+
   return (
     <>
+      {/* {paginateEntries()} */}
       <div className={`sheet-display-container ${(sheetPageView === 'edit-entry' || sheetPageView === 'new-entry') ? 'shrink' : ''}`}>
         {/* <SheetHeader> */}
         <div className='sheet-display-header'>
           <div className="sheet-header-meta">
+            {/* {console.log('render')} */}
             <img className="sheet-header-icon no-select" src={logo} />
-            <span className="nowrap">
-              {sheet.currentSheet.name === '' ? 'Loading...' : sheet.currentSheet.name}
+            <div id="sheet-page" className="sheet-modify-icon no-select">
+              {sheet.currentSheet.sheet.short_name}
+            </div>
+            <span className="sheet-title">
+              {sheet.currentSheet.name === '' ? '' : sheet.currentSheet.name}
             </span>
           </div>
           <div className="sheet-search no-select">
             <div className="search-element">
-              <input className="search-element-input" placeholder='Search' 
-                onChange={(e) => {setSearchString(e.target.value)}}/>
-              <select className="search-element-field-select" defaultValue='Choose Field'
+              <input className="search-element-input" value={sheet.searchString} placeholder='Search' 
+                onChange={(e) => {sheet.setSearchString(e.target.value)}}/>
+              {/* <select className="search-element-field-select" defaultValue='Choose Field'
                 onChange={(e) => {setSearchField(e.target.value)}}>
                 <option disabled hidden defaultValue>Choose Field</option>
                 {sheet.currentSheet.fields.filter(field => field.archived === false).map((field, i) => {
@@ -159,12 +436,18 @@ const SheetDisplay = () => {
                   }
                 }
                 )}
-              </select>
+              </select> */}
             </div>
-            <button className='filter-button'>Filter</button>
+            <button className={`filter-button pointer ${applyStyle ? 'filter-selected' : ''}
+              ${
+                sheet.checkboxFilter.length > 0 ? 'filter-on' :
+                sheet.archiveFilter.length === 1 && sheet.archiveFilter[0] === false ? 'filter-off' : 'filter-on'
+              }`} onClick={(e)=>{
+              applyStyle ? closeMenu() : openMenu(e, sheet.sheet_id)
+            }}>Filter</button>
           </div>
         </div>
-        <div id='scroll-container' className='sheet-display-body' 
+        <div id='scroll-container' className='sheet-display-body no-select pointer' 
           onScroll={(e) => {
             sheet.sheetScroll.current = e.target.scrollTop;
           }}
@@ -179,7 +462,16 @@ const SheetDisplay = () => {
                 {sheet.currentSheet.fields.length === 0 ? 
                   <td className='sheet-display-cell'>Loading fields...</td> : <></>}
                 {sheet.currentSheet.fields.filter(field => field.favorite === true).map((field, i) =>
-                  <td className="sheet-display-cell" key={i}>{field.name}</td>
+                  <td id={`${field.name}-${field.id}`} className="sheet-display-cell" key={i} onClick={(e) => {
+                    sortHandler(field.field_id);
+                  }}
+                  >
+                    {field.name}
+                    {field.field_id !== sheet.sortById ? " " : 
+                     sheet.sortByOrder === 'ascending' ?
+                     <span className="sort-arrow-down"/>
+                     : <span className="sort-arrow-up"/> }
+                  </td>
                 )}
                 <td className="sheet-display-cell" key='option'></td>
               </tr>
@@ -188,13 +480,17 @@ const SheetDisplay = () => {
             <tbody>
               {/* //comented out below to use new filter algorithm, feel free to change back! */}
               {/* {(searchString !== '' && searchField !== '') ?   */}
-              {(searchString !== '') ? 
-                filterEntries().filter(entry => entry.archived === false).map((entry, i) => {
+              {sheet.displayEntries === undefined ? <></> :
+                sheet.displayEntries.length === 0 ? <></> :
+                  sheet.displayEntries[sheet.currentPage].map((entry, i) => {
+                  return <Entry data={entry} key={i}/>})}
+              {/* {(sheet.searchString !== '') ? 
+                sortEntries(filterCheckbox(filterArchived(searchEntries()))).filter(entry => entry.archived === false).map((entry, i) => {
                   return <Entry data={entry} key={i}/>})
                 :
-                sheet.currentSheet.entries.filter(entry => entry.archived === false).map((entry, i) => {
+                sortEntries(filterCheckbox(filterArchived(sheet.currentSheet.entries))).map((entry, i) => {
                   return <Entry data={entry} key={i}/>})
-              }
+              } */}
             </tbody>
           </table>
         </div>
@@ -203,8 +499,48 @@ const SheetDisplay = () => {
         {authLevel === 'Viewer' ? <></>:<button className="new-entry no-select" onClick={() => sheet.setNewEntry(true)}><span>New Entry</span><img alt='edit-icon'/></button>}
         {/* <button className="dummy-filter" onClick={filterEntries}>%</button> */}
       </div>
+      {sheet.displayEntries.length === undefined || sheet.displayEntries.length <= 1 ? <></> :
+      <Fix offsetBottom="7rem" offsetRight="2rem" lower right className='page-navigation z-index-800 no-select'>
+        <button className='page-down' onClick={() => pageNavigationHandler(sheet.currentPage - 1)}>&lt;</button>
+        <span>Page {sheet.currentPage + 1} of {sheet.displayEntries.length}</span>
+        <button className='page-up' onClick={() => pageNavigationHandler(sheet.currentPage + 1)}>&gt;</button>
+      </Fix>}
       <EntryDetails entryId={entryId}/>
-      <OptionsMenu/>
+      <OptionsMenu authLevel={authLevel}/>
+      <ClickAwayListener
+        mouseEvent="onMouseDown"
+        touchEvent="onTouchStart"
+        onClickAway={() => {closeMenu()}}>
+        <div onMouseLeave={() => {closeMenu()}} className={`sheet-options-menu-container no-select`} style={menuLocation}>
+        <div className="menu-filter-options">
+          <div id={`archive-true`} className={`sheet-options-menu-item ${sheet.archiveFilter.includes(true) ? "filter-item-selected" : ""} ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} 
+          onClick={(e)=>{toggleArchiveFilters()}}>
+            <span className="check-option">{sheet.archiveFilter.includes(true) ? sheet.archiveFilter.includes(false) ? "Show: All" : "Show: Archived" : "Show: Default"}</span> {sheet.archiveFilter.includes(true) ? 
+            <span alt="checked" className="check"/> : <span alt="unchecked" className="no-check"/>}
+          </div>
+          {/* <div id={`archive-false`} className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'} ${sheet.archiveFilter.includes(false) ? "filter-item-selected" : ""}`} onClick={(e)=>{toggleArchiveFilters(false)}}>
+            <span className="check-option">Not Archived</span> {sheet.archiveFilter.includes(false) ? <span alt="checked" className="check"/> : <span alt="unchecked" className="no-check"/>}
+          </div> */}
+        </div>
+          {sheet.currentSheet.fields.filter(field => field.type === "checkbox").map((field, i) => {
+            return (
+              <div className="menu-filter-options" key={i}>
+                <div key={`${field.name}-Yes`} id={`archive-true`} 
+                className={`sheet-options-menu-item ${checkCheckboxFilter(field, "true") !== -1 ? "filter-item-selected" : ""} ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={(e)=>{handleCheckboxFilters(field, "true")}}>
+                  <span className="check-option" key={`${field.name}-text`}>{field.name}</span> {checkCheckboxFilter(field, "true") === -1 ? <span alt="unchecked" className="no-check"/> : <span alt="checked" className="check"/>}
+                </div>
+                <div key={`${field.name}-No`} id={`archive-true`} className={`sheet-options-menu-item ${checkCheckboxFilter(field, "false") !== -1 ? "filter-item-selected" : ""} ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={(e)=>{handleCheckboxFilters(field, "false")}}>
+                  <span className="check-option" key={`${field.name}-text`}>Not {field.name}</span> {checkCheckboxFilter(field, "false") === -1 ? <span alt="unchecked" className="no-check"/> : <span alt="checked" className="check"/>}
+                </div>
+              </div>
+              
+            )
+          })}
+          {/* <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{console.log('whats good boi')}}><span>Edit</span></div>
+          <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{console.log('duplicate')}}><span>Duplicate</span></div>
+          <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{console.log('qr code')}}><span>QR Code</span></div> */}
+        </div>
+      </ClickAwayListener>
       <Fix className={`entry-tooltip ${filteredEntries.length > 0 ? 'hide' : ''}`} offset="2.8rem" lower right>
         <span>Create a new entry</span><Left className="flip-horizontal"/>
       </Fix>

@@ -1,4 +1,4 @@
-import React, { useContext, lazy, Suspense, useState } from 'react';
+import React, { useContext, lazy, Suspense, useState, useEffect } from 'react';
 import { Route, Routes, Navigate, Link, useLocation } from 'react-router-dom';
 import { GlobalContext } from '../_context/AppProvider'
 import { Div, Img, Fix } from '../_styles/_global'
@@ -10,6 +10,7 @@ import p1loginmobile from '../_assets/img/p1loginmobile.png';
 import home from '../_assets/img/home-images.png';
 import homeDark from '../_assets/img/home-images-dark.png';
 import logoBlue from '../_assets/img/logo-blue.png';
+import logoBlueDark from '../_assets/img/logo-blue-dark.png';
 import pentagon from '../_assets/img/pentagon.png';
 import dod from '../_assets/img/dod-seal.png';
 import { SheetProvider } from '../_context/SheetProvider'
@@ -44,9 +45,13 @@ const Index = () => {
 const Page = () => {
 
   const { store } = useContext(GlobalContext)
-  const { globalState, user } = store
+  const { globalState, user, setPageView } = store
   const { loading, screenType } = globalState
   const { isAuth, name, sheetAccess } = user
+
+  useEffect(() => {
+    setPageView('home')
+  }, [])
 
 
   const [applyStyle, setApplyStyle] = useState(false)
@@ -110,6 +115,7 @@ const Page = () => {
           {/* <Img alt="home" className="home-dark" style={{width: '22rem', borderRadius: '2rem', marginBottom: '0rem'}} src={homeDark} /> */}
           {/* <Img alt="home" style={{width: '18em', borderRadius: '2rem', marginBottom: '0.5rem'}} src={pentagon} /> */}
           <div className="index-app">
+            <Img alt="home" className="prime-logo-lite" style={{width: '4rem',borderRadius: '0rem', marginBottom: '-.5rem', marginRight: '1rem'}} src={logoBlueDark} />
             <Img alt="home" className="prime-logo" style={{width: '4rem',borderRadius: '0rem', marginBottom: '-.5rem', marginRight: '1rem'}} src={logoBlue} />
             SmartSheets
           </div>

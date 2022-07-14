@@ -25,7 +25,7 @@ const SheetModify = () => {
   const { store } = useContext(GlobalContext);
   const { sheet } = useContext(SheetContext);
 
-  const { user, theme, checkAuth, isAuth, setIsAuth } = store;
+  const { user, theme, checkAuth, isAuth, setIsAuth, setPageView } = store;
   
   const [ newSheet, setNewSheet ] = useState(true);
   const [ isLoading, setIsLoading ] = useState(true);
@@ -48,6 +48,10 @@ const SheetModify = () => {
     setSheetFieldsArchived(data.sort((a, b) => (a.field_id > b.field_id) ? 1 : -1))
   };
 
+  useEffect(() => {
+    setPageView('createSheet')
+  }, [])
+
   const importFromCSV = () => {
     var input = document.createElement('input');
     input.type = 'file';
@@ -63,15 +67,15 @@ const SheetModify = () => {
           
           let headers = content.splice(0, 1);
 
-          console.log("Name:", file.name.replace(/\.csv/g, ''))
-          console.log("Shortname:", file.name.replace(/\.csv/g, '').substring(0, 3))
-          console.log("Headers:", headers)
+          // console.log("Name:", file.name.replace(/\.csv/g, ''))
+          // console.log("Shortname:", file.name.replace(/\.csv/g, '').substring(0, 3))
+          // console.log("Headers:", headers)
           // console.log("Content:", content)
 
           addMultipleFields(headers)
 
           let headerLength = headers[0].length;
-          console.log(headerLength)
+          // console.log(headerLength)
           //TODO: Implement the rest
           let data = {
             sheet_id: 'new',
@@ -94,7 +98,7 @@ const SheetModify = () => {
             entry.values = entry.values.slice(0, headerLength)
             data.entries.push(entry);
           })
-          console.log(data.entries);
+          // console.log(data.entries);
           setSheetName(file.name.replace(/\.csv/g, ''))
           setShortName(file.name.replace(/\.csv/g, '').substring(0, 3))
 
@@ -127,7 +131,7 @@ const SheetModify = () => {
       setIsLoading(true);
       // fetch and parse sheet info here
       if (isNaN(sheetId)) {
-        console.log('Sheet ID is NaN')
+        // console.log('Sheet ID is NaN')
         navigate('/')
       } else {
         smartApi(['GET', `get_sheet/${sheetId}`], user.token)
@@ -257,11 +261,11 @@ const SheetModify = () => {
     let payload = {fields: sheetFields.concat(sheetFieldsNew).concat(sheetFieldsArchived)}
     // let payload = {fields: sheetFields}
 
-    console.log(payload);
+    // console.log(payload);
 
     smartApi(['PATCH', `/handle_field/${sheetId}`, payload], user.token)
       .then(async result => {
-        console.log(result); 
+        // console.log(result); 
 
         if (importedData !== '') {
           importedData.entries.forEach(entry => {
@@ -279,7 +283,9 @@ const SheetModify = () => {
           })
           console.log(importedData)
           await smartApi(['POST', `/add_many_entries/${sheetId}`, importedData], user.token)
-            .then(result => console.log(result))
+            .then(result => result
+              //console.log(result)
+            )
             .catch(err => console.log(err))
         }
 
@@ -335,7 +341,7 @@ const SheetModify = () => {
     } else {
       smartApi(['PATCH', `edit_sheet/${sheet.currentSheet.sheet_id}`, payload], user.token)
       .then(result => {
-        console.log(result); 
+        // console.log(result); 
 
         handleFields(sheet.currentSheet.sheet_id);
       })
@@ -367,35 +373,23 @@ const SheetModify = () => {
     }
   }
 
+  /* {sheetName !== '' ? sheetName : 'Enter a sheet name'} */
   return (
     <>
       <div className={`sheet-modify-container`}>
         <div className='sheet-modify-header'>
           <div className="sheet-modify-meta">
             <div className="sheet-modify-icon">
-              {/* <img /> */}
-              <span className="sheet-modify-short-name">{shortName}</span>
+              <input defaultValue={shortName} onChange={(e) => {setShortName(e.target.value.toUpperCase())}} placeholder=' SHORT NAME' maxLength={3} className='input-short'/>
             </div>
-            <div className='sheet-modify-title'>
-              <span className="page-name nowrap">{newSheet ? 'Create Sheet' : 'Edit Sheet'}</span>
-              <span className={`sheet-name nowrap`}>
-                {sheetName !== '' ? sheetName : 'Enter a sheet name'}
-              </span>
+          </div>
+          <div className='meta'>
+            <div className='section name'>
+              <input defaultValue={sheetName} onChange={(e) => {setSheetName(e.target.value)}} placeholder='Sheet Name' maxLength={500} />
             </div>
           </div>
         </div>
         <div className='sheet-modify-body'>
-          <div className='meta'>
-            <div className='section name'>
-              <span className='column-title'>Short Name</span>
-              <input defaultValue={shortName} onChange={(e) => {setShortName(e.target.value.toUpperCase())}} maxLength={3} className='input-short'/>
-              <span className='column-title'>Sheet Name</span>
-              <input defaultValue={sheetName} onChange={(e) => {setSheetName(e.target.value)}} />
-            </div>
-            {/* <div className='section template'>
-              <span className='column-title'>Templates</span>
-            </div> */}
-          </div>
           <div className='column fields'>
             <div className='section field'>
               <span className='column-title'>Fields</span>
@@ -430,17 +424,17 @@ const SheetModify = () => {
                 {sheetFieldsNew.map((field, i) => {
                   return (
                     <div key={i} className='field-item'>
+                      {field.favorite === true ? 
+                        <Favorited className="favorite-field" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFieldsNew, setSheetFieldsNew)}} />
+                        :
+                        <NotFavorited className="favorite-field" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFieldsNew, setSheetFieldsNew)}} />
+                      }
                       <input key={`input-${i}`} value={field.name} placeholder={'Name'} onChange={(e) => {updateFieldName(i, e.target.value, sheetFieldsNew, setSheetFieldsNew)}} />
                       <select key={`select-${i}`} defaultValue='text' onChange={(e) => {updateFieldType(i, e.target.value, sheetFieldsNew, setSheetFieldsNew)}}>
                         <option value='text'>Text</option>
                         <option value='number'>Number</option>
                         <option value='checkbox'>Checkbox</option>
                       </select>
-                      {field.favorite === true ? 
-                        <Favorited className="favorite-field" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFieldsNew, setSheetFieldsNew)}} />
-                        :
-                        <NotFavorited className="favorite-field" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFieldsNew, setSheetFieldsNew)}} />
-                      }
                       <img className='delete-field' onClick={() => deleteField(i)}/>
                       <button onClick={() => moveUp(i)}>^</button>
                       <button onClick={() => moveDown(i)}>V</button>
@@ -475,8 +469,11 @@ const SheetModify = () => {
           </div>
         </div>
       </div>
-      {newSheet === true ? <button className='import-data' onClick={importFromCSV}><span>Import CSV</span><img alt='edit-icon'/></button> : <></>}
-      <button className='create-sheet' onClick={submitData}><span>{newSheet ? 'Create Sheet' : 'Save Sheet'}</span><img alt='edit-icon'/></button>
+      {newSheet === true ? <button className='import-data' onClick={importFromCSV}><span>Import CSV</span><img alt='edit-icon'/></button>
+      : <></>}
+      <button className={`create-sheet ${newSheet ? 'create-icon' : 'save-icon'}`} onClick={submitData}><span>{newSheet ? 'Create Sheet' : 'Save Sheet'}</span>
+        <img alt='edit-icon'/>
+      </button>
       
       {/* <div className='debug-container'>
           <span className='debug-title'>New Sheet: {newSheet.toString()}</span>

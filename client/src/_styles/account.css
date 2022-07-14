@@ -21,7 +21,7 @@
   padding-bottom: 0.2rem;
   font-weight: var(--bolder);
   font-size: var(--font-size-heading);
-  color: var(--color-entry-header-text);
+  color: var(--color-sheet-title);
 }
 
 .account-meta-email {

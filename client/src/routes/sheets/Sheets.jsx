@@ -20,7 +20,7 @@ const Sheets = () => {
   const NotFound = lazy(() => import('../NotFound'));
 
   return (
-    <div className='sheet-page'>
+    <div className='sheet-page no-select'>
         <Routes>
           <Route path='/' element={ <SheetDisplay/> } />
             <Route path='/users/*' element={ <Suspense fallback={<Loader/>}><UserAccessProvider><UserDisplay/></UserAccessProvider></Suspense> } />

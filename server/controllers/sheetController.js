@@ -89,13 +89,13 @@ const requestSheetData = async (req, res) => {
   res.status(200).json(returning);
 };
 
-const requestAllSheet = (req, res) => {
-  knex("sheets")
-    .select("id as sheet_id", "name", "short_name", "templates")
-    .then((data) => {
-      res.status(200).json(data);
-    });
-}
+// const requestAllSheet = (req, res) => {
+//   knex("sheets")
+//     .select("id as sheet_id", "name", "short_name", "templates")
+//     .then((data) => {
+//       res.status(200).json(data);
+//     });
+// }
 
 const requestUserSheets = async (req, res) => {
   let currentUser = await requestCurrentUser(req.user.user_id)
@@ -227,4 +227,4 @@ const edit = async (req, res) => {
 
 };
 
-export { requestAllSheet, requestSheetData, requestUserSheets, add, edit, addUserRole };
+export {  requestSheetData, requestUserSheets, add, edit, addUserRole };

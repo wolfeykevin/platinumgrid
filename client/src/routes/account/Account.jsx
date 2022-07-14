@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { GlobalContext } from '../../_context/AppProvider'
 import { Div, Fix } from '../../_styles/_global'
 import { SignOutBtn } from '../../_components/SignInOutBtns';
@@ -9,8 +9,12 @@ import toast from 'react-hot-toast';
 const Account = () => {
   
   const { store } = useContext(GlobalContext)
-  const { user } = store
+  const { user, setPageView } = store
   const { profileImg, name, email } = user
+  
+  useEffect(() => {
+    setPageView('account')
+  }, [])
 
   const copy = () => {
     navigator.clipboard.writeText(user.token)
@@ -31,11 +35,11 @@ const Account = () => {
             <div className="account-meta-email">
               {email}
             </div>
-            <div id="token" onClick={copy}>
+            {/* <div id="token" onClick={copy}>
               <div className='token-btn'>
                 Copy Token
               </div>
-            </div>
+            </div> */}
           </div>
           <SignOutBtn />
         </Div>

@@ -1,31 +1,21 @@
 import knex from "../db/db.js";
-import { checkAuthLevel, checkAuth } from "./helpers.js";
-
-// const request = (req, res) => {
-//   knex("entries")
-//     .select("*")
-//     .then((data) => {
-//       res.status(200).json(data);
-//     });
-// };
+import { checkAuthLevel, checkAuth, valiDataField } from "./helpers.js";
 
 const addEntry = async (req, res) => {
   const sheet_id = req.params.sheet_id
   const { values } = req.body
-  // await checkAuth('write', sheet_id, req, res)
 
   if (!await checkAuthLevel('write', sheet_id, req)) {
     res.status(401).send("Unauthorized");
     return;
   } 
 
-  console.log(values)
   knex('sheets')
     .select('id')
     .where({id: sheet_id})
     .then(data => {
       if (data.length) {
-        if (values.every((elm) => ValidataField(elm.field_id))) {
+        if (values.every((elm) => valiDataField(elm.field_id))) {
           knex('entries')
             .insert({sheet_id})
             .returning('id')
@@ -47,7 +37,7 @@ const addEntry = async (req, res) => {
   
 };
 
-const addMany = async (req, res) => {
+const addManyEntry = async (req, res) => {
   const sheet_id = req.params.sheet_id
   const { entries } = req.body
 
@@ -56,7 +46,6 @@ const addMany = async (req, res) => {
     return;
   }
 
-  // console.log(entries)
   entries.forEach(async entry => {
     let values = entry.values;
     await knex('sheets')
@@ -64,7 +53,7 @@ const addMany = async (req, res) => {
       .where({id: sheet_id})
       .then(data => {
         if (data.length) {
-          if (values.every((elm) => ValidataField(elm.field_id))) {
+          if (values.every((elm) => valiDataField(elm.field_id))) {
             knex('entries')
               .insert({sheet_id})
               .returning('id')
@@ -76,22 +65,18 @@ const addMany = async (req, res) => {
                 })
                 return knex('values')
                   .insert(values)
-                  // .then(() => res.status(201).json(`entry added to sheet ${sheet_id}.`))
+                  .then()
               })
-         } else {
-          // res.status(400).send("User Error, Check body and please try again.")
-         }
-        } else {
-          // res.status(400).send("User Error, Check body and please try again.")
-         }
+          }
+        }
       })
-  })
-
+    }
+  )
   res.status(201).json(`Entries added.`)
 };
 
 
-const archive = (req, res) => {
+const archiveEntry = (req, res) => {
   const targetId = req.params.entry_id
   knex('entries')
     .select('id')
@@ -108,7 +93,7 @@ const archive = (req, res) => {
     })
 };
 
-const edit = async (req, res) => {
+const editEntry = async (req, res) => {
   const targetId = req.params.entry_id;
   let { values, sheet_id } = req.body;
 
@@ -131,19 +116,8 @@ const edit = async (req, res) => {
     }
   })
 
-  knex('values')
-    .select('*')
-    .then(data => res.status(201).json(data))
+  res.status(201).send("entery edit")
 };
 
-const ValidataField = async (id) => {
-  await knex('fields')
-    .select('*')
-    .where({sheet_id: parseInt(id)})
-    .then((data) => {
-      return true;
-    }).catch(() => {
-      return false;
-    })
-}
-export { addEntry, addMany, edit, archive };
+
+export { addEntry, addManyEntry, editEntry, archiveEntry };

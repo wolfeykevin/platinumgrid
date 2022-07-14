@@ -24,7 +24,7 @@ const Entry = (props) => {
   //TODO: Clean up these onClicks
   return (
     <>
-      <tr className={`entry-row ${entry.entry_id === parseInt(entryId) ? 'entry-highlighted' : ''}`} key={entry.entry_id} id={entry.entry_id}>
+      <tr className={`entry-row ${entry.archived ? 'archived' : ''} ${entry.entry_id === parseInt(entryId) ? 'entry-highlighted' : ''}`} key={entry.entry_id} id={entry.entry_id}>
         {sheet.currentSheet.fields.filter(field => field.favorite === true).map((field, i) => {
           let index = entry.values.findIndex(value => value.field_id === field.field_id)
           if (field.type === 'checkbox') {
@@ -41,7 +41,7 @@ const Entry = (props) => {
             return index === -1 ? <td key={i} className="sheet-display-cell" 
             onClick={(e) => onClickHandler(e)}></td>
             :
-            <td key={i} className="sheet-display-cell" 
+            <td key={i} className="sheet-display-cell pointer" 
             onClick={(e) => onClickHandler(e)}>{entry.values[index].value}</td>
           }
         })}

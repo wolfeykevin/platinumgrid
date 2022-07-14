@@ -23,7 +23,7 @@ export const Fix = styled.div`
   top: ${(props) => props.lower ? "unset" : props.offset};
   bottom: ${(props) => props.lower && props.offsetBottom ? props.offsetBottom : props.lower ? props.offset : "unset"};
   left: ${(props) => props.offsetLeft ? props.offsetLeft : props.right ? "unset" : props.center ? "50%" : props.offset};
-  right: ${(props) => props.right ? props.offset : "unset"};
+  right: ${(props) => props.offsetRight && props.right ? props.offsetRight : props.right ? props.offset : "unset"};
   transform: ${(props) => props.center ? "translateX(-50%)" : ""};
 `;
 

@@ -16,16 +16,6 @@ const myAuth = async (req, res) => {
     })
 }
 
-const request = async (req, res) => {
-  const { user_id, name } = req.user
-
-  if (user_id) {
-    const data = await requestCurrentUser(user_id)
-    res.status(200).send(data[0]);
-    return;
-  } 
-};
-
 const getUserId = async (req, res) => {
   const { user_id, name } = req.user
   const data = await requestCurrentUser(user_id);
@@ -99,9 +89,8 @@ const removeUserRoles = async (req, res) => {
   })
 }
 
-const add = (req, res) => {
+const addUser = (req, res) => {
   const { user_id, name, picture, email } = req.user
-  // console.log(req.user);
 
   knex("users")
     .select("*")
@@ -120,5 +109,5 @@ const add = (req, res) => {
 };
 
 
-export { myAuth, request, add, getAllSheetUsers, requestAllUsers, editUserRoles, removeUserRoles, getUserId};
+export { myAuth, addUser, getAllSheetUsers, requestAllUsers, editUserRoles, removeUserRoles, getUserId};
 
