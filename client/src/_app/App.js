@@ -22,7 +22,7 @@ function App() {
     <>
       {
 
-      isAuth && ['levi', 'kyle', 'dayan', 'danny', 'daniel', 'kevin'].filter(name => user.name.first.toLowerCase() === name).length === 0 ? <Div flex column fills centerchildren className="pointer" onClick={handleSignOut}>Access Denied</Div> : // comment this out to remove basic access restriction
+      // isAuth && ['levi', 'kyle', 'dayan', 'danny', 'daniel', 'kevin'].filter(name => user.name.first.toLowerCase() === name).length === 0 ? <Div flex column fills centerchildren className="pointer" onClick={handleSignOut}>Access Denied</Div> : // comment this out to remove basic access restriction
       
       isAuth ? (
           <>
