@@ -561,7 +561,9 @@ const SheetModify = () => {
       : <></>
       }
       {newSheet === true ? 
-      importedData === '' ? <button className='import-data no-select' onClick={importFromCSV}><span>Import CSV</span><img alt='edit-icon'/></button>
+      importedData === '' ?
+      <></>
+      // <button className='import-data no-select' onClick={importFromCSV}><span>Import CSV</span><img alt='edit-icon'/></button>
       : <button className='import-data disabled no-select' disabled><span>CSV Loaded</span><img alt='edit-icon'/></button> : <></>}
       <button className={`create-sheet ${newSheet ? 'create-icon' : 'save-icon'}`} onClick={submitData}><span className="no-select">{newSheet ? 'Create Sheet' : 'Save Sheet'}</span>
         <img alt='edit-icon'/>

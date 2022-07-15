@@ -124,7 +124,6 @@ const UserDisplay = () => {
     };
   
     fetch(`http://localhost:8080/api/edit_user_roles/${sheetId}`, requestOptions)
-      .then(response => response.json())
       .then(result => {
         toast.success('User Roles Updated')
         // console.log(result); // user role has been added

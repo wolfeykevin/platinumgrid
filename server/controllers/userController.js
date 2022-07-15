@@ -24,7 +24,7 @@ const addUserRole = async (req, res) => {
   if (!await checkAuthLevel('userManage', targetId, req)) {
     res.status(401).send("Unauthorized");
     return;
-  }
+  }//
 
   let flag = false;
   let results = [];
