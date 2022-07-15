@@ -40,10 +40,14 @@ const checkAuthLevel = async (action, sheet, req) => {
     .then(data => {
       if (data.length !== 0) {
         const userRole = data[0].role_name.toLowerCase()
-        if (AuthObj[userRole][action]) {
-          return true;
-        } else {
+        if  (AuthObj[userRole] === undefined || AuthObj[userRole][action] === undefined) {
           return false;
+        } else {
+          if (AuthObj[userRole][action]) {
+            return true;
+          } else {
+            return false;
+          }
         }
       } else {
         return false;

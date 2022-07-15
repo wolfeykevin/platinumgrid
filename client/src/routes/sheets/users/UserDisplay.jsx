@@ -283,7 +283,7 @@ const UserDisplay = () => {
         <UserLookup/>
         {authLevel !== 'Owner' ? <></> :
         <button className='add-user' onClick={() => navigate('lookup')}>
-          <span className="no-select">Add User</span><img className='primary-image'/><img className='secondary-image'/>
+          <span className="no-select">Add User</span><img className='primary-image'/>
         </button>
         }
         {/* <button className='users-display-exit' onClick={

@@ -281,6 +281,7 @@ const Sidebar = (props) => {
                       </Link>
                       <img alt='Options' src={menu} className="sidebar-sheet-menu" onClick={(e)=>openMenu(e, sheet.sheet_id, sheet.role_name)}/> {/*refactor to load options for this sheet*/}
                     </div>
+                    {/* { sheet.role_name === "Owner" ? <img className='crown' alt="owner"/> : ''} */}
                   </span>
                 )
               })

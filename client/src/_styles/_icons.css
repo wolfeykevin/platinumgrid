@@ -9,6 +9,8 @@
   --icon-close: url('../_assets/icons/close-lite.png');
   --icon-back: url('../_assets/icons/back-lite.png');
   --icon-forward: url('../_assets/icons/forward-lite.png');
+  --row-add: url('../_assets/icons/row-add-lite.png');
+  --icon-crown: url('../_assets/icons/crown.png');
 }
 
 #dark {
@@ -22,6 +24,8 @@
   --icon-close: url('../_assets/icons/close-dark.png');
   --icon-back: url('../_assets/icons/back-dark.png');
   --icon-forward: url('../_assets/icons/forward-dark.png');
+  --row-add: url('../_assets/icons/row-add-lite.png');
+  --icon-crown: url('../_assets/icons/crown.png');
 
   
 }

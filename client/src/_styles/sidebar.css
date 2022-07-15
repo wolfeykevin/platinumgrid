@@ -146,6 +146,26 @@
   display: flex;
   align-items: center;
 }
+/* 
+img.crown {
+  position: relative;
+  left: 3.5rem;
+  top: 3rem;
+  max-width: 0.9rem;
+  max-height: 0.9rem;
+  content: var(--icon-crown);
+  transition: all var(--global-transition-speed) ease;
+}
+
+.sidebar:hover img.crown {
+  position: relative;
+  left: 4.1rem;
+  top: 3rem;
+  max-width: 0.9rem;
+  max-height: 0.9rem;
+  content: var(--icon-crown);
+  transition: all var(--global-transition-speed) ease;
+} */
 
 .sidebar-sheet-circle {
   display: flex;

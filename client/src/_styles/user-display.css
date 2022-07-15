@@ -57,7 +57,7 @@
 .add-user .primary-image{
   /* max-height: 26px; */
   /* margin-left: -10px; */
-  content: url('../_assets/icons/account.png');
+  content: url('../_assets/icons/add-user.png');
 }
 
 .add-user .secondary-image{

@@ -58,21 +58,27 @@ const SheetDisplay = () => {
 
   const [ authRefresh, setAuthRefresh ] = useState(false)
     
+  /* 
+  Had to comment out the below user auth code due to it conflicting with pagination
+  Good news is, the user authentication is checked when the user first accesses the sheet already, so this should not cause any security problems
+  Bad news is, if a user's auth changes, they will have to maually refresh the page to get their new priviledges
+  However, any action on the page or refresh immediately updates auth, so this is not a problem
+  */
   // use useEffect and useState to trigger a rerender every 2 seconds
-   useEffect(() => {
-    const interval = setInterval(() => {
-      setAuthRefresh(!authRefresh)
-      // console.log('refreshing sheet')
-    }, 5000); // had to increase because it triggered ~40 renders per second
-    // refresh auth level as well
-    smartApi(['GET', `authCheck/${sheetId}`], user.token)
-    .then(result => {
-      console.log(result);
-      setAuthLevel(result);
-    })
-    .catch(error => console.log('error', error));
-    return () => clearInterval(interval);
-  }, [authRefresh])
+  //  useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setAuthRefresh(!authRefresh)
+  //     // console.log('refreshing sheet')
+  //   }, 5000); // had to increase because it triggered ~40 renders per second
+  //   // refresh auth level as well
+  //   smartApi(['GET', `authCheck/${sheetId}`], user.token)
+  //   .then(result => {
+  //     // console.log(result);
+  //     setAuthLevel(result);
+  //   })
+  //   .catch(error => console.log('error', error));
+  //   return () => clearInterval(interval);
+  // }, [authRefresh])
 
   useEffect(() => {
     let previousPath = sheet.prevPath.current.split('/').length;
@@ -518,11 +524,11 @@ const SheetDisplay = () => {
         {/* <button className="dummy-filter" onClick={filterEntries}>%</button> */}
         {sheet.displayEntries.length === undefined || sheet.displayEntries.length <= 1 ? <></> :
       <div className={`page-navigation no-select ${(sheetPageView === 'edit-entry' || sheetPageView === 'new-entry') ? 'shrink' : ''}`}>
-        <button className='page-down' onClick={() => pageNavigationHandler(sheet.currentPage - 5)}>&lt;&lt;</button>
-        <button className='page-down' onClick={() => pageNavigationHandler(sheet.currentPage - 1)}>&lt;</button>
-        <span>Page {sheet.currentPage + 1} of {sheet.displayEntries.length}</span>
-        <button className='page-up' onClick={() => pageNavigationHandler(sheet.currentPage + 1)}>&gt;</button>
-        <button className='page-down' onClick={() => pageNavigationHandler(sheet.currentPage + 5)}>&gt;&gt;</button>
+        <button className='page-down-double' onClick={() => pageNavigationHandler(sheet.currentPage - 5)}><img alt="double-backward"/><img className="two" alt="double-backward"/></button>
+        <button className='page-down' onClick={() => pageNavigationHandler(sheet.currentPage - 1)}><img alt="backward"/></button>
+        <span>{sheet.currentPage + 1} of {sheet.displayEntries.length}</span>
+        <button className='page-up' onClick={() => pageNavigationHandler(sheet.currentPage + 1)}><img alt="forward"/></button>
+        <button className='page-up-double' onClick={() => pageNavigationHandler(sheet.currentPage + 5)}><img alt="double-forward"/><img className="two" alt="double-forward"/></button>
       </div>
       }
       </div>

@@ -1025,6 +1025,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{
   .sidebar:hover .sidebar-sheet-item {
     justify-content: space-between;
     transition: all var(--global-transition-speed) ease;
+    min-height: 58px;;
   }
 
   .sidebar:hover .sidebar-sheet-circle {
