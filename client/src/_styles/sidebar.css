@@ -146,26 +146,30 @@
   display: flex;
   align-items: center;
 }
-/* 
+
+.crowns {
+  position: absolute;
+}
+
 img.crown {
   position: relative;
-  left: 3.5rem;
-  top: 3rem;
-  max-width: 0.9rem;
-  max-height: 0.9rem;
+  left: 46px;
+  bottom: 15px;
+  max-width: 16px;
+  max-height: 16px;
   content: var(--icon-crown);
   transition: all var(--global-transition-speed) ease;
 }
 
 .sidebar:hover img.crown {
   position: relative;
-  left: 4.1rem;
-  top: 3rem;
-  max-width: 0.9rem;
-  max-height: 0.9rem;
+  transform: translateX(9px);
+  bottom: 15px;
+  max-width: 16px;
+  max-height: 16px;
   content: var(--icon-crown);
   transition: all var(--global-transition-speed) ease;
-} */
+}
 
 .sidebar-sheet-circle {
   display: flex;

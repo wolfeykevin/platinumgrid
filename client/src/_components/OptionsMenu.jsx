@@ -116,6 +116,7 @@ const OptionsMenu = (props) => {
         // fix for sheet name location
         result.name = result.sheet.name;
       }
+      result.fields =  result.fields.sort((a, b) => (a.field_id > b.field_id) ? 1 : -1)
       // console.log(result);
       sheet.setCurrentSheet(result);
       sheet.setSheetLoading(false);

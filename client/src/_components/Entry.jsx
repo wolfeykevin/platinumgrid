@@ -42,7 +42,7 @@ const Entry = (props) => {
             onClick={(e) => onClickHandler(e)}></td>
             :
             <td key={i} className="sheet-display-cell pointer" 
-            onClick={(e) => onClickHandler(e)}>{entry.values[index].value}</td>
+            onClick={(e) => onClickHandler(e)}>{entry.values[index].value.length > 70 ? entry.values[index].value.substring(0,70)+"..." : entry.values[index].value}</td>
           }
         })}
         <td className="entry-row-option no-select" onClick={(e) => {setEntryMenu({event: e, entryDetails: entry})}}>⋮</td>

@@ -4,9 +4,9 @@ import { requestCurrentUser, checkAuthLevel } from "./helpers.js";
 const myAuth = async (req, res) => {
   const currentUser = await requestCurrentUser(req.user.user_id, res)
   const sheet = req.params 
+  
   return knex('user_roles')
-    .select('*')
-    // BUG : 
+    .select('*') 
     .where({user_id: currentUser[0].id, sheet_id: sheet.sheet_id})
     .then(data => {
       if (data[0]) {

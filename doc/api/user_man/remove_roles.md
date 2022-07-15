@@ -1,4 +1,4 @@
-# Add User to Database
+# Remove Role for given user
 ###### Documentations Under Development.
 ## Detail
 ## Path

@@ -1,4 +1,4 @@
-# Add User to Database
+# Get Sheets Current user is under.
 ###### Documentations Under Development.
 ## Detail
 ## Path

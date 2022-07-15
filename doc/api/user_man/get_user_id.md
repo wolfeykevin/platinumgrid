@@ -1,4 +1,4 @@
-# Add User to Database
+# Get Current User's info
 ###### Documentations Under Development.
 ## Detail
 ## Path

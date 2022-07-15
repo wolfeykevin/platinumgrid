@@ -26,7 +26,9 @@ const requestCurrentUser = async (id, res) => {
     .select("*")
     .where({ firebase_uuid: id })
     .then((data) => data);
-   if (!returnData) {
+    // console.log(id);
+    // console.log(returnData)
+   if (returnData[0] === []) {
     res.status(401).send('Unauthorized')
    }
    return returnData

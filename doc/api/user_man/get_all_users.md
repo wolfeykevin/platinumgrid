@@ -1,5 +1,4 @@
-# Add User to Database
-###### Documentations Under Development.
+# Get All the User
 ## Detail
 ## Path
 ###### Token Required Path.

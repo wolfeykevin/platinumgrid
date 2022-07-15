@@ -66,6 +66,7 @@ const SheetModify = () => {
     console.log(input)
     // console.log(input)
     input.onchange = (e) => { 
+       console.log('test');
        var file = e.target.files[0];
     
        var reader = new FileReader();
@@ -105,13 +106,17 @@ const SheetModify = () => {
             })
 
             entry.values = entry.values.slice(0, headerLength)
+
+            
             data.entries.push(entry);
+            console.log('data', data.entries)
           })
           // console.log(data.entries);
           setSheetName(file.name.replace(/\.csv/g, ''))
           setShortName(file.name.replace(/\.csv/g, '').substring(0, 3))
 
           setImportedData(data);
+          // e.target.value = ''
           // console.log(data);
        }
     }

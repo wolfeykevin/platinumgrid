@@ -250,15 +250,21 @@ Install React testing library
 Install Mock Service Worker (MSW) for mock testing
 > npm install msw
 
+<br>
+
+
 * * * * *
+
+<br>
+
 ## <strong>APIs
-Currently there are 20 Endpoints for this applicaiton organized as User, Sheet, Field & Entry the code reflects this organiztion via the [routes](./server/routes) and [controllers](./server/controllers) folder.
+Currently there are 20 Endpoints for this application organized as User, Sheet, Field & Entry the code reflects this organiztion via the [routes](./server/routes) and [controllers](./server/controllers) folder.
 
 Each function within a controller corresponds to a route call. There may be "extra" functions within those controller files, those functions are under review as they may be moved to the ``helper.js`` [file](./server/controllers/helpers.js) as they break the one-to-one ideology and creates code complexity. The helper.js file servers the purpose of minimizes code reuse. 
 
-click on the endpoint listed bellow for more info
+Click on the endpoint listed bellow for more info:
 
 - 8 [User Endpoints](./doc/api/User_endpoint.md)
 - 4 [Sheet Endpoints](./doc/api/Sheet_endpoint.md)
-- 4 [Feild Endpoints](./doc/api/Feild_endpoint.md)
+- 4 [Field Endpoints](./doc/api/Field_endpoint.md)
 - 4 [Entry Endpoints](./doc/api/Entry_endpoint.md)

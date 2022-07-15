@@ -10,7 +10,7 @@ export function up(knex) {
     table.foreign("sheet_id").references("sheets.id");
     table.boolean("archived").defaultTo(false);
     table.boolean("favorite").defaultTo(false);
-    table.string("name", 255);
+    table.string("name");
   });
 }
 

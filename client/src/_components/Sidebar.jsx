@@ -278,15 +278,14 @@ const Sidebar = (props) => {
                           <span className="sidebar-sheet-circle">{sheet.short_name}</span>
                           <span className="sidebar-sheet-link-text">{sheet.name}</span>
                         </div>
+                          { sheet.role_name === "Owner" ? <div className="crowns"><img className='crown' alt="owner"/></div> : ''}
                       </Link>
                       <img alt='Options' src={menu} className="sidebar-sheet-menu" onClick={(e)=>openMenu(e, sheet.sheet_id, sheet.role_name)}/> {/*refactor to load options for this sheet*/}
                     </div>
-                    {/* { sheet.role_name === "Owner" ? <img className='crown' alt="owner"/> : ''} */}
                   </span>
                 )
               })
             }
-
           </li>
 
           <li className="sidebar-footer">

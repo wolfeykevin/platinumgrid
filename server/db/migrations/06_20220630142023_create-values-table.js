@@ -5,7 +5,7 @@
 export function up(knex) {
   return knex.schema.createTable("values", (table) => {
     table.increments();
-    table.string("value");
+    table.text("value");
     table.integer("field_id");
     table.foreign("field_id").references("fields.id");
     table.integer("entry_id");
