@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
 
-import { myAuth, addUser, getAllSheetUsers, requestAllUsers, editUserRoles, removeUserRoles, getUserId } from "../controllers/userController.js";
+import { myAuth, addUser, getAllSheetUsers, requestAllUsers, editUserRoles, removeUserRoles, getUserId, addUserRole } from "../controllers/userController.js";
 
 router.route("/add_user").post(addUser);
 
@@ -14,6 +14,8 @@ router.route("/get_sheet_users/:sheet_id").get(getAllSheetUsers)
 router.route("/edit_user_roles/:sheet_id").patch(editUserRoles)
 
 router.route("/remove_roles/:sheet_id").delete(removeUserRoles)
+
+router.route("/add_user_roles/:sheet_id").post(addUserRole);
 
 router.route("/authCheck/:sheet_id").get(myAuth)
 

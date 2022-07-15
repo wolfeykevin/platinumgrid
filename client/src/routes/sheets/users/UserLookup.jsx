@@ -95,7 +95,12 @@ const UserLookup = () => {
 
             smartApi(['GET', `get_sheet_users/${sheetId}`], user.token)
             .then(result => {
-              userAccess.setSheetUsers(result);
+              let owners = result.filter(user => user.role_name === 'Owner')
+              let editors = result.filter(user => user.role_name === 'Editor')
+              let viewers = result.filter(user => user.role_name === 'Viewer')
+
+
+              userAccess.setSheetUsers(owners.concat(editors.concat(viewers)))
               if (result.length === 0) {
                 // console.log(result);
                 navigate('/')
@@ -104,19 +109,31 @@ const UserLookup = () => {
             .catch(error => console.log('error', error));
           })
           .catch(error => console.log('error', error));
-        // fetch(`http://localhost:8080/api/add_user_roles/${sheetId}`, requestOptions)
-        //   .then(response => response.json())
-        //   .then(result => {
-        //     toast.success('User Added')
-        //     console.log(result); // user role has been added
-        //   })
-        //   .catch(error => console.log('error', error));
       } else {
         toast.error('User Already a Member')
       }
 
     }
   }
+
+  const escKeyCloseUserPane = () => {
+    navigate(`/sheet/${location.pathname.split('/')[2]}/users`)
+    setUserResults([])
+  };
+
+  // close user lookup pane when esc key is pressed
+  useEffect(() => {
+    const keyDownHandler = event => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        escKeyCloseUserPane();
+      }
+    };
+    document.addEventListener('keydown', keyDownHandler);
+    return () => {
+      document.removeEventListener('keydown', keyDownHandler);
+    };
+  }, []);
 
 
   return (
@@ -130,11 +147,11 @@ const UserLookup = () => {
           <button className="user-lookup-cancel cancel-desktop" onClick={() => {
               navigate(`/sheet/${location.pathname.split('/')[2]}/users`)
               setUserResults([])
-            }}>&gt;</button>
+            }}><img alt="back"/></button>
             <button className="user-lookup-cancel cancel-mobile" onClick={() => {
               navigate(`/sheet/${location.pathname.split('/')[2]}/users`)
               setUserResults([])
-            }}>x</button>
+            }}><img alt="close"/></button>
         </div>
         <div className='user-lookup-search'>
           <div className='user-lookup-input'>

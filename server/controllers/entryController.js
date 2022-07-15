@@ -34,7 +34,7 @@ const addEntry = async (req, res) => {
         res.status(400).send("User Error, Check body and please try again.")
        }
     })
-  
+   
 };
 
 const addManyEntry = async (req, res) => {
@@ -60,8 +60,6 @@ const addManyEntry = async (req, res) => {
               .then((entry_id) => {
                 values.forEach(value => {
                   value.entry_id = entry_id[0].id
-                  console.log("Sheet ID:", sheet_id)
-                  console.log("Value:", value)
                 })
                 return knex('values')
                   .insert(values)

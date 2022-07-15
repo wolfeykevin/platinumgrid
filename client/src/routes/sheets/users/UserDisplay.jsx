@@ -14,6 +14,7 @@ import { GlobalContext } from '../../../_context/AppProvider'
 import smartApi from '../../../_helpers/smartApi';
 import toast from 'react-hot-toast'
 import { UserAccessContext } from '../../../_context/UserAccessProvider';
+import Modal from '../../../_components/Modal';
 
 const UserDisplay = () => {
 
@@ -39,6 +40,18 @@ const UserDisplay = () => {
   useEffect(() => {
     setPageView('users')
   }, [])
+  
+  const [myId, setMyId] = useState(null)
+
+  useEffect(() => {
+    smartApi(['GET', `get_user_id`], user.token)
+      .then(result => {
+        if (result) {
+          setMyId(result.id)
+        }
+      })
+      .catch(error => console.log('error', error));
+  }, [])
 
   useEffect(() => {
 
@@ -55,7 +68,10 @@ const UserDisplay = () => {
 
     Promise.all([sheetData, accessData])
       .then(() => {
-        setSheetUsers(userAccessResult)
+        let owners = userAccessResult.filter(user => user.role_name === 'Owner')
+        let editors = userAccessResult.filter(user => user.role_name === 'Editor')
+        let viewers = userAccessResult.filter(user => user.role_name === 'Viewer')
+        setSheetUsers(owners.concat(editors.concat(viewers)))
         setSheetName(sheetNameResult)
         })
       .catch(error => console.log('error', error))
@@ -71,7 +87,12 @@ const UserDisplay = () => {
   const getSheetUsers = () => {
     smartApi(['GET', `get_sheet_users/${sheetId}`], user.token)
       .then(result => {
-        userAccess.setSheetUsers(result);
+        let owners = result.filter(user => user.role_name === 'Owner')
+        let editors = result.filter(user => user.role_name === 'Editor')
+        let viewers = result.filter(user => user.role_name === 'Viewer')
+        // console.log('Get Sheet Users Called')
+        setSheetUsers(owners.concat(editors.concat(viewers)))
+        // userAccess.setSheetUsers(result);
         if (result.length === 0) {
           // console.log(result);
           navigate('/')
@@ -113,6 +134,24 @@ const UserDisplay = () => {
       .catch(error => console.log('error', error));
   }
 
+
+  const modalConfirm = useRef(null);
+  const modalCancel = useRef(null);
+  const modalMessage = useRef(null);
+  const [showModal, setShowModal] = useState(false);
+
+  const confirmDelete = (target) => {
+    modalConfirm.current = () => { deleteUser(target); setShowModal(false);}
+    modalCancel.current = () => setShowModal(false)
+    modalMessage.current = {
+      title: sheetName,
+      body: `Are you sure you want to remove ${target.name}?`,
+      tooltip: `They will no longer have access to this sheet`,
+      confirm: 'Remove User',
+    }
+    setShowModal(true)
+  }
+
   const deleteUser = (target) => {
     let payload = {users: [target]}
     let sheetId = location.pathname.split('/')[2];
@@ -123,7 +162,11 @@ const UserDisplay = () => {
         // console.log(result); 
         smartApi(['GET', `get_sheet_users/${sheetId}`], user.token)
         .then(result => {
-          userAccess.setSheetUsers(result);
+          let owners = result.filter(user => user.role_name === 'Owner')
+          let editors = result.filter(user => user.role_name === 'Editor')
+          let viewers = result.filter(user => user.role_name === 'Viewer')
+          setSheetUsers(owners.concat(editors.concat(viewers)))
+          // userAccess.setSheetUsers(result);
           if (result.length === 0) {
             // console.log(result);
             navigate('/')
@@ -161,7 +204,7 @@ const UserDisplay = () => {
           <div id='scroll-container' className='users-display-body' onMouseDown={(e) => {
             store.clickTime.current = new Date();
             mouseDownHandler(e);
-            }}>
+          }}>
             {userDisplayView === 'smart' ? 
               // smart view here
               <div>
@@ -184,7 +227,7 @@ const UserDisplay = () => {
                 <tbody>
                   {userAccess.sheetUsers.map((user,i) => {
                     let roles = ['Owner', 'Editor', 'Viewer']
-
+                    
                     if (user.email === undefined || user.email === null) {
                       user.email = `${user.name.split(' ')[0]}.${user.name.split(' ')[1]}@gmail.com`
                     }
@@ -196,7 +239,7 @@ const UserDisplay = () => {
                         <td className='user-row-picture'><img referrerPolicy="no-referrer" className='user-profile-picture' src={user.picture !== undefined ? user.picture : defaultProfileImage} /></td>
                         <td className='users-display-cell'>{user.name}</td>
                         <td className='users-display-cell'>
-                          {authLevel !== 'Owner' ? <span>{user.role}</span> :
+                          {authLevel !== 'Owner' || myId === user.user_id ? <span>{user.role}</span> :
                           <select key={`${i}-${user.role}`} defaultValue={user.role} className='users-display-role-select' onChange={(e) => {
                             
                             if (e.target.value !== user.role) {
@@ -223,18 +266,20 @@ const UserDisplay = () => {
                           {user.email}
                         </td>
                         {authLevel !== 'Owner' ? <></> :
-                        <td className='user-row-option'>
-                          <img alt='delete-icon' onClick={() => {deleteUser(user)}}/>
+                        myId === user.user_id ? <td></td> : <td className='user-row-option'>
+                          <img alt='delete-icon' onClick={() => {confirmDelete(user)}}/>
+                          {/* <img alt='delete-icon' onClick={() => {deleteUser(user)}}/> */}
                         </td>
                         }
                       </tr>
                     )}
-                  )}
+                    )}
                 </tbody>
               </table>
             }
           </div>
         </div>
+        {showModal ? <Modal message={modalMessage.current} callback={modalConfirm.current} cancel={modalCancel.current}/> : <></>}
         <UserLookup/>
         {authLevel !== 'Owner' ? <></> :
         <button className='add-user' onClick={() => navigate('lookup')}>
@@ -260,3 +305,6 @@ export default UserDisplay;
 //entries
 
 //detailed
+
+
+

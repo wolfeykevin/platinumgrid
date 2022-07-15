@@ -96,6 +96,12 @@
     - ARCHIVE function implemented on SHEET SCREEN using FILTER button
     - Implemented COPY functionality for selected entries
 
+    v1.0 (14 July):
+    - Styled CREATE/EDIT SHEET screen
+    - Implemented pagination for SHEET SCREEN
+    - Styled FILTER
+    - IMPORT CSV button implemented on CREATE SHEET screen
+    - Last minute styling on buttons, SHEETS, etc.
 
 <br>
 
@@ -158,6 +164,11 @@
 
 <br>
 
+> 8 July
+> >> ![Project_Status_Final](https://i.imgur.com/Jx0vr18.png)
+
+<br>
+
 * * * * *
 
 ## <strong>Project Wireframe:
@@ -190,6 +201,7 @@
 
 > AFTO 350/Due In For Maintenance (DIFM):
 >> ![AFTO_350](https://i.imgur.com/8jycIEw.png)
+>> 350 Tag/DIFM-only screen was dropped once it was decided to go with customizable fields, negating a dedicated template.
 
 > User Access Screen
 >> ![User_Access](https://i.imgur.com/2QGkxi2.png)
@@ -237,3 +249,16 @@ Install React testing library
 
 Install Mock Service Worker (MSW) for mock testing
 > npm install msw
+
+* * * * *
+## <strong>APIs
+Currently there are 20 Endpoints for this applicaiton organized as User, Sheet, Field & Entry the code reflects this organiztion via the [routes](./server/routes) and [controllers](./server/controllers) folder.
+
+Each function within a controller corresponds to a route call. There may be "extra" functions within those controller files, those functions are under review as they may be moved to the ``helper.js`` [file](./server/controllers/helpers.js) as they break the one-to-one ideology and creates code complexity. The helper.js file servers the purpose of minimizes code reuse. 
+
+click on the endpoint listed bellow for more info
+
+- 8 [User Endpoints](./doc/api/User_endpoint.md)
+- 4 [Sheet Endpoints](./doc/api/Sheet_endpoint.md)
+- 4 [Feild Endpoints](./doc/api/Feild_endpoint.md)
+- 4 [Entry Endpoints](./doc/api/Entry_endpoint.md)

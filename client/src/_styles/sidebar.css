@@ -321,10 +321,10 @@
   transition: all var(--global-transition-speed-fast) ease;
 }
 
-.sheet-page .sheet-options-menu-container:nth-of-type(3) .sheet-options-menu-item:focus, .sheet-page .sheet-options-menu-container:nth-of-type(3) .sheet-options-menu-item:active, .sheet-page .sheet-options-menu-container:nth-of-type(3) .sheet-options-menu-item:hover {
+/* .sheet-page .sheet-options-menu-container:nth-of-type(3) .sheet-options-menu-item:focus, .sheet-page .sheet-options-menu-container:nth-of-type(3) .sheet-options-menu-item:active, .sheet-page .sheet-options-menu-container:nth-of-type(3) .sheet-options-menu-item:hover {
   background-color: var(--color-tertiary);
   transition: opacity var(--global-transition-speed-fast) ease;
-}
+} */
 
 .sheet-page .sheet-options-menu-container {
   transition: opacity var(--global-transition-speed-fast) ease;

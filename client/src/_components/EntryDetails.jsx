@@ -33,6 +33,7 @@ const EntryDetails = () => {
         // fix for sheet name location
         result.name = result.sheet.name;
       }
+      result.fields =  result.fields.sort((a, b) => (a.field_id > b.field_id) ? 1 : -1)
       // console.log(result);
       sheet.setCurrentSheet(result);
       sheet.setSheetLoading(false);
@@ -165,6 +166,27 @@ const EntryDetails = () => {
   }, [location, sheet.currentSheet, sheet.sheetLoading])
 
 
+  const escKeyCloseEntry = () => {
+    navigate(`/sheet/${location.pathname.split('/')[2]}`)
+    sheet.setSelectedEntry({})
+    sheet.setNewEntry(false)
+  };
+
+  // close entry pane when esc key is pressed
+  useEffect(() => {
+    const keyDownHandlerEsc = event => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        escKeyCloseEntry();
+      }
+    };
+    document.addEventListener('keydown', keyDownHandlerEsc);
+    return () => {
+      document.removeEventListener('keydown', keyDownHandlerEsc);
+    };
+  }, []);
+
+
   return (
     (Object.keys(sheet.selectedEntry).length === 0 && sheet.newEntry === false) ?
     <div className="entry-details-container hidden"></div>
@@ -177,15 +199,15 @@ const EntryDetails = () => {
             navigate(`/sheet/${location.pathname.split('/')[2]}`)
             sheet.setSelectedEntry({})
             sheet.setNewEntry(false)
-          }}>&gt;</button>
+          }}><img alt="back"/></button>
           <button className="entry-details-cancel cancel-mobile" onClick={() => {
             navigate(`/sheet/${location.pathname.split('/')[2]}`)
             sheet.setSelectedEntry({})
             sheet.setNewEntry(false)
-          }}>x</button>
+          }}><img alt="close"/></button>
           {/* <img alt='edit icon'/> */}
         </div>
-        <form id={sheet.selectedEntry.entry_id === undefined ? 'new' : sheet.selectedEntry.entry_id}
+        <form onSubmit={(e)=>{e.preventDefault();submitData()}} id={sheet.selectedEntry.entry_id === undefined ? 'new' : sheet.selectedEntry.entry_id}
           className='entry-details-form'>
           {sheet.currentSheet.fields.filter(field => field.archived !== true).map((field, i) => {
             // map through each field of the sheet and try to get the corresponding value from the selected entry
@@ -212,7 +234,8 @@ const EntryDetails = () => {
                 </div>
                 <hr />
                 {authLevel === 'Viewer' || authLevel === undefined ?
-                  field.type === 'checkbox' ? 
+                  <> 
+                  {field.type === 'checkbox' ? 
                     <div className='entry-details-checkbox-row'>
                       <input id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
                         key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
@@ -227,13 +250,36 @@ const EntryDetails = () => {
                         {index === -1 ? 'No' : (sheet.selectedEntry.values[index].value === 'true' ? 'Yes' : 'No')}
                       </div>
                     </div>
-                    :
-                    <input id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
+                    : <></>}
+                    {field.type === 'text' ?
+                      <input id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
                       key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
                       className='entry-details-input'
                       defaultValue={index === -1 ? '': sheet.selectedEntry.values[index].value} disabled/>
+                      : <></>}
+                    {field.type === 'number' ? 
+                      <input type='number'
+                      id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
+                      key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
+                      className='entry-details-input'
+                      defaultValue={index === -1 ? '': sheet.selectedEntry.values[index].value} disabled/> 
+                      : <></>}
+                    {field.type === 'date' ?
+                      <input type='date'
+                      id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
+                      key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
+                      className='entry-details-input no-select'
+                      defaultValue={index === -1 ? '': sheet.selectedEntry.values[index].value} disabled/>: <></>}
+                    {field.type === 'time' ?
+                      <input type='time'
+                      id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
+                      key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
+                      className='entry-details-input no-select'
+                      defaultValue={index === -1 ? '': sheet.selectedEntry.values[index].value} disabled/>: <></>}
+                  </>
                   :
-                  field.type === 'checkbox' ? 
+                  <>
+                  {field.type === 'checkbox' ? 
                     <div className='entry-details-checkbox-row'>
                       <input id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
                         key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
@@ -247,12 +293,34 @@ const EntryDetails = () => {
                       <div className='entry-details-checkbox-text'>
                         {index === -1 ? 'No' : (sheet.selectedEntry.values[index].value === 'true' ? 'Yes' : 'No')}
                       </div>
-                    </div>
-                    :
-                    <input id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
+                    </div> : <></>}
+                    {field.type === 'text' ? 
+                      <input 
+                      id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
                       key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
                       className='entry-details-input'
-                      defaultValue={index === -1 ? '': sheet.selectedEntry.values[index].value} />
+                      defaultValue={index === -1 ? '': sheet.selectedEntry.values[index].value} /> 
+                      : <></>}
+                    {field.type === 'number' ? 
+                      <input type='number'
+                      id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
+                      key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
+                      className='entry-details-input'
+                      defaultValue={index === -1 ? '': sheet.selectedEntry.values[index].value} /> 
+                      : <></>}
+                    {field.type === 'date' ? 
+                      <input type='date'
+                      id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
+                      key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
+                      className='entry-details-input no-select'
+                      defaultValue={index === -1 ? '': sheet.selectedEntry.values[index].value} /> : <></>}
+                    {field.type === 'time' ?
+                      <input type='time'
+                      id={`${field.field_id}_${index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}`}
+                      key={index === -1 ? 'new' : sheet.selectedEntry.values[index].value_id}
+                      className='entry-details-input no-select'
+                      defaultValue={index === -1 ? '': sheet.selectedEntry.values[index].value}/>: <></>}
+                  </>
                 }
                 <div className='entry-field-line' />
               </div>
@@ -273,7 +341,7 @@ const EntryDetails = () => {
         }
 
         {/* Covers the entire component after data is submitted. */}
-        {isLoading === true ? <div className="entry-details-loader">Please Wait...</div> : <></>}
+        {/* {isLoading === true ? <div className="entry-details-loader">Please Wait...</div> : <></>} */}
       </div>
       <div className="entry-details-underlay" onClick={
         () => {

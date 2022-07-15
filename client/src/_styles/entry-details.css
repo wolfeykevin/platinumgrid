@@ -37,7 +37,7 @@
   border: none;
   border-radius: 90px;
   background-color: #ffffff00;
-  color: var(--color-entry-header-text);
+  color: var(--color-text);
   transition: all var(--global-transition-speed) ease;
   cursor: pointer;
   padding: 0;
@@ -52,15 +52,15 @@
   /* min-width: 200px; */
   height: calc(100%);
   /* margin-right: 1rem; */
-  color: var(--color-entry-header-text);
+  color: var(--color-text);
   border-radius: 20px;
   overflow: visible;
 }
 
 .entry-details-header img {
-  content: var(--edit-dark);
-  height: 40px;
-  margin-right: 1rem;
+  content: var(--icon-forward);
+  height: 32px;
+  padding: 1rem;
 }
 
 .entry-details-form {

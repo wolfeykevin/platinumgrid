@@ -52,7 +52,7 @@ const QrCodeGen = ({ entry, fields }) => {
 
   return (
     <>
-      <QRCodeCanvas className="entry-qr-code" level='H' value={output}  size={400}
+      <QRCodeCanvas className="entry-qr-code" level='H' value={output}  size={300}
         onClick={(e) => {printQRCode(e.target)}}/>
       { createPortal(
         <Cover className="portal-cover"/>

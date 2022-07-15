@@ -42,15 +42,6 @@ const handleField = async (req, res) => {
     })
   ).then(data => res.status(200).json(fields))
 
-  // await new Promise(resolve => setTimeout(resolve, 1000)); // fix this
-  // test.then((res) => {
-  //   knex('fields')
-  //     .select('*')
-  //     .where({sheet_id: targetId})
-  //     .returning('*')
-  //     .then(data => res.status(200).json(data))
-
-  // })
 };
 
 const flipChecked = async (req, res) => {

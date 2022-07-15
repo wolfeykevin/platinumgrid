@@ -37,7 +37,7 @@ const Account = () => {
             </div>
             {/* <div id="token" onClick={copy}>
               <div className='token-btn'>
-                Copy Token
+              Copy Token
               </div>
             </div> */}
           </div>

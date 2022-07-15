@@ -21,7 +21,7 @@ import { ReactComponent as Report } from '../_assets/icons/menu-report.svg';
 import { ReactComponent as Download } from '../_assets/icons/menu-download.svg';
 import { ReactComponent as Lock } from '../_assets/icons/menu-lock.svg';
 import { ReactComponent as Leave } from '../_assets/icons/menu-leave.svg';
-
+import Modal from './Modal';
 
 const Sidebar = (props) => {
   
@@ -212,6 +212,32 @@ const Sidebar = (props) => {
     })
   }
 
+  const modalConfirm = useRef(null);
+  const modalCancel = useRef(null);
+  const modalMessage = useRef(null);
+  const [showModal, setShowModal] = useState(false);
+
+  const confirmLeave = (target) => {
+    let sheetName = ''
+    if (sheetAccess.length > 0) {
+      for (let i = 0; i < sheetAccess.length; i++) {
+        if (sheetAccess[i].sheet_id === target) {
+          sheetName = sheetAccess[i].name
+        }
+      }
+    }
+    modalConfirm.current = () => { removeMe(menuTargetSheetId); setShowModal(false) }
+    modalCancel.current = () => setShowModal(false)
+    modalMessage.current = {
+      title: sheetName,
+      body: `Are you sure you want to leave this sheet? (Cannot undo)`,
+      tooltip: `You will no longer have access to this sheet`,
+      confirm: 'Leave Sheet',
+    }
+
+    setShowModal(true)
+  }
+
   const id = index ? 'index' : 'main'
 
   const selected = (sheetId) => {
@@ -285,12 +311,13 @@ const Sidebar = (props) => {
             {/* <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}><Duplicate/><span>Duplicate Sheet</span></div> */}
             {/* <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();toast.error('Functionality not implemented yet')}}><Report/><span>Generate Report</span></div> */}
             <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();navigate(`/sheet/${menuTargetSheetId}/users`)}}><Lock/><span>User Access</span></div>
-            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();generateCSV(menuTargetSheetId, token)}}><Download/><span>Export to CSV</span></div>
+            <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{closeMenu();generateCSV(menuTargetSheetId, token, sheet.archiveFilter)}}><Download/><span>Export to CSV</span></div>
             <div className={`sheet-options-menu-item break ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`}></div>
-            <div className={`sheet-options-menu-item remove ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={(e)=>{closeMenu();removeMe(menuTargetSheetId)}}><Leave/><span>Leave Sheet</span></div>
+            <div className={`sheet-options-menu-item remove ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={(e)=>{closeMenu();confirmLeave(menuTargetSheetId)}}><Leave/><span>Leave Sheet</span></div>
           </div>
         </ClickAwayListener>
       </nav>
+      {showModal ? <Modal message={modalMessage.current} callback={modalConfirm.current} cancel={modalCancel.current}/> : <></>}
       <div id="cover" className="page-cover"/>
     </>
   );

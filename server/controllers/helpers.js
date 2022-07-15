@@ -21,12 +21,15 @@ const AuthObj = {
   }
 }
 
-const requestCurrentUser = async (id) => {
+const requestCurrentUser = async (id, res) => {
   let returnData = await knex("users")
     .select("*")
     .where({ firebase_uuid: id })
     .then((data) => data);
-     return returnData
+   if (!returnData) {
+    res.status(401).send('Unauthorized')
+   }
+   return returnData
   }
 
 const checkAuthLevel = async (action, sheet, req) => {

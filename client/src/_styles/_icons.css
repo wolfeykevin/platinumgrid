@@ -1,0 +1,27 @@
+#lite {
+
+  --edit-dark: url('../_assets/icons/edit-blue.png');
+  --edit-light: url('../_assets/icons/edit.png');
+  --arrow-up: url('../_assets/icons/up-arrow.png');
+  --arrow-down: url('../_assets/icons/down-arrow.png');
+  --search-icon: url('../_assets/icons/edit-blue.png');
+
+  --icon-close: url('../_assets/icons/close-lite.png');
+  --icon-back: url('../_assets/icons/back-lite.png');
+  --icon-forward: url('../_assets/icons/forward-lite.png');
+}
+
+#dark {
+
+  --edit-light: url('../_assets/icons/edit.png');
+  --edit-dark: url('../_assets/icons/edit-blue.png');
+  --arrow-up: url('../_assets/icons/up-arrow-dark.png');
+  --arrow-down: url('../_assets/icons/down-arrow-dark.png');
+  --search-icon: url('../_assets/icons/edit-blue.png');
+  
+  --icon-close: url('../_assets/icons/close-dark.png');
+  --icon-back: url('../_assets/icons/back-dark.png');
+  --icon-forward: url('../_assets/icons/forward-dark.png');
+
+  
+}

@@ -20,6 +20,7 @@ import menu from '../_assets/icons/grip.png';
 import { ClickAwayListener } from '@mui/base';
 import Sidebar from '../_components/Sidebar';
 import { ReactComponent as Left } from '../_assets/icons/left.svg';
+import '../_styles/_icons.css'
 
 const Index = () => {
 

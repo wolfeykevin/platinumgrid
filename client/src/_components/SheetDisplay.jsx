@@ -67,7 +67,7 @@ const SheetDisplay = () => {
     // refresh auth level as well
     smartApi(['GET', `authCheck/${sheetId}`], user.token)
     .then(result => {
-      // console.log(result);
+      console.log(result);
       setAuthLevel(result);
     })
     .catch(error => console.log('error', error));
@@ -85,7 +85,7 @@ const SheetDisplay = () => {
             filterArchived(
               searchEntries(sheet.currentSheet.entries))))))
     }
-  }, [sheet.searchString, sheet.sortByOrder, sheet.archiveFilter, sheet.checkboxFilter.length, masterRefresh])
+  }, [sheet.searchString, sheet.searchField, sheet.sortByOrder, sheet.sortById, sheet.archiveFilter, sheet.checkboxFilter.length, masterRefresh, sheet.currentSheet])
 
   // useEffect(() => {
   //   sheet.setDisplayEntries(paginateEntries(sheet.currentSheet.entries))
@@ -109,7 +109,7 @@ const SheetDisplay = () => {
             result.name = result.sheet.name;
             // order fields by id
             result.fields =  result.fields.sort((a, b) => (a.field_id > b.field_id) ? 1 : -1)
-            
+            // console.log(result.fields)
             // console.log('Sheet Refreshed')
             // console.log("Previous Sheet Id:", sheet.currentSheet.sheet_id)
             // console.log("New Sheet Id:", result.sheet_id)
@@ -212,9 +212,20 @@ const SheetDisplay = () => {
 
   const searchEntries = (entries) => {
     // let entries = sheet.currentSheet.entries
-    
-    // return entries where the entry value matches the search string -- no longer have to define which field you want to search for
-    if (sheet.search !== undefined || sheet.search !== '') {
+    // console.log((sheet.searchString !== undefined || sheet.searchString !== ''))
+    // console.log((sheet.searchField !== ''))
+    // commented out the below code to use filter which matches any field, feel free to change it back!
+    if (sheet.searchString !== '' && sheet.searchField !== '') {
+      // console.log('searching by one field')
+      let fieldIndex = sheet.currentSheet.fields.findIndex(field => field.name === sheet.searchField)
+      if (fieldIndex !== -1) {
+        let fieldId = sheet.currentSheet.fields[fieldIndex].field_id;
+        return entries.filter(entry => entry.values[entry.values.findIndex(value => value.field_id === fieldId)].value.match(new RegExp(sheet.searchString,'i','g')))
+      }
+    } 
+    // else 
+    if (sheet.searchString !== undefined || sheet.searchString !== '') {
+      // console.log('searching by all fields')
       return entries.filter(entry => {
         let entryValues = entry.values
         for (let i = 0; i < entryValues.length; i++) {
@@ -225,11 +236,8 @@ const SheetDisplay = () => {
       })
     }
     
+    // return entries where the entry value matches the search string -- no longer have to define which field you want to search for
     return entries;
-    // commented out the below code to use filter which matches any field, feel free to change it back!
-    // let fieldIndex = sheet.currentSheet.fields.findIndex(field => field.name === searchField)
-    // let fieldId = sheet.currentSheet.fields[fieldIndex].field_id;
-    // return entries.filter(entry => entry.values[entry.values.findIndex(value => value.field_id === fieldId)].value.match(new RegExp(searchString,'i','g')))
   }
 
   const filteredEntries = sheet.currentSheet.entries.filter(entry => entry.archived === false)
@@ -374,9 +382,11 @@ const SheetDisplay = () => {
   }
 
   const pageNavigationHandler = (page) => {
-    document.getElementById('scroll-container').scroll({
-      top: 0,
-    })
+    if (sheet.currentPage !== sheet.displayEntries.length - 1 && sheet.currentPage !== 0) {
+      document.getElementById('scroll-container').scroll({
+        top: 0,
+      })
+    }
     if (page < 0) {
       sheet.setCurrentPage(0)
     } else if (page >= sheet.displayEntries.length - 1) {
@@ -404,6 +414,7 @@ const SheetDisplay = () => {
     // sheet.setPaginatedEntries(paginatedEntries);
     return paginatedEntries
   }
+  
   // console.log(sheet.archiveFilter)
   // console.log(sheet.checkboxFilter)
 
@@ -427,16 +438,6 @@ const SheetDisplay = () => {
             <div className="search-element">
               <input className="search-element-input" value={sheet.searchString} placeholder='Search' 
                 onChange={(e) => {sheet.setSearchString(e.target.value)}}/>
-              {/* <select className="search-element-field-select" defaultValue='Choose Field'
-                onChange={(e) => {setSearchField(e.target.value)}}>
-                <option disabled hidden defaultValue>Choose Field</option>
-                {sheet.currentSheet.fields.filter(field => field.archived === false).map((field, i) => {
-                  if (field.type !== 'checkbox') {
-                    return <option key={i}>{field.name}</option>
-                  }
-                }
-                )}
-              </select> */}
             </div>
             <button className={`filter-button pointer ${applyStyle ? 'filter-selected' : ''}
               ${
@@ -445,6 +446,23 @@ const SheetDisplay = () => {
               }`} onClick={(e)=>{
               applyStyle ? closeMenu() : openMenu(e, sheet.sheet_id)
             }}>Filter</button>
+              {/* <select className="search-element-field-select" defaultValue='All Fields'
+                onChange={(e) => {
+                  if (e.target.value === 'All Fields') {
+                    sheet.setSearchField('')
+                  } else {
+                    sheet.setSearchField(e.target.value)
+                  }
+                  // setLocalRefresh(!localRefresh);
+                  }}>
+                <option defaultValue>All Fields</option>
+                {sheet.currentSheet.fields.filter(field => field.archived === false).map((field, i) => {
+                  if (field.type !== 'checkbox') {
+                    return <option key={i}>{field.name}</option>
+                  }
+                }
+                )}
+              </select> */}
           </div>
         </div>
         <div id='scroll-container' className='sheet-display-body no-select pointer' 
@@ -498,13 +516,16 @@ const SheetDisplay = () => {
           () => navigate(`/sheet/${sheet.currentSheet.sheet_id}/users`)}><img alt='edit-icon'/></button> */}
         {authLevel === 'Viewer' ? <></>:<button className="new-entry no-select" onClick={() => sheet.setNewEntry(true)}><span>New Entry</span><img alt='edit-icon'/></button>}
         {/* <button className="dummy-filter" onClick={filterEntries}>%</button> */}
-      </div>
-      {sheet.displayEntries.length === undefined || sheet.displayEntries.length <= 1 ? <></> :
-      <Fix offsetBottom="7rem" offsetRight="2rem" lower right className='page-navigation z-index-800 no-select'>
+        {sheet.displayEntries.length === undefined || sheet.displayEntries.length <= 1 ? <></> :
+      <div className={`page-navigation no-select ${(sheetPageView === 'edit-entry' || sheetPageView === 'new-entry') ? 'shrink' : ''}`}>
+        <button className='page-down' onClick={() => pageNavigationHandler(sheet.currentPage - 5)}>&lt;&lt;</button>
         <button className='page-down' onClick={() => pageNavigationHandler(sheet.currentPage - 1)}>&lt;</button>
         <span>Page {sheet.currentPage + 1} of {sheet.displayEntries.length}</span>
         <button className='page-up' onClick={() => pageNavigationHandler(sheet.currentPage + 1)}>&gt;</button>
-      </Fix>}
+        <button className='page-down' onClick={() => pageNavigationHandler(sheet.currentPage + 5)}>&gt;&gt;</button>
+      </div>
+      }
+      </div>
       <EntryDetails entryId={entryId}/>
       <OptionsMenu authLevel={authLevel}/>
       <ClickAwayListener
@@ -518,9 +539,6 @@ const SheetDisplay = () => {
             <span className="check-option">{sheet.archiveFilter.includes(true) ? sheet.archiveFilter.includes(false) ? "Show: All" : "Show: Archived" : "Show: Default"}</span> {sheet.archiveFilter.includes(true) ? 
             <span alt="checked" className="check"/> : <span alt="unchecked" className="no-check"/>}
           </div>
-          {/* <div id={`archive-false`} className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'} ${sheet.archiveFilter.includes(false) ? "filter-item-selected" : ""}`} onClick={(e)=>{toggleArchiveFilters(false)}}>
-            <span className="check-option">Not Archived</span> {sheet.archiveFilter.includes(false) ? <span alt="checked" className="check"/> : <span alt="unchecked" className="no-check"/>}
-          </div> */}
         </div>
           {sheet.currentSheet.fields.filter(field => field.type === "checkbox").map((field, i) => {
             return (
@@ -536,12 +554,9 @@ const SheetDisplay = () => {
               
             )
           })}
-          {/* <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{console.log('whats good boi')}}><span>Edit</span></div>
-          <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{console.log('duplicate')}}><span>Duplicate</span></div>
-          <div className={`sheet-options-menu-item ${applyStyle ? 'options-menu-show' : 'options-menu-hidden'}`} onClick={()=>{console.log('qr code')}}><span>QR Code</span></div> */}
         </div>
       </ClickAwayListener>
-      <Fix className={`entry-tooltip ${filteredEntries.length > 0 ? 'hide' : ''}`} offset="2.8rem" lower right>
+      <Fix className={`entry-tooltip ${filteredEntries.length > 0 ? 'hide' : ''}`} offset="2rem" lower right>
         <span>Create a new entry</span><Left className="flip-horizontal"/>
       </Fix>
     </>

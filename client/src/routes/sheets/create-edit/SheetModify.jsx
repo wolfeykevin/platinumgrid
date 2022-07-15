@@ -13,10 +13,15 @@ import useScrollHandler from '../../../_helpers/useScrollHandler';
 import smartApi from '../../../_helpers/smartApi';
 import '../../../_styles/sheet-modify.css'
 import toast from 'react-hot-toast';
-import { ReactComponent as Favorited } from '../../../_assets/icons/favorite.svg';
-import { ReactComponent as NotFavorited } from '../../../_assets/icons/unfavorite.svg';
-import { ReactComponent as Archived } from '../../../_assets/icons/unarchive.svg';
-import { ReactComponent as NotArchived } from '../../../_assets/icons/archive.svg';
+import { ReactComponent as Favorited } from '../../../_assets/icons/item-show.svg';
+import { ReactComponent as FavoritedLite } from '../../../_assets/icons/item-show-lite.svg';
+import { ReactComponent as NotFavorited } from '../../../_assets/icons/item-hide.svg';
+import { ReactComponent as NotFavoritedLite } from '../../../_assets/icons/item-hide-lite.svg';
+import { ReactComponent as Archived } from '../../../_assets/icons/menu-unarchive.svg';
+import { ReactComponent as ArchivedLite } from '../../../_assets/icons/menu-unarchive-lite.svg';
+import { ReactComponent as NotArchived } from '../../../_assets/icons/menu-archive.svg';
+import { ReactComponent as NotArchivedLite } from '../../../_assets/icons/menu-archive-lite.svg';
+import { ReactComponent as Addbtn } from '../../../_assets/icons/btn-add.svg';
 
 const SheetModify = () => {
   const navigate = useNavigate();
@@ -25,9 +30,10 @@ const SheetModify = () => {
   const { store } = useContext(GlobalContext);
   const { sheet } = useContext(SheetContext);
 
-  const { user, theme, checkAuth, isAuth, setIsAuth, setPageView } = store;
+  const { user, checkAuth, isAuth, setIsAuth, setPageView, globalState } = store;
+  const { screenType, theme } = globalState
   
-  const [ newSheet, setNewSheet ] = useState(true);
+  const [ newSheet, setNewSheet ] = useState(false);
   const [ isLoading, setIsLoading ] = useState(true);
   
   const [ importedData, setImportedData ] = useState('');
@@ -51,13 +57,15 @@ const SheetModify = () => {
   useEffect(() => {
     setPageView('createSheet')
   }, [])
+  
 
   const importFromCSV = () => {
     var input = document.createElement('input');
     input.type = 'file';
     input.accept=".csv";
+    // console.log(input)
     input.onchange = (e) => { 
-       var file = e.target.files[0]; 
+       var file = e.target.files[0];
     
        var reader = new FileReader();
        reader.readAsText(file,'UTF-8');
@@ -109,6 +117,16 @@ const SheetModify = () => {
     
     input.click();
   }
+
+
+
+  useEffect(() => {
+    if (newSheet) {
+      addField()
+    }
+  }, [newSheet])
+
+
 
   useEffect(() => {
     if (location.pathname.split('/')[1] === 'create') {
@@ -173,6 +191,7 @@ const SheetModify = () => {
     setSheetFieldsNew([...sheetFieldsNew, blankField])
   }
 
+
   const addMultipleFields = (data) => {
     let newFields = []
 
@@ -187,7 +206,7 @@ const SheetModify = () => {
       })
     })
 
-    setSheetFieldsNew([...sheetFieldsNew, ...newFields])
+    setSheetFieldsNew([...newFields])
   }
 
   const deleteField = (index) => {
@@ -237,7 +256,12 @@ const SheetModify = () => {
 
     let element = newFieldArray.splice(index, 1)[0];
     element.archived = true;
-    element.favorite = false;
+    // commented out due to unexpected behavior when unarchiving fields later on
+    // user expects to see the field on the next screen after un archiving and the field isn't shown due to this setting
+    // this also produces a glitch where you can have no fields displaying
+      // element.favorite = false;
+    // when i archive a field, i expect to see it on the next screen, so we will perform the opposite of the above
+    element.favorite = true; // feel free to change if disagree with this
     newFieldArchivedArray.push(element);
 
     setSheetFields(newFieldArray);
@@ -303,19 +327,19 @@ const SheetModify = () => {
     const errorMessages = [];
 
     if (sheetName === '') {
-      errorMessages.push('Please enter a sheet name.')
+      errorMessages.push('Sheet name is required')
     }
 
     if (shortName === '') {
-      errorMessages.push('Please enter a short name.')
+      errorMessages.push('Short name is required')
     }
 
     if (sheetFields.length <= 0 && sheetFieldsNew.length <= 0) {
-      errorMessages.push('Please create at least one field.')
+      errorMessages.push('A sheet must have at least one column')
     }
 
     if (sheetFieldsNew.filter(field => field.name === '').length > 0) {
-      errorMessages.push('One or more fields is missing a name.')
+      errorMessages.push('One or more columns do not have a name')
     }
 
     if (errorMessages.length > 0) {
@@ -332,7 +356,7 @@ const SheetModify = () => {
     if (newSheet === true) {
       smartApi(['POST', `add_sheet`, payload], user.token)
         .then(result => {
-          console.log(result); 
+          // console.log(result); 
           let newSheetId = result.split(' ')[result.split(' ').length-1]
           
           handleFields(newSheetId);
@@ -373,10 +397,29 @@ const SheetModify = () => {
     }
   }
 
+  const [localScreen, setLocalScreen] = useState('desktop');
+
+  window.onresize = () => {
+    if (localScreen === 'desktop' && window.innerWidth < 1101) {
+      setLocalScreen('mobile')
+    } else if (localScreen === 'mobile' && window.innerWidth >= 1101) {
+      setLocalScreen('desktop')
+    }
+  }
+
+  // manages global view state for onload
+  useEffect(() => {
+    if (localScreen === 'desktop' && window.innerWidth < 1101) {
+      setLocalScreen('mobile')
+    } else if (localScreen === 'mobile' && window.innerWidth >= 1101) {
+      setLocalScreen('desktop')
+    }
+  }, [])
+
   /* {sheetName !== '' ? sheetName : 'Enter a sheet name'} */
   return (
     <>
-      <div className={`sheet-modify-container`}>
+      <div className={`sheet-modify-container no-select`}>
         <div className='sheet-modify-header'>
           <div className="sheet-modify-meta">
             <div className="sheet-modify-icon">
@@ -389,92 +432,134 @@ const SheetModify = () => {
             </div>
           </div>
         </div>
-        <div className='sheet-modify-body'>
+        <div className='sheet-modify-body field-body-scroller'>
           <div className='column fields'>
             <div className='section field'>
-              <span className='column-title'>Fields</span>
-              <div className='field-list'>
-                {sheetFields.map((field, i) => {
-                  return (
-                    <div key={i} className='field-item'>
-                      <input key={`input-${i}`} value={field.name} placeholder={'Name'} onChange={(e) => {updateFieldName(i, e.target.value, sheetFields, setSheetFields)}} />
-                      <select key={`select-${i}`} defaultValue='text' onChange={(e) => {updateFieldType(i, e.target.value, sheetFields, setSheetFields)}}>
-                        <option value='text'>Text</option>
-                        <option value='number'>Number</option>
-                        <option value='checkbox'>Checkbox</option>
-                      </select>
-                      {field.favorite === true ? 
-                        <Favorited className="favorite-field" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFields, setSheetFields)}} />
-                        :
-                        <NotFavorited className="favorite-field" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFields, setSheetFields)}} />
-                      }
-                      {newSheet === true ? <img className='delete-field' onClick={() => deleteField(i)}/> : <></>}
-                      {newSheet === false && field.archived === true ?
-                        <Archived className="archive-field" alt='' onClick={()=>{unarchiveField(i)}} />
-                        :
-                        <></>
-                      }
-                      {newSheet === false && field.archived === false ?
-                        <NotArchived className="archive-field" alt='' onClick={()=>{archiveField(i)}} />
-                        :
-                        <></>
-                      }
-                    </div>)
-                })}
-                {sheetFieldsNew.map((field, i) => {
-                  return (
-                    <div key={i} className='field-item'>
-                      {field.favorite === true ? 
-                        <Favorited className="favorite-field" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFieldsNew, setSheetFieldsNew)}} />
-                        :
-                        <NotFavorited className="favorite-field" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFieldsNew, setSheetFieldsNew)}} />
-                      }
-                      <input key={`input-${i}`} value={field.name} placeholder={'Name'} onChange={(e) => {updateFieldName(i, e.target.value, sheetFieldsNew, setSheetFieldsNew)}} />
-                      <select key={`select-${i}`} defaultValue='text' onChange={(e) => {updateFieldType(i, e.target.value, sheetFieldsNew, setSheetFieldsNew)}}>
-                        <option value='text'>Text</option>
-                        <option value='number'>Number</option>
-                        <option value='checkbox'>Checkbox</option>
-                      </select>
-                      <img className='delete-field' onClick={() => deleteField(i)}/>
-                      <button onClick={() => moveUp(i)}>^</button>
-                      <button onClick={() => moveDown(i)}>V</button>
-                    </div>)
-                })}
+              <div className="sheet-modify-form-header">
+                <span className='column-title'>Sheet Columns</span>
+                {importedData !== '' ? <></> : <button className='add-field' onClick={addField}><Addbtn/></button>}
               </div>
-              <button className='add-field' onClick={addField}>+</button>
+              <div className={`${localScreen === 'mobile' ? '' : 'field-list-scroller'}`}>
+                <div className='field-list'>
+                  {sheetFields.map((field, i) => {
+                    return (
+                      <div key={i} className='field-item'>
+                        {field.favorite === true ? 
+                          <>
+                            <Favorited className="favorite-field" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFields, setSheetFields)}} />
+                            <FavoritedLite className="favorite-field lite" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFields, setSheetFields)}} />
+                          </>
+                          :
+                          <>
+                            <NotFavorited className="favorite-field" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFields, setSheetFields)}} />
+                            <NotFavoritedLite className="favorite-field lite" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFields, setSheetFields)}} />
+                          </>
+                        }
+                        <input key={`input-${i}`} value={field.name} placeholder={'Name'} onChange={(e) => {updateFieldName(i, e.target.value, sheetFields, setSheetFields)}} />
+                        <select key={`select-${i}`} value={field.type} onChange={(e) => {updateFieldType(i, e.target.value, sheetFields, setSheetFields)}}>
+                          <option value='text'>Text</option>
+                          <option value='number'>Number</option>
+                          <option value='checkbox'>Checkbox</option>
+                          <option value='date'>Date</option>
+                          <option value='time'>Time</option>
+                        </select>
+                        {newSheet === true ? <img className='delete-field' onClick={() => deleteField(i)}/> : <></>}
+                        {newSheet === false && field.archived === true ?
+                        <>
+                          <Archived className="archive-field" alt='' onClick={()=>{unarchiveField(i)}} />
+                          <ArchivedLite className="archive-field lite" alt='' onClick={()=>{unarchiveField(i)}} />
+                        </>
+                          :
+                          <></>
+                        }
+                        {newSheet === false && field.archived === false ?
+                          <>
+                            <NotArchived className="archive-field" alt='' onClick={()=>{archiveField(i)}} />
+                            <NotArchivedLite className="archive-field lite" alt='' onClick={()=>{archiveField(i)}} />
+                          </>
+                          :
+                          <></>
+                        }
+                      </div>)
+                  })}
+                  {sheetFieldsNew.map((field, i) => {
+                    return (
+                      <div key={i} className='field-item'>
+                        {field.favorite === true ? 
+                          <>
+                            <Favorited className="favorite-field" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFieldsNew, setSheetFieldsNew)}} />
+                            <FavoritedLite className="favorite-field lite" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFieldsNew, setSheetFieldsNew)}} />
+                          </>
+                          :
+                          <>
+                            <NotFavorited className="favorite-field" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFieldsNew, setSheetFieldsNew)}} />
+                            <NotFavoritedLite className="favorite-field lite" alt='' onClick={()=>{toggleFieldFavorite(i, sheetFieldsNew, setSheetFieldsNew)}} />
+                          </>
+                        }
+                        <input key={`input-${i}`} value={field.name} placeholder={'Name'} onChange={(e) => {updateFieldName(i, e.target.value, sheetFieldsNew, setSheetFieldsNew)}} />
+                        <select key={`select-${i}`} defaultValue='text' onChange={(e) => {updateFieldType(i, e.target.value, sheetFieldsNew, setSheetFieldsNew)}}>
+                          <option value='text'>Text</option>
+                          <option value='number'>Number</option>
+                          <option value='checkbox'>Checkbox</option>
+                          <option value='date'>Date</option>
+                          <option value='time'>Time</option>
+                        </select>
+                        {importedData === '' ? <img className='delete-field' onClick={() => deleteField(i)}/> : <></>}
+                        <button onClick={() => moveUp(i)}>^</button>
+                        <button onClick={() => moveDown(i)}>V</button>
+                      </div>)
+                  })}
+                </div>
+              </div>
             </div>
           </div>
-          <div className='column archived'>
+          {newSheet !== false ? <></> : <div className='column archived'>
             <div className='section archived'>
-              <span className='column-title'>Archived</span>
-              <div className='field-list'>
-                {sheetFieldsArchived.map((field, i) => {
-                  return (
-                    <div key={`archived-${i}`} className='field-item'>
-                      <input key={`input-disabled-${i}`} value={field.name} placeholder={'Name'} disabled/>
-                      {newSheet === false && field.archived === true ?
-                        <Archived className="archive-field" alt='' onClick={()=>{unarchiveField(i)}} />
-                        :
-                        <></>
-                      }
-                      {newSheet === false && field.archived === false ?
-                        <NotArchived className="archive-field" alt='' onClick={()=>{archiveField(i)}} />
-                        :
-                        <></>
-                      }
-                    </div>)
-                })}
+              <div className='column-title'>Archived</div>
+              <div className={`${localScreen === 'mobile' ? '' : 'field-list-scroller'}`}>
+                <div className='field-list'>
+                  {sheetFieldsArchived.map((field, i) => {
+                    return (
+                      <div key={`archived-${i}`} className='field-item'>
+                        <input key={`input-disabled-${i}`} value={field.name} placeholder={'Name'} disabled/>
+                        {newSheet === false && field.archived === true ?
+                        <>
+                          <Archived className="archive-field" alt='' onClick={()=>{unarchiveField(i)}} />
+                          <ArchivedLite className="archive-field lite" alt='' onClick={()=>{unarchiveField(i)}} />
+                        </>
+                          :
+                          <></>
+                        }
+                        {newSheet === false && field.archived === false ?
+                          <>
+                            <NotArchived className="archive-field" alt='' onClick={()=>{archiveField(i)}} />
+                            <NotArchivedLite className="archive-field lite" alt='' onClick={()=>{archiveField(i)}} />
+                          </>
+                          :
+                          <></>
+                        }
+                      </div>)
+                  })}
+                </div>
               </div>
             </div>
-          </div>
+          </div>}
         </div>
       </div>
-      {newSheet === true ? <button className='import-data' onClick={importFromCSV}><span>Import CSV</span><img alt='edit-icon'/></button>
-      : <></>}
-      <button className={`create-sheet ${newSheet ? 'create-icon' : 'save-icon'}`} onClick={submitData}><span>{newSheet ? 'Create Sheet' : 'Save Sheet'}</span>
+      {newSheet === true ?
+      <>
+        {/* <Fix className={`intro-tooltip ${sheetAccess.length > 0 ? 'hide' : ''}`} offset="5rem" offsetLeft="10rem" upper left>
+          <Left/><span>Get started by creating a new sheet</span>
+        </Fix> */}
+      </>
+      : <></>
+      }
+      {newSheet === true ? 
+      importedData === '' ? <button className='import-data no-select' onClick={importFromCSV}><span>Import CSV</span><img alt='edit-icon'/></button>
+      : <button className='import-data disabled no-select' disabled><span>CSV Loaded</span><img alt='edit-icon'/></button> : <></>}
+      <button className={`create-sheet ${newSheet ? 'create-icon' : 'save-icon'}`} onClick={submitData}><span className="no-select">{newSheet ? 'Create Sheet' : 'Save Sheet'}</span>
         <img alt='edit-icon'/>
       </button>
-      
       {/* <div className='debug-container'>
           <span className='debug-title'>New Sheet: {newSheet.toString()}</span>
           <div className='debug-fields'>

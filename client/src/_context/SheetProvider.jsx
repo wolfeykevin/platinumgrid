@@ -8,6 +8,7 @@ import useEntryMenu from './states/useEntryMenu'
 import useSortById from './states/useSortById'
 import useSortByOrder from './states/useSortByOrder'
 import useSearchString from './states/useSearchString'
+import useSearchField from './states/useSearchField'
 import useArchiveFilter from './states/useArchiveFilter'
 import useCheckboxFilter from './states/useCheckboxFilter'
 import usePaginatedEntries from './states/usePaginatedEntries'
@@ -27,6 +28,7 @@ const SheetProvider = ({ children }) => {
   const { sortById, setSortById } = useSortById();
   const { sortByOrder, setSortByOrder } = useSortByOrder();
   const { searchString, setSearchString } = useSearchString();
+  const { searchField, setSearchField } = useSearchField();
   const { archiveFilter, setArchiveFilter } = useArchiveFilter();
   const { checkboxFilter, setCheckboxFilter } = useCheckboxFilter();
   const { paginatedEntries, setPaginatedEntries } = usePaginatedEntries();
@@ -49,6 +51,7 @@ const SheetProvider = ({ children }) => {
     sortById,
     sortByOrder,
     searchString,
+    searchField,
     archiveFilter,
     checkboxFilter,
     paginatedEntries,
@@ -66,6 +69,7 @@ const SheetProvider = ({ children }) => {
     setSortById,
     setSortByOrder,
     setSearchString,
+    setSearchField,
     setArchiveFilter,
     setCheckboxFilter,
     setPaginatedEntries,

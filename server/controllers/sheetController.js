@@ -3,7 +3,7 @@ import { requestCurrentUser, checkAuthLevel } from "./helpers.js"
 
 const requestSheetData = async (req, res) => {
   const reqId = req.params.sheet_id
-  let currentUser = await requestCurrentUser(req.user.user_id)
+  let currentUser = await requestCurrentUser(req.user.user_id, res)
 
   if(!reqId || isNaN(reqId)) {
     res.status(400).send('User Request Error: Not a number and/or No request')
@@ -98,7 +98,7 @@ const requestSheetData = async (req, res) => {
 // }
 
 const requestUserSheets = async (req, res) => {
-  let currentUser = await requestCurrentUser(req.user.user_id)
+  let currentUser = await requestCurrentUser(req.user.user_id, res)
   if (currentUser.length !== 0) {
     let { id } = currentUser[0]
 
@@ -116,7 +116,7 @@ const requestUserSheets = async (req, res) => {
 
 const add = async (req, res) => {
   let newSheet = req.body;
-  let currentUser = await requestCurrentUser(req.user.user_id)
+  let currentUser = await requestCurrentUser(req.user.user_id, res)
   if (currentUser.length !== 0) {
     let { id } = currentUser[0]
 
@@ -131,53 +131,6 @@ const add = async (req, res) => {
   } else {
     res.status(404).send(`No user`)
   }
-
-};
-
-// TODO make work
-const addUserRole = async (req, res) => {
-  const targetId = req.params.sheet_id;
-  const { users } = req.body;
-
-  if (!await checkAuthLevel('userManage', targetId, req)) {
-    res.status(401).send("Unauthorized");
-    return;
-  }
-
-  let flag = false;
-  let results = [];
-  // console.log("Target ID:", targetId);
-  // console.log("Request Body:", req.body);
-  await users.forEach(user => {
-    knex('users')
-      .select('id')
-      .where({ id: user.user_id })
-      .then(data => {
-        if (data.length > 0) {
-          knex('user_roles')
-            .select('*')
-            .where({ user_id: user.user_id, sheet_id: targetId })
-            .then(data => {
-              if (data.length === 0) {
-                return knex('user_roles')
-                  .insert({ user_id: user.user_id, role_name: user.role_name, sheet_id: targetId })
-                  .then(() => {
-                    flag = true;
-                    results.push(flag);
-                  })
-              } else {
-                flag = false;
-                results.push(flag);
-              }
-              return flag
-            })
-            // .then(data => console.log(data))
-        }
-      })
-  })
-
-
-  res.status(201).json(`user role has been added`)
 
 };
 
@@ -227,4 +180,4 @@ const edit = async (req, res) => {
 
 };
 
-export {  requestSheetData, requestUserSheets, add, edit, addUserRole };
+export {  requestSheetData, requestUserSheets, add, edit };
