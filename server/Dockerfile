@@ -8,4 +8,4 @@ RUN npm install -g nodemon@2.0.15 &&\
 
 EXPOSE 8080
 
-CMD ["npm", "start", "build", "seed"]
+CMD ["npm", "start", "build"]
